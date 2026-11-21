@@ -155,3 +155,15 @@ vite.config.ts.timestamp-*
 .nx/cache
 .nx/workspace-data
 .nx/migrate-runs
+
+# Smart Retail
+.env
+.env.*
+!.env.example
+supabase/.temp/
+supabase/.branches/
+supabase/functions/.env
+web/config.js
+export/
+node_modules/
+.DS_Store
