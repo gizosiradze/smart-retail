@@ -5,16 +5,21 @@
 //   npm run dev:setup     first time (and after new migrations): deploy the schema and the login function
 //                         to the test project, add the demo shop and a Super Admin
 //   npm run dev           serve the app on http://localhost:5173
+//   npm run dev:lan       same, also reachable from phones/tablets/PCs on the same Wi-Fi
 //
-// Options: --env <file> (default .env.test), --port <n> (default 5173)
+// Options: --env <file> (default .env.test), --port <n> (default 5173), --lan (listen on all network interfaces)
 import fs from 'node:fs';
 import http from 'node:http';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { arg, flag, loadEnv, need, die, step, writeConfig, ROOT, projectRef } from './lib.mjs';
 
 const envFile = arg('env', '.env.test');
 const port = +(arg('port', process.env.PORT || 5173));
+const lan = flag('lan');
+const lanIps = () => Object.values(os.networkInterfaces()).flat()
+  .filter(i => i && i.family === 'IPv4' && !i.internal).map(i => i.address);
 
 // never point the development setup at the production project
 const prodRef = (() => { const s = process.env; const saved = { ...s }; loadEnv('.env'); const r = s.SUPABASE_PROJECT_REF;
@@ -62,12 +67,12 @@ http.createServer((req, res) => {
   if (!fs.existsSync(file)) { res.writeHead(404, { 'Content-Type': 'text/plain' }); return res.end('not found') }
   res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
   fs.createReadStream(file).pipe(res);
-}).listen(port, '127.0.0.1', () => console.log(`
+}).listen(port, lan ? '0.0.0.0' : '127.0.0.1', () => console.log(`
   Smart Retail (test project ${ref})
   ─────────────────────────────────────────
   App          http://localhost:${port}
   Super Admin  http://localhost:${port}/superadmin/
-  Database     https://supabase.com/dashboard/project/${ref}
+${lan ? lanIps().map(ip => `  Network      http://${ip}:${port}   (other devices on this Wi-Fi)\n`).join('') || '  Network      no Wi-Fi/LAN address found\n' : ''}  Database     https://supabase.com/dashboard/project/${ref}
 
   Shop: demo · admin / kasa1 / kasa2 / sawyobi · password 1234
   Ctrl+C to stop.

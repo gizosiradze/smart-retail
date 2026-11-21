@@ -15,6 +15,9 @@
 
   const COLLS = ['stores', 'plans', 'payments', 'audit', 'ann'];
   const keyOf = x => String(x.id);
+  // crypto.randomUUID exists only on https:// and localhost; over http://<LAN IP> fall back to getRandomValues
+  const uuid = () => crypto.randomUUID ? crypto.randomUUID()
+    : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
 
   async function rpc(fn, args) {
     const { data, error } = await sb.rpc(fn, args || {});
@@ -115,7 +118,7 @@
   function diff() {
     const p = { rm: {} }; let n = 0;
     for (const c of COLLS) {
-      (D[c] || []).forEach(x => { if (x && x.id == null) x.id = crypto.randomUUID() });   // log() entries have no id
+      (D[c] || []).forEach(x => { if (x && x.id == null) x.id = uuid() });   // log() entries have no id
       const cur = new Map((D[c] || []).map(x => [keyOf(x), x])), s = snap[c] || new Map();
       const up = [...cur.values()].filter(x => s.get(keyOf(x)) !== JSON.stringify(x));
       if (up.length) { p[c] = up; n += up.length }
