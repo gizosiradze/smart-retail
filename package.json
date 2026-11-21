@@ -3,13 +3,14 @@
   "private": true,
   "description": "Smart Retail: retail management (POS + dashboard) on Supabase",
   "scripts": {
-    "dev": "scripts/dev.sh",
-    "dev:reset": "scripts/dev.sh --reset",
-    "dev:stop": "scripts/dev.sh --stop",
-    "deploy": "scripts/deploy.sh",
-    "test": "scripts/test-db.sh && scripts/e2e/run.sh",
+    "dev": "node scripts/dev.mjs",
+    "dev:setup": "node scripts/dev.mjs --setup",
+    "deploy": "node scripts/deploy.mjs",
+    "deploy:test": "node scripts/deploy.mjs --env .env.test",
     "import": "node scripts/import-legacy.mjs",
     "superadmin": "node scripts/create-superadmin.mjs",
+    "config": "node scripts/write-config.mjs",
+    "test": "scripts/test-db.sh && scripts/e2e/run.sh",
     "build:web": "python3 scripts/build-web-from-prototype.py"
   },
   "engines": { "node": ">=18" }

@@ -42,6 +42,7 @@ const CALLS = {
      coalesce((${lit(a)}->>'p_force_password_change')::boolean, true))`,
   sr_platform_register_store: a => `public.sr_platform_register_store(${lit(a)}->'d')`,
   sr_platform_push: a => `public.sr_platform_push(${lit(a)}->'p')`,
+  sr_platform_add_admin: a => `(select 'null'::jsonb from (select public.sr_platform_add_admin((${lit(a)}->>'p_user')::uuid, ${lit(a)}->>'p_email')) z)`,
   sr_change_password: a => `(select 'null'::jsonb from (select public.sr_change_password(${lit(a)}->>'p_old', ${lit(a)}->>'p_new')) z)`,
 };
 
@@ -60,6 +61,10 @@ http.createServer((req, res) => {
       const j = JSON.parse(r.out.trim().split('\n').pop());
       if (!j.ok) return send(401, { error: j.error });
       return send(200, { token: sign({ role: 'authenticated', aud: 'authenticated', sub: j.user_id, app_uid: j.user_id, store_id: j.store_id, app_role: j.role, jti: j.jti, exp: j.exp }), exp: j.exp });
+    }
+    if (req.url === '/auth/v1/admin/users' && req.headers.apikey === 'service-test-key') {
+      const r = sql(`insert into auth.users (email) values (${lit(args)}->>'email') returning json_build_object('id', id, 'email', email);`);
+      return r.err ? send(422, { msg: r.err }) : send(200, JSON.parse(r.out.trim().split('\n').pop()));
     }
     const m = req.url.match(/^\/rest\/v1\/rpc\/(\w+)$/);
     if (!m || !CALLS[m[1]]) return send(404, { message: 'not found' });

@@ -10,79 +10,90 @@ web/                     the app (static files, deploy anywhere, e.g. Cloudflare
   superadmin/index.html  platform owner panel
   js/sr.js               data layer of the main app (Supabase instead of localStorage)
   js/sr-platform.js      data layer + sign-in (with authenticator app) of the Super Admin
-  config.js              generated: Supabase URL + public key (scripts/write-config.sh)
+  config.js              generated: Supabase URL + public key (npm run config / scripts/write-config.mjs)
 supabase/
   migrations/            database schema, security rules, API functions (applied in order)
   functions/store-login  Edge Function: shop + username + password → login token
   seed.sql               local demo shop only (never deployed)
   tests/                 SQL tests
-scripts/                 dev, deploy, import, tests (see below)
+scripts/                 dev, deploy, import, Super Admin, tests (Node, no dependencies)
 prototype/               the claude.ai prototypes the web pages are built from
 ```
 
-## Run it on your computer (localhost)
+## Run it on your computer (localhost) — Node only, no Docker
 
-Needs **Docker Desktop** (running), **Node.js 18+** and **Python 3**.
+You need **Node.js 18+**, nothing else (no `npm install`: the scripts have no dependencies; the
+Supabase CLI is fetched by `npx` when needed). The app runs on your computer and uses a separate,
+free **test project** on Supabase, so production data is never touched.
 
-```bash
-scripts/dev.sh          # or: npm run dev
-```
+1. Create a free Supabase project for testing (e.g. `smart-retail-test`, region Europe).
+2. Copy `.env.example` to **`.env.test`** and fill it in with the **test** project's values
+   (Project Settings → API / Database / JWT Keys) and `ALLOWED_ORIGINS=http://localhost:5173`.
+3. Once (and again after pulling new migrations):
 
-The first run downloads the Supabase containers (a few minutes). Then open:
+   ```bash
+   npm run dev:setup
+   ```
+
+   It deploys the schema and the login function to the test project, adds the demo shop and creates a
+   Super Admin. It refuses to run if `.env.test` points at the same project as `.env`.
+4. Every day:
+
+   ```bash
+   npm run dev
+   ```
 
 | | |
 |---|---|
 | App | http://localhost:5173 |
 | Super Admin | http://localhost:5173/superadmin/ |
-| Database UI (Studio) | http://127.0.0.1:54323 |
+| Database | your test project in the Supabase dashboard |
 
 Demo logins: shop **demo**, users **admin**, **kasa1**, **kasa2**, **sawyobi**, password **1234**.
-Super Admin: **admin@smartretail.local** / **superadmin-local-1**, then scan the QR code with an
-authenticator app (Google Authenticator, Microsoft Authenticator, 1Password, …).
-
-`scripts/dev.sh --reset` rebuilds the database from the migrations and the demo shop;
-`scripts/dev.sh --stop` stops the containers.
+Super Admin: **admin@smartretail.local** / **superadmin-test-1** (or `SUPERADMIN_EMAIL` /
+`SUPERADMIN_PASSWORD` from `.env.test`), then scan the QR code with an authenticator app.
 
 ## Deploy (one command)
 
-1. `cp .env.example .env` and fill it in (Supabase project ref, URL, keys, database password,
-   access token, and `APP_JWT_SECRET` = the project's **Legacy JWT secret** from
-   *Project Settings → JWT Keys*).
+1. Copy `.env.example` to **`.env`** and fill it in with the **production** project's values
+   (`APP_JWT_SECRET` = the project's **Legacy JWT secret** from *Project Settings → JWT Keys*).
 2. Run:
 
 ```bash
-scripts/deploy.sh       # or: npm run deploy
+npm run deploy
 ```
 
 It links the project, shows the pending migrations and asks before applying them, sets the Edge
 Function secrets, deploys `store-login`, **checks that the project accepts the login tokens**, and
-writes `web/config.js`. Options: `--dry-run`, `--yes` (no question, for CI), `--web` (also publishes
-`web/` to Cloudflare Pages with `CLOUDFLARE_*` from `.env`). Seed data is never deployed.
+writes `web/config.js`. Options after `--`: `--dry-run`, `--yes` (no question, for CI), `--web` (also
+publishes `web/` to Cloudflare Pages with `CLOUDFLARE_*` from `.env`), `--env <file>`.
+Seed data is never deployed. No Docker is needed.
 
 First deploy only:
 
 ```bash
-node scripts/create-superadmin.mjs --email you@example.com --password '<12+ characters>'
-node scripts/import-legacy.mjs --store export/app.json --slug batumipets --name "ბათუმი ფეთს"
-node scripts/import-legacy.mjs --superadmin export/superadmin.json
+npm run superadmin -- --email you@example.com --password '<12+ characters>'
+npm run import -- --store export/app.json --slug batumipets --name "ბათუმი ფეთს"
+npm run import -- --superadmin export/superadmin.json
 ```
 
 How to export the prototype data is described at the top of `scripts/import-legacy.mjs`
 (`seed/demo-store.json` is the prototype's own demo data if you have no export).
 
-**Cloudflare Pages** (instead of `--web`): connect this repo, build command `scripts/write-config.sh`,
-output directory `web`, environment variables `SUPABASE_URL` and `SUPABASE_ANON_KEY`. Every branch
-gets a preview link; set `ALLOWED_ORIGINS` in `.env` to the live and preview addresses.
+**Cloudflare Pages** (instead of `--web`): connect this repo, build command
+`node scripts/write-config.mjs`, output directory `web`, environment variables `SUPABASE_URL` and
+`SUPABASE_ANON_KEY`. Every branch gets a preview link; add the live and preview addresses to
+`ALLOWED_ORIGINS` and run `npm run deploy` again.
 
 ## Tests
 
 ```bash
-DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres scripts/test-db.sh   # migrations + SQL tests
-E2E_ADMIN_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres scripts/e2e/run.sh  # app end-to-end
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres scripts/test-db.sh   # migrations + SQL tests
+E2E_ADMIN_URL=postgresql://postgres:postgres@localhost:5432/postgres scripts/e2e/run.sh  # app end-to-end
 ```
 
-Both work against the local Supabase database or any empty PostgreSQL 15+ (a stub provides the
-Supabase roles). `scripts/e2e/run.sh` runs the real app code against the database through a small
+Both need only `psql` and an empty PostgreSQL 15+ you can create databases in (a stub provides the
+Supabase roles); GitHub Actions runs them on every pull request, so you don't have to run them locally. `scripts/e2e/run.sh` runs the real app code against the database through a small
 stand-in for the API gateway, then (if Chrome is installed) drives the real UI in headless Chrome:
 login errors, a cashier sale, every dashboard screen. GitHub Actions runs both on every pull request.
 

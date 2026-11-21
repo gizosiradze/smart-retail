@@ -4,8 +4,10 @@
 //
 //   node scripts/create-superadmin.mjs --url https://xxxx.supabase.co --service-key <service role key> \
 //        --email you@example.com --password '<at least 12 characters>'
-// Values can also come from SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPERADMIN_EMAIL, SUPERADMIN_PASSWORD.
+// --env <file> (default .env) supplies SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPERADMIN_EMAIL, SUPERADMIN_PASSWORD.
+import { loadEnv } from './lib.mjs';
 const arg = n => { const i = process.argv.indexOf('--' + n); return i > 0 ? process.argv[i + 1] : undefined };
+loadEnv(arg('env') || '.env');
 const url = (arg('url') || process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const key = arg('service-key') || process.env.SUPABASE_SERVICE_ROLE_KEY;
 const email = arg('email') || process.env.SUPERADMIN_EMAIL;

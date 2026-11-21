@@ -1,5 +1,5 @@
-# Supabase CLI configuration for local development (scripts/dev.sh).
-# Remote projects are configured through scripts/deploy.sh; only [functions.*] matters for them.
+# Supabase CLI configuration. Deploys use it through scripts/deploy.mjs (only [functions.*] matters for
+# remote projects); the other sections apply only if someone runs the optional Docker-based "supabase start".
 project_id = "smart-retail"
 
 [api]

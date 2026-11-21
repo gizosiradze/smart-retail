@@ -10,7 +10,7 @@
 // 2. Import:
 //      node scripts/import-legacy.mjs --store export/app.json --slug batumipets --name "ბათუმი ფეთს"
 //      node scripts/import-legacy.mjs --superadmin export/superadmin.json
-//    Connection: --url/--service-key or SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY (from .env).
+//    Connection: --env <file> (default .env) or --url/--service-key.
 //
 // Store import: staff passwords are bcrypt-hashed and everyone must choose a new one at first login
 // (add --keep-passwords to skip that, e.g. for a demo). Base64 product photos are uploaded to Storage.
@@ -18,10 +18,11 @@
 // registered as a real store (admin + cashier accounts with new temporary passwords, printed once);
 // payments and the audit log follow their store.
 import fs from 'node:fs';
+import { loadEnv as loadEnvFile } from './lib.mjs';
 
 const arg = n => { const i = process.argv.indexOf('--' + n); return i > 0 ? process.argv[i + 1] : undefined };
 const flag = n => process.argv.includes('--' + n);
-loadEnv();
+loadEnvFile(arg('env') || '.env');
 const url = (arg('url') || process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const key = arg('service-key') || process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !key || (!arg('store') && !arg('superadmin'))) {
@@ -35,13 +36,6 @@ async function rpc(fn, body) {
   const t = await r.text();
   if (!r.ok) throw new Error(`${fn}: ${r.status} ${t}`);
   return t ? JSON.parse(t) : null;
-}
-function loadEnv() {
-  if (!fs.existsSync('.env')) return;
-  for (const l of fs.readFileSync('.env', 'utf8').split('\n')) {
-    const m = l.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*(.*)\s*$/);
-    if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
-  }
 }
 const read = f => { const t = fs.readFileSync(f, 'utf8').trim(); return JSON.parse(t.startsWith('"') ? JSON.parse(t) : t) };
 
