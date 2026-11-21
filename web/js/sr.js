@@ -7,6 +7,9 @@
  *   - save:  every save() sends what changed since the last confirmed state, in one transaction (sr_push)
  *   - ids:   integer ids (receipt numbers etc.) come from blocks reserved on the server (sr_alloc_ids)
  *   - photos: base64 images are uploaded to Storage and replaced by their public URL
+ * Super Admin view: the Super Admin page opens this page at "#sa" in a new tab and hands it a read-only
+ *   store-admin token by postMessage (never in the URL). Everything loads as for the store admin;
+ *   nothing is saved (the server refuses writes from that session too).
  * Online only (phase 1): without internet nothing is lost while the page stays open, but nothing is sent
  * either; the existing red "not saved · retry" banners show it.
  */
@@ -31,7 +34,7 @@
   const roleL = r => r === 'admin' ? 'a' : r === 'cashier' ? 'c' : 'w';
   let token = null, exp = 0, me = null, role = 'c';
   let snap = {}, snapSt = {}, snapKv = {}, loaded = new Set(), cursors = {}, fetchedAt = {};
-  let pushing = false, again = false, pending = false, lastErr = '', idRefill = null, pendingExpiry = false;
+  let pushing = false, again = false, pending = false, lastErr = '', idRefill = null, pendingExpiry = false, ro = false, roWarned = 0;
 
   // ---------------------------------------------------------------- HTTP
   async function call(fn, args) {
@@ -55,7 +58,10 @@
     account_disabled: 'ანგარიში გამორთულია. მიმართე ადმინისტრატორს', store_suspended: 'მაღაზია შეჩერებულია. მიმართე მხარდაჭერას',
     STORE_RESTRICTED: 'მაღაზია შეზღუდულია: გაყიდვა დროებით დაბლოკილია', RECEIPTS_ARE_IMMUTABLE: 'ჩეკის შეცვლა შეუძლებელია',
     LAST_ADMIN: 'ბოლო ადმინისტრატორის შეცვლა შეუძლებელია', CANNOT_DEMOTE_SELF: 'საკუთარი როლის შეცვლა შეუძლებელია',
-    PASSWORD_TOO_SHORT: 'პაროლი ძალიან მოკლეა', WRONG_PASSWORD: 'მიმდინარე პაროლი არასწორია'
+    PASSWORD_TOO_SHORT: 'პაროლი ძალიან მოკლეა', WRONG_PASSWORD: 'მიმდინარე პაროლი არასწორია',
+    READ_ONLY: 'სუპერ ადმინის ნახვის რეჟიმი: ცვლილება არ ინახება', STORE_SUSPENDED: 'მაღაზია შეჩერებულია',
+    NO_STORE_ADMIN: 'მაღაზიას აქტიური ადმინისტრატორი არ ჰყავს', PLATFORM_ADMIN_REQUIRED: 'საჭიროა სუპერ ადმინის შესვლა',
+    MFA_REQUIRED: 'საჭიროა 2FA დადასტურება'
   };
   const msg = e => {
     const m = String((e && e.message) || e || '');
@@ -84,6 +90,7 @@
   async function start() {
     me = await call('sr_me');
     role = roleL(me.user.role);
+    ro = !!me.read_only;
     if (Array.isArray(me.branches) && me.branches.length) { BR.length = 0; BR.push(...me.branches); }
     D = {}; snap = {}; snapSt = {}; snapKv = {}; loaded = new Set(); cursors = {}; fetchedAt = {};
     await pull(CORE.filter(c => c === 'st' || c === 'kv' || READ[c].includes(role)));
@@ -98,12 +105,51 @@
     LPG = false;
     if (me.store.status === 'restricted') toast('მაღაზია შეზღუდულია: გაყიდვა დაბლოკილია, ნახვა და ექსპორტი მუშაობს', 1);
     render();
+    roBar();
+  }
+
+  // ---------------------------------------------------------------- Super Admin view (read-only)
+  function roBar() {
+    let b = document.getElementById('srro');
+    if (!ro) { if (b) b.remove(); return }
+    if (b) return;
+    b = el(`<div id="srro" role="status" style="position:fixed;left:16px;bottom:16px;z-index:9999;display:flex;gap:10px;align-items:center;max-width:calc(100vw - 32px);padding:9px 12px 9px 14px;border-radius:12px;background:#eef3ff;border:1px solid #3b5bdb;color:#2b44a8;font:600 13px Inter,'Noto Sans Georgian',sans-serif;box-shadow:0 10px 28px #2a232633"><span>👁 სუპერ ადმინის ნახვა · ${esc(me.store.name)} · ცვლილებები არ ინახება</span><button style="padding:5px 10px;border:1px solid #3b5bdb;border-radius:8px;background:#fff;color:#2b44a8;font-weight:700;cursor:pointer">დახურვა</button></div>`);
+    if (!b) return;
+    b.querySelector('button').onclick = () => logout();
+    document.body.appendChild(b);
+  }
+  // the opener (Super Admin tab) answers "sa-ready" with the token
+  function receiveViewToken() {
+    return new Promise(res => {
+      const done = v => { window.removeEventListener('message', h); clearTimeout(t); res(v) };
+      const h = e => {
+        if (e.source !== window.opener || e.origin !== location.origin || !e.data) return;
+        if (e.data.sr === 'sa-token' || e.data.sr === 'sa-error') done(e.data);
+      };
+      const t = setTimeout(() => done(null), 30000);
+      window.addEventListener('message', h);
+      try { window.opener.postMessage({ sr: 'sa-ready' }, location.origin) } catch (_) { done(null) }
+    });
   }
 
   async function boot() {
     let s = null;
     try { s = JSON.parse(sessionStorage.getItem(TOKEN_KEY) || 'null') } catch (_) {}
     D = { p: [], dp: [], c: [], s: [], st: {}, us: [], sh: [], cm: [], pu: [], sup: [], cats: [] };
+    if (location.hash === '#sa' && on) {
+      history.replaceState(null, '', location.pathname + location.search);
+      // window.open copies the opener's sessionStorage: drop the Super Admin's own sign-in from this tab
+      try { Object.keys(sessionStorage).filter(k => k.startsWith('sb-')).forEach(k => sessionStorage.removeItem(k)) } catch (_) {}
+      if (window.opener) {
+        document.getElementById('app').innerHTML = loadingHtml();
+        const got = await receiveViewToken();
+        if (got && got.t) {
+          storeToken(got.t, got.e);
+          try { await start(); return } catch (e) { clearToken(); render(); toast(msg(e), 1); return }
+        }
+        render(); toast(got && got.m ? 'ვერ გაიხსნა: ' + got.m : 'მაღაზია ვერ გაიხსნა. სცადე ხელახლა სუპერ ადმინიდან', 1); return;
+      }
+    }
     if (s && s.t && s.e * 1000 > Date.now() + 60000) {
       token = s.t; exp = s.e;
       try { await start(); return } catch (e) { clearToken() }
@@ -112,6 +158,7 @@
   }
 
   async function logout() {
+    if (ro) { try { await call('sr_logout') } catch (_) {} clearToken(); window.close(); location.reload(); return }
     if (dirty() && !await confirmBox('შეუნახავი ცვლილებები დაიკარგება. მაინც გასვლა?')) return;
     try { await call('sr_logout') } catch (_) {}
     clearToken(); U = null; cart = []; D = { p: [], dp: [], c: [], s: [], st: {}, us: [], sh: [], cm: [], pu: [], sup: [], cats: [] };
@@ -230,7 +277,7 @@
     return { up, upJ, rm, st, kv, local };
   }
   const empty = d => !Object.keys(d.up).length && !Object.keys(d.rm).length && !Object.keys(d.st).length && !Object.keys(d.kv).length;
-  function dirty() { return on && U && !empty(diff()) }
+  function dirty() { return on && U && !ro && !empty(diff()) }
 
   // after a confirmed push (or a load), the current state becomes the baseline
   function rebase() { rebaseColls(COLLS); snapSt = Object.fromEntries(Object.entries(D.st || {}).map(([k, v]) => [k, +v || 0]));
@@ -255,6 +302,7 @@
   }
 
   function save() {
+    if (ro) { if (Date.now() - roWarned > 8000) { roWarned = Date.now(); toast('სუპერ ადმინის ნახვის რეჟიმი: ცვლილება არ შეინახება', 1) } return }
     SVOK = navigator.onLine === false ? 0 : 1;
     pending = true;
     if (pushing) { again = true; return }
@@ -317,6 +365,7 @@
   }
   function onError(e) {
     console.error('[sr]', e);
+    if (e && e.session && ro) { clearToken(); toast('ნახვის სესია დასრულდა. გახსენი ხელახლა სუპერ ადმინიდან', 1); return; }
     if (e && e.session) { expired(); setSaved(false, 'სესია დასრულდა'); return; }
     setSaved(false, msg(e));
   }
@@ -389,5 +438,5 @@
   window.addEventListener('beforeunload', e => { if (dirty()) { e.preventDefault(); e.returnValue = '' } });
   window.addEventListener('online', () => { if (dirty()) save() });
 
-  window.SR = { on, login, boot, logout, save, ready, ensure, touch, loadingHtml, msg, changePassword, dirty, pendingChanges: () => diff(), get me() { return me } };
+  window.SR = { on, login, boot, logout, save, ready, ensure, touch, loadingHtml, msg, changePassword, dirty, pendingChanges: () => diff(), get me() { return me }, get readOnly() { return ro } };
 })();

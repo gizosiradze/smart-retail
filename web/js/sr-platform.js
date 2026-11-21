@@ -186,6 +186,39 @@
       '<div class="ft"><button onclick="copyT(\'' + esc(r.pw) + '\')">კოპირება</button><button class="pri" onclick="closeM();render()">დახურვა</button></div>');
   }
 
+  // Opens the store's own app in a new tab as its admin, read-only. The tab is opened first (inside the
+  // click, so pop-up blockers allow it); the token goes to it by postMessage once it says it is ready.
+  function openAsStore(id) {
+    const s = storeOf(id);
+    if (!s) return;
+    if (s.status === 'suspended') { toast('შეჩერებული მაღაზია ვერ გაიხსნება. ჯერ აღადგინეთ'); return }
+    const w = window.open('../#sa', '_blank');
+    if (!w) { toast('ბრაუზერმა ახალი ფანჯარა დაბლოკა. დაუშვით pop-up ამ საიტისთვის'); return }
+    const tok = (async () => {
+      const { data } = await sb.auth.getSession();
+      const at = data && data.session && data.session.access_token;
+      if (!at) throw new Error('PLATFORM_ADMIN_REQUIRED');
+      const r = await fetch(`${CFG.url}/functions/v1/store-login`, {
+        method: 'POST',
+        headers: { apikey: CFG.anonKey, Authorization: 'Bearer ' + at, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ platform_store: id })
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.token) throw new Error(j.error || ('HTTP ' + r.status));
+      return j;
+    })();
+    tok.catch(() => {});
+    const onMsg = async e => {
+      if (e.source !== w || e.origin !== location.origin || !e.data || e.data.sr !== 'sa-ready') return;
+      window.removeEventListener('message', onMsg);
+      try { const j = await tok; w.postMessage({ sr: 'sa-token', t: j.token, e: j.exp }, location.origin) }
+      catch (x) { w.postMessage({ sr: 'sa-error', m: x.message }, location.origin); toast('მაღაზია ვერ გაიხსნა: ' + x.message) }
+    };
+    window.addEventListener('message', onMsg);
+    setTimeout(() => window.removeEventListener('message', onMsg), 60000);
+    log('მაღაზიის დეშბორდი გაიხსნა ნახვის რეჟიმში', id);
+  }
+
   // same shape as the prototype's metrics(), from real receipts
   function metrics(s) {
     const m = MET[s.id] || {}, days = m.days || [];
@@ -198,5 +231,5 @@
     };
   }
 
-  window.SRP = { on, login, logout, boot, loginView, save, register, resetPass, metrics };
+  window.SRP = { on, login, logout, boot, loginView, save, register, resetPass, metrics, openAsStore };
 })();
