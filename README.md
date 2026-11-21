@@ -20,7 +20,7 @@ scripts/                 dev, deploy, import, Super Admin, tests (Node, no depen
 prototype/               the claude.ai prototypes the web pages are built from
 ```
 
-## Run it on your computer (localhost) — Node only, no Docker
+## Run it on your computer (localhost) — Node only
 
 You need **Node.js 18+**, nothing else (no `npm install`: the scripts have no dependencies; the
 Supabase CLI is fetched by `npx` when needed). The app runs on your computer and uses a separate,
