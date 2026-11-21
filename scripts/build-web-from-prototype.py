@@ -57,10 +57,12 @@ def build_app() -> None:
     s = patch(s, 'logout', '<button onclick="U=null;cart=[];render()">გასვლა</button>',
               '<button onclick="if(window.SR&&SR.on)SR.logout();else{U=null;cart=[];render()}">გასვლა</button>')
 
-    # 5. per-screen loading: wait for this screen's data, then refresh it in the background
+    # 5. per-screen loading: wait for this screen's data, then refresh it in the background.
+    #    While a screen's data is still loading, the header and menu stay on screen (only <main> waits).
     s = patch(s, 'render hook', "const t=navFor();view=view&&t.some(x=>x[0]==view)?view:t[0][0];",
               "const t=navFor();view=view&&t.some(x=>x[0]==view)?view:t[0][0];"
-              "if(window.SR&&SR.on){if(!SR.ready(view)){$('#app').innerHTML=SR.loadingHtml();SR.ensure(view).then(render);return}SR.touch(view)}")
+              "window.SRLD=0;if(window.SR&&SR.on){if(!SR.ready(view)){SRLD=1;if(!SR.loadError())SR.ensure(view).then(render)}else SR.touch(view)}")
+    s = patch(s, 'render main', "${V[view]()}</main>", "${window.SRLD?SR.mainLoadingHtml():V[view]()}</main>")
 
     # 6. startup: keep the prototype's own start-up for the demo/offline mode; in Supabase mode the same
     #    defaults run after the data has loaded (srNormalize) and nothing is seeded

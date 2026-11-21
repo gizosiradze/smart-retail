@@ -93,8 +93,8 @@
     ro = !!me.read_only;
     if (Array.isArray(me.branches) && me.branches.length) { BR.length = 0; BR.push(...me.branches); }
     D = {}; snap = {}; snapSt = {}; snapKv = {}; loaded = new Set(); cursors = {}; fetchedAt = {};
-    await pull(CORE.filter(c => c === 'st' || c === 'kv' || READ[c].includes(role)));
-    await allocIds(true);
+    // the core data and the receipt-number block are independent: ask for both at once
+    await Promise.all([pull(CORE.filter(c => c === 'st' || c === 'kv' || READ[c].includes(role))), allocIds(true)]);
     window.srNormalize && srNormalize();          // defaults the prototype added on startup
     rebase();                                     // ...but those defaults are not "changes"
     const u = me.user;
@@ -106,6 +106,8 @@
     if (me.store.status === 'restricted') toast('მაღაზია შეზღუდულია: გაყიდვა დაბლოკილია, ნახვა და ექსპორტი მუშაობს', 1);
     render();
     roBar();
+    // then load every other screen's data in the background, so switching screens never waits
+    (ensuring || Promise.resolve()).then(prefetch);
   }
 
   // ---------------------------------------------------------------- Super Admin view (read-only)
@@ -201,14 +203,28 @@
     }
   }
 
-  const needFor = v => [...new Set([...(BY_VIEW[v] || [])])].filter(c => READ[c] && READ[c].includes(role));
+  const readable = c => READ[c] && READ[c].includes(role);
+  const needFor = v => [...new Set([...(BY_VIEW[v] || [])])].filter(readable);
   function ready(v) { return !on || !U || needFor(v).every(c => loaded.has(c)) }
-  let ensuring = null;
-  function ensure(v) {
+  // one load at a time; a screen opened meanwhile waits for it (it usually brings that screen's data too)
+  let ensuring = null, loadErr = '';
+  function load(want) {
     if (ensuring) return ensuring;
-    ensuring = pull(needFor(v).filter(c => !loaded.has(c))).catch(onError).finally(() => { ensuring = null; rebaseColls(needFor(v)) });
+    if (!want.length) return Promise.resolve();
+    ensuring = pull(want).then(() => { loadErr = '' })
+      .catch(e => { loadErr = msg(e) || 'error'; if (e && e.session) onError(e); else console.error('[sr]', e) })
+      // only what was loaded now becomes baseline (edits already pending in loaded collections stay pending)
+      .finally(() => { ensuring = null; rebaseColls(want.filter(c => loaded.has(c))) });
     return ensuring;
   }
+  const ensure = v => load(needFor(v).filter(c => !loaded.has(c)));
+  // waits its turn behind a screen's own load, then brings whatever is still missing
+  function prefetch() {
+    if (!on || !U || !token || loadErr) return;
+    if (ensuring) { ensuring.then(prefetch); return }
+    load([...new Set(Object.values(BY_VIEW).flat())].filter(c => readable(c) && !loaded.has(c)));
+  }
+  function retryLoad() { loadErr = ''; render() }
   // background refresh of what the current screen shows (changes made on other devices)
   let refreshing = false;
   function touch(v) {
@@ -223,6 +239,9 @@
     }).catch(() => {}).finally(() => { refreshing = false });
   }
   const isTyping = () => { const a = document.activeElement; return a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA') };
+  const mainLoadingHtml = () => loadErr
+    ? `<p class="m" style="text-align:center;padding:60px 0">მონაცემები ვერ ჩაიტვირთა: ${esc(loadErr)}<br><button style="margin-top:12px" onclick="SR.retryLoad()">ხელახლა</button></p>`
+    : '<p class="m" style="text-align:center;padding:60px 0">მონაცემები იტვირთება…</p>';
   const loadingHtml = () => `<div class="lgp"><section class="lg" style="text-align:center"><h2 class="lgl">${typeof SRL !== 'undefined' ? SRL : 'Smart Retail'}</h2><p class="m">მონაცემები იტვირთება…</p></section></div>`;
 
   // ---------------------------------------------------------------- id blocks (D.n)
@@ -438,5 +457,5 @@
   window.addEventListener('beforeunload', e => { if (dirty()) { e.preventDefault(); e.returnValue = '' } });
   window.addEventListener('online', () => { if (dirty()) save() });
 
-  window.SR = { on, login, boot, logout, save, ready, ensure, touch, loadingHtml, msg, changePassword, dirty, pendingChanges: () => diff(), get me() { return me }, get readOnly() { return ro } };
+  window.SR = { on, login, boot, logout, save, ready, ensure, touch, loadingHtml, mainLoadingHtml, retryLoad, loadError: () => loadErr, msg, changePassword, dirty, pendingChanges: () => diff(), get me() { return me }, get readOnly() { return ro } };
 })();
