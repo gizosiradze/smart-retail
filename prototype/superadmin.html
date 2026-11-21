@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ka"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RMS · სუპერ ადმინი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Georgian:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf7f5;--c:#fff;--t:#2a2326;--m:#7d7176;--a:#8c1c3a;--ah:#6f1530;--b:#ece4e1;--as:#f8ecef;--ln:#f1eae8;--g:#1f8f66;--o:#b07a00;--r:#c23b3b;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.45 'Inter','Noto Sans Georgian',system-ui,sans-serif;color:var(--t);-webkit-font-smoothing:antialiased;background:radial-gradient(900px 420px at 95% -8%,#f4e3e8 0,transparent 65%),var(--bg);background-attachment:fixed}
+header{position:sticky;top:0;z-index:5;display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:10px 20px;background:#ffffffe6;backdrop-filter:blur(10px);border-bottom:1px solid var(--b)}
+.brand{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;white-space:nowrap}.brand::before{content:"";width:12px;height:12px;border-radius:4px;background:var(--a)}
+.brand small{font-weight:600;font-size:11px;padding:2px 8px;border-radius:99px;background:var(--a);color:#fff;letter-spacing:.03em}
+nav{display:flex;flex-wrap:wrap;gap:2px;padding:3px;border-radius:12px;background:#f4eeec}
+nav button{border:0;background:transparent;color:var(--m);font-weight:500;padding:7px 13px;border-radius:9px;white-space:nowrap}
+nav button:hover{background:#ebe2df}nav button.on{background:#fff;color:var(--a);font-weight:600;box-shadow:0 1px 3px #2a232622}
+nav button i{font-style:normal;display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;border-radius:99px;background:var(--r);color:#fff;font-size:11px;font-weight:700;line-height:18px}
+.hr{margin-left:auto;display:flex;align-items:center;gap:10px}
+@media(max-width:1000px){nav{order:3;flex:1 1 100%}nav button{flex:1 1 auto}}
+button,select,input,textarea{font:inherit;padding:9px 14px;border:1px solid var(--b);border-radius:10px;background:#fff;color:var(--t);transition:border-color .15s,box-shadow .15s,background .15s}
+button{cursor:pointer;font-weight:500}button:hover:not(:disabled){background:#faf5f4;border-color:#dccfd2}button:disabled{opacity:.4;cursor:not-allowed}
+.pri{background:var(--a);border-color:var(--a);color:#fff;font-weight:600;box-shadow:0 6px 14px -6px #8c1c3a80}.pri:hover:not(:disabled){background:var(--ah);border-color:var(--ah)}
+.dng{color:var(--r);border-color:#ecc2be}.dng:hover:not(:disabled){background:#fdf1f0;border-color:#e5534b}.dngf{background:var(--r);border-color:var(--r);color:#fff;font-weight:600}.dngf:hover:not(:disabled){background:#a82f2f}
+.okb{color:var(--g);border-color:#b9e2d1}.okb:hover:not(:disabled){background:#eef8f3}
+.sm{padding:5px 10px;font-size:12.5px;border-radius:8px}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--a);box-shadow:0 0 0 3px #8c1c3a1f}
+main{padding:22px 18px 60px;max-width:1240px;margin:auto}
+section{background:#fff;border:1px solid var(--b);border-radius:16px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 2px #2a23260a,0 10px 28px -14px #2a23262e;overflow-x:auto}
+section h3{margin:0 0 12px;font-size:15px;font-weight:650}
+h2{margin:0;font-size:20px;letter-spacing:-.01em}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.hd>div{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.m,small{color:var(--m)}
+.ks{display:grid;grid-template-columns:repeat(6,1fr);background:#fff;border:1px solid var(--b);border-radius:16px;box-shadow:0 1px 2px #2a23260a,0 10px 28px -14px #2a23262e;margin-bottom:14px;overflow:hidden}
+.ks>div{display:flex;flex-direction:column;gap:2px;padding:14px 18px;border-left:1px solid var(--ln);min-width:0}.ks>div:first-child{border-left:0;background:linear-gradient(135deg,#8c1c3a,#a82a4d);color:#fff}.ks>div:first-child small{color:#ffffffc4}
+.ks small{font-size:12px;font-weight:500}.ks b{font-size:22px;font-weight:700;letter-spacing:-.02em;white-space:nowrap}.ks em{font-style:normal;font-size:11.5px;color:var(--m)}.ks>div:first-child em{color:#ffffffb0}
+.ks.k4{grid-template-columns:repeat(4,1fr)}.ks.k5{grid-template-columns:repeat(5,1fr)}
+@media(max-width:900px){.ks,.ks.k4,.ks.k5{grid-template-columns:repeat(2,1fr)}.ks>div{border-left:0;border-top:1px solid var(--ln)}}
+table{width:100%;border-collapse:collapse}th{font-size:11px;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:.05em;text-align:left}
+td,th{padding:10px;border-bottom:1px solid var(--ln);text-align:left;vertical-align:middle}tr.cl{cursor:pointer}tr.cl:hover td{background:#fcf9f8}
+td.r,th.r{text-align:right}td b{font-weight:600}td small{display:block}
+.tg{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap}
+.tg.g{background:#2fae8022;color:var(--g)}.tg.o{background:#d99a1a26;color:var(--o)}.tg.r{background:#e5534b22;color:var(--r)}.tg.p{background:#7b5fd022;color:#6a4cc2}.tg.n{background:#ece4e1;color:#6d6064}.tg.b{background:var(--as);color:var(--a)}
+.sg2{display:inline-flex;gap:2px;padding:3px;border-radius:12px;background:#f4eeec;flex-wrap:wrap}.sg2 button{border:0;background:transparent;padding:6px 13px;border-radius:9px;color:var(--m)}.sg2 button:hover{background:#ebe2df}.sg2 button.on{background:#fff;color:var(--a);font-weight:600;box-shadow:0 1px 3px #2a232622}
+.g2{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;align-items:start}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}}
+.al{display:flex;align-items:center;gap:10px;padding:10px 4px;border-top:1px solid var(--ln)}.al:first-of-type{border-top:0}.al>span{flex:1;min-width:0}.al .ic{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none;font-size:14px}
+.ic.r{background:#fdeceb;color:var(--r)}.ic.o{background:#fff4dc;color:var(--o)}.ic.g{background:#e9f7f0;color:var(--g)}.ic.b{background:var(--as);color:var(--a)}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--ln)}.row:last-child{border-bottom:0}
+.bar{display:grid;grid-template-columns:150px 1fr 90px;gap:10px;align-items:center;margin:6px 0;font-size:13px}.bar i{display:block;height:8px;border-radius:5px;background:linear-gradient(90deg,#c9728d,#8c1c3a)}.bar b{text-align:right}.bar>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chart{display:flex;align-items:flex-end;gap:3px;height:170px;padding-top:10px}.chart>div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}.chart i{display:block;width:100%;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#b33f62,#8c1c3a);min-height:2px;transition:opacity .15s}.chart>div:hover i{opacity:.75}.chart small{font-size:10px;margin-top:4px;white-space:nowrap}
+.chart.big{height:200px}
+.fl{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--m)}.fl input,.fl select,.fl textarea{font-weight:400;color:var(--t);width:100%}.fl small{font-weight:400;font-size:11.5px}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.pc{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.pcard{border:1.5px solid var(--b);border-radius:14px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:4px;background:#fff}.pcard:hover{border-color:#d9c4cb}.pcard.on{border-color:var(--a);background:var(--as)}.pcard b{font-size:15px}.pcard .pp{font-size:22px;font-weight:700;color:var(--a)}
+.banner{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;margin-bottom:14px;border-radius:12px;background:#fff8e6;border:1px solid #f1dfae;font-size:13px}.banner.b{background:var(--as);border-color:#ecc9d3}.banner.r{background:#fdf1f0;border-color:#f0c6c2}
+.sh{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:14px}.sh .av{width:52px;height:52px;border-radius:14px;background:var(--as);color:var(--a);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;flex:none}.sh>div:nth-child(2){flex:1;min-width:220px}.sh .acts{display:flex;gap:6px;flex-wrap:wrap}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--b);margin-bottom:14px;overflow-x:auto}.tabs button{border:0;border-bottom:2px solid transparent;border-radius:0;background:none;color:var(--m);padding:9px 14px;white-space:nowrap}.tabs button.on{color:var(--a);border-bottom-color:var(--a);font-weight:600}.tabs button:hover{background:none;color:var(--t)}
+.srch{min-width:260px}
+#md{display:none;position:fixed;inset:0;background:#2a232666;backdrop-filter:blur(3px);align-items:center;justify-content:center;z-index:20;padding:12px}
+.box{background:#fff;border-radius:20px;padding:22px;width:min(520px,96vw);max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:12px;box-shadow:0 24px 60px -16px #2a232659}.box h3{margin:0;font-size:17px}.box .ft{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
+.cred{background:var(--bg);border:1px dashed #d8c6cb;border-radius:12px;padding:12px 14px;font-family:ui-monospace,Menlo,monospace;font-size:14px;line-height:1.8}
+#toast{position:fixed;right:18px;bottom:18px;z-index:30;display:flex;flex-direction:column;gap:8px}.tst{padding:11px 16px;border-radius:12px;background:#2a2326;color:#fff;font-size:13px;box-shadow:0 10px 28px #2a232640;animation:tin .2s ease-out}@keyframes tin{from{opacity:0;transform:translateY(10px)}}
+.empty{text-align:center;padding:30px;color:var(--m)}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mini>div{border:1px solid var(--b);border-radius:12px;padding:10px 12px}.mini b{display:block;font-size:17px}.mini small{font-size:11.5px}
+.lg{max-width:380px;margin:12vh auto;padding:30px;background:#fff;border:1px solid var(--b);border-radius:22px;box-shadow:0 10px 28px -14px #2a23262e;display:flex;flex-direction:column;gap:10px}.lg h2{display:flex;align-items:center;gap:8px}.lg h2::before{content:"";width:12px;height:12px;border-radius:4px;background:var(--a)}
+.note{font-size:12.5px;color:var(--m);padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--b)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}.dot.g{background:var(--g);box-shadow:0 0 0 3px #1f8f6626}.dot.o{background:#d99a1a;box-shadow:0 0 0 3px #d99a1a26}.dot.r{background:var(--r);box-shadow:0 0 0 3px #c23b3b26}.dot.n{background:#c9bcc0}
+</style></head>
+<body>
+<div id="app"></div>
+<div id="md" onclick="if(event.target===this)closeM()"></div>
+<div id="toast"></div>
+<script>
+/* ================= helpers ================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>Math.round(n).toLocaleString('en-US')+' ₾';
+const TODAY=new Date();TODAY.setHours(12,0,0,0);
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const iso=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const ym=d=>iso(d).slice(0,7);
+const MN=['იანვარი','თებერვალი','მარტი','აპრილი','მაისი','ივნისი','ივლისი','აგვისტო','სექტემბერი','ოქტომბერი','ნოემბერი','დეკემბერი'];
+const MS=['იან','თებ','მარ','აპრ','მაი','ივნ','ივლ','აგვ','სექ','ოქტ','ნოე','დეკ'];
+const ymLabel=p=>MN[+p.slice(5)-1]+' '+p.slice(0,4);
+const dLabel=s=>{if(!s)return '—';const d=new Date(s);return d.getDate()+' '+MS[d.getMonth()]+' '+d.getFullYear()};
+const ymAdd=(p,n)=>{let y=+p.slice(0,4),m=+p.slice(5)-1+n;y+=Math.floor(m/12);m=((m%12)+12)%12;return y+'-'+String(m+1).padStart(2,'0')};
+const daysBetween=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+const hash=s=>{let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))%2147483647;return h||1};
+const rng=seed=>{let s=seed;return()=>{s=s*16807%2147483647;return(s-1)/2147483646}};
+const uid=()=>Math.random().toString(36).slice(2,10);
+const genPass=()=>{const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';let s='';for(let i=0;i<10;i++)s+=c[Math.floor(Math.random()*c.length)];return s};
+const nowStr=()=>{const d=new Date();return iso(d)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+function toast(t){const e=document.createElement('div');e.className='tst';e.textContent=t;$('#toast').appendChild(e);setTimeout(()=>e.remove(),3200)}
+
+/* ================= data ================= */
+const K='rms_superadmin_v1';
+let D;
+function seed(){
+  const plans=[
+    {id:'basic',name:'Basic',price:49,branches:1,users:3,desc:'1 ფილიალი, სალარო + დეშბორდი'},
+    {id:'std',name:'Standard',price:89,branches:3,users:10,desc:'3-მდე ფილიალი, ინვენტარიზაცია, ლოიალობა'},
+    {id:'pro',name:'Pro',price:149,branches:10,users:40,desc:'10-მდე ფილიალი, ყველა ფუნქცია, პრიორიტეტული მხარდაჭერა'}];
+  const P=Object.fromEntries(plans.map(p=>[p.id,p]));
+  const stores=[],payments=[],audit=[];
+  function mk(o){
+    const created=addD(TODAY,-o.ago);
+    const s={id:uid(),login:o.login,name:o.name,legal:o.legal,idcode:o.idcode,address:o.address||'თბილისი',owner:o.owner,phone:o.phone,email:o.email,
+      plan:o.plan,kind:o.kind,branches:o.branches,status:o.status||'active',statusReason:o.reason||'',created:iso(created),
+      trialEnd:iso(o.status==='trial'?addD(TODAY,o.trialLeft):addD(created,14)),payDay:Math.min(28,addD(created,14).getDate()),
+      feeHist:[{from:ym(addD(created,14)),fee:o.fee||P[o.plan].price}],
+      users:[{u:'admin',name:o.owner,role:'ადმინი',branch:'ყველა',last:iso(addD(TODAY,-(o.lastAgo||0)))}].concat(o.branches.map((b,i)=>({u:'kasa'+(i+1),name:'მოლარე '+(i+1),role:'მოლარე',branch:b,last:iso(addD(TODAY,-(o.lastAgo||0)))}))),
+      lastActive:iso(addD(TODAY,-(o.lastAgo||0))),syncPending:o.sync||0,notes:o.notes||''};
+    if(s.status==='suspended')s.suspendedAt=s.lastActive;
+    stores.push(s);
+    if(s.status!=='trial'){
+      invoicesOf(s,P).forEach((inv,idx,arr)=>{
+        const back=arr.length-1-idx;
+        if((o.unpaid||[]).includes(back))return;
+        if(inv.status==='upcoming')return;
+        const amt=(o.partial===back)?Math.round(inv.amount/2):inv.amount;
+        payments.push({id:uid(),store:s.id,period:inv.period,amount:amt,date:iso(addD(inv.due,Math.floor(Math.random()*4))),method:['გადარიცხვა','გადარიცხვა','ბარათი'][Math.floor(Math.random()*3)],note:''});
+      });
+    }
+    audit.push({t:iso(created)+' 11:20',a:'მაღაზია დარეგისტრირდა',s:s.id});
+  }
+  mk({login:'zoomarket',name:'ზოო მარკეტი',legal:'შპს „ზოო მარკეტი"',idcode:'405123456',owner:'გიორგი ბერიძე',phone:'599 12 34 56',email:'info@zoomarket.ge',plan:'std',kind:'pet',branches:['ვაკე','საბურთალო','დიდუბე'],ago:250,lastAgo:0,sync:0});
+  mk({login:'kidsland',name:'კიდს ლენდი',legal:'ი/მ ნინო კაპანაძე',idcode:'01017012345',owner:'ნინო კაპანაძე',phone:'577 45 67 89',email:'nino@kidsland.ge',plan:'basic',kind:'kids',branches:['მთავარი'],ago:190,lastAgo:0,unpaid:[0,1],sync:0});
+  mk({login:'shoehouse',name:'ფეხსაცმლის სახლი',legal:'შპს „შუ ჰაუსი"',idcode:'404998877',owner:'დავით ლომიძე',phone:'555 22 33 44',email:'davit@shoehouse.ge',plan:'pro',kind:'shoes',branches:['გლდანი','ისანი','ვაკე','ბათუმი','ქუთაისი'],ago:320,lastAgo:0,partial:0,sync:3});
+  mk({login:'sportline',name:'სპორტ ლაინი',legal:'შპს „სპორტ ლაინი"',idcode:'406554433',owner:'ლევან ხუციშვილი',phone:'591 77 88 99',email:'office@sportline.ge',plan:'std',kind:'sport',branches:['თბილისი მოლი','ისთ ფოინთი'],ago:140,lastAgo:1,sync:0});
+  mk({login:'oasis',name:'ყვავილების ოაზისი',legal:'ი/მ მარიამ გელაშვილი',idcode:'01024056789',owner:'მარიამ გელაშვილი',phone:'568 11 22 33',email:'oasis.flowers@gmail.com',plan:'basic',kind:'flowers',branches:['მთავარი'],ago:120,lastAgo:26,unpaid:[0,1,2],status:'restricted',reason:'დავალიანება 2 თვეზე მეტი'});
+  mk({login:'babystore',name:'ბეიბი სთორი',legal:'შპს „ბეიბი სთორი"',idcode:'405667788',owner:'ანა ჯაფარიძე',phone:'593 55 66 77',email:'ana@babystore.ge',plan:'std',kind:'kids',branches:['საბურთალო','გლდანი'],ago:10,status:'trial',trialLeft:4,lastAgo:0});
+  mk({login:'petcity',name:'ფეტ სითი',legal:'შპს „ფეტ სითი"',idcode:'405778899',owner:'ირაკლი მაისურაძე',phone:'595 66 77 88',email:'irakli@petcity.ge',plan:'basic',kind:'pet',branches:['რუსთავი'],ago:3,status:'trial',trialLeft:11,lastAgo:0});
+  mk({login:'techfix',name:'ტექ ფიქსი',legal:'შპს „ტექ ფიქსი"',idcode:'404112233',owner:'ნიკა წიკლაური',phone:'551 99 00 11',email:'nika@techfix.ge',plan:'basic',kind:'tech',branches:['დიღომი'],ago:290,lastAgo:75,status:'suspended',reason:'მფლობელის მოთხოვნით (მაღაზია დაიხურა)'});
+  audit.sort((a,b)=>a.t<b.t?-1:1);
+  return {v:1,plans,stores,payments,audit,ann:[{id:uid(),t:iso(addD(TODAY,-6))+' 10:00',type:'ტექნიკური სამუშაო',target:'all',text:'კვირას 03:00–04:00 სისტემა განახლდება. სალარო ინტერნეტის გარეშე რეჟიმში გააგრძელებს მუშაობას.'}],
+    settings:{grace:7,restrictAfter:30,remindBefore:3,email:'admin@rms.ge',vatNote:'ფასები დღგ-ს ჩათვლით'}};
+}
+function load(){try{const s=JSON.parse(localStorage.getItem(K));if(s&&s.v===1)return s}catch(e){}return seed()}
+function save(){try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}}
+function log(a,s){D.audit.push({t:nowStr(),a,s:s||''});save()}
+
+const planOf=id=>D.plans.find(p=>p.id===id)||D.plans[0];
+const storeOf=id=>D.stores.find(s=>s.id===id);
+function feeFor(s,period){let f=s.feeHist[0].fee;for(const h of s.feeHist)if(h.from<=period)f=h.fee;return f}
+/* invoices: one per month from first billing month to current month */
+function invoicesOf(s,P){
+  const out=[];if(s.status==='trial')return out;
+  const start=ym(s.trialEnd),end=ym(TODAY),grace=(D&&D.settings?D.settings.grace:7);
+  for(let p=start;p<=end;p=ymAdd(p,1)){
+    const due=new Date(p+'-'+String(s.payDay).padStart(2,'0')+'T12:00:00');
+    if(p===start&&due<new Date(s.trialEnd))continue;
+    const amount=feeFor(s,p);
+    const paid=D?D.payments.filter(x=>x.store===s.id&&x.period===p).reduce((a,x)=>a+x.amount,0):0;
+    let status;
+    if(paid>=amount)status='paid';
+    else if(TODAY<due)status='upcoming';
+    else if(daysBetween(due,TODAY)>grace)status='overdue';
+    else status='due';
+    if(s.status==='suspended'&&status!=='paid'&&p>ym(s.suspendedAt||TODAY))continue;
+    out.push({store:s.id,period:p,due:iso(due),amount,paid,left:Math.max(0,amount-paid),status});
+  }
+  return out;
+}
+const INV_TAG={paid:'<span class="tg g">გადახდილი</span>',upcoming:'<span class="tg n">მოსალოდნელი</span>',due:'<span class="tg o">გადასახდელი</span>',overdue:'<span class="tg r">ვადაგადაცილებული</span>'};
+function debtOf(s){return invoicesOf(s).filter(i=>i.status==='overdue'||i.status==='due').reduce((a,i)=>a+i.left,0)}
+function overdueOf(s){return invoicesOf(s).filter(i=>i.status==='overdue')}
+function nextDue(s){
+  if(s.status==='trial')return s.trialEnd;
+  const inv=invoicesOf(s).find(i=>i.status!=='paid');if(inv)return inv.due;
+  const p=ymAdd(ym(TODAY),new Date(ym(TODAY)+'-'+String(s.payDay).padStart(2,'0'))<=TODAY?1:0);
+  return p+'-'+String(s.payDay).padStart(2,'0');
+}
+function statusTag(s){
+  if(s.status==='trial'){const d=daysBetween(TODAY,s.trialEnd);return '<span class="tg p">საცდელი · '+(d>=0?d+' დღე':'ვადა გავიდა')+'</span>'}
+  if(s.status==='suspended')return '<span class="tg n">შეჩერებული</span>';
+  if(s.status==='restricted')return '<span class="tg r">შეზღუდული</span>';
+  return '<span class="tg g">აქტიური</span>';
+}
+function payTag(s){
+  if(s.status==='trial')return '<span class="m">—</span>';
+  const od=overdueOf(s),debt=debtOf(s);
+  if(od.length)return '<span class="tg r">დავალიანება '+fmt(debt)+'</span><small>'+od.length+' თვე ვადაგადაცილებული</small>';
+  if(debt>0)return '<span class="tg o">გადასახდელი '+fmt(debt)+'</span>';
+  return '<span class="tg g">გადახდილი</span>';
+}
+
+/* demo store metrics (in the real system these come from the store's own data) */
+const PRODUCTS={pet:['ძაღლის მშრალი საკვები 3კგ','კატის პაუჩი 85გ','კატის ქვიშა 10ლ','ძაღლის საბელი M','საღეჭი ძვალი','კატის საკვები 1.5კგ'],
+  kids:['ბავშვის ზამთრის ქურთუკი','ჯინსი 6–7 წ','ბამბის მაისური','პიჟამა','კომბინეზონი','ბავშვის ქუდი'],
+  shoes:['ტყავის ბოტასი','სპორტული ფეხსაცმელი','ქალის ჩექმა','სლიპონი','სახლის ჩუსტი','ბავშვის კედი'],
+  sport:['სავარჯიშო მაისური','სპორტული შარვალი','იოგას ხალიჩა','ბურთი №5','წყლის ბოთლი','ზურგჩანთა'],
+  flowers:['ვარდების თაიგული','ქოთნის ორქიდეა','ტიტების თაიგული','საჩუქრის ყუთი','ქოთანი კერამიკის','მიწა 5ლ'],
+  tech:['ტელეფონის ქეისი','დამტენი USB-C','ყურსასმენი','ეკრანის დამცავი','კაბელი 1მ','პაუერბანკი']};
+function metrics(s){
+  const r=rng(hash(s.id+s.login)),base={basic:550,std:1500,pro:4200}[s.plan]||800;
+  const active=s.status==='active'||s.status==='trial';
+  const days=[];for(let i=29;i>=0;i--){const d=addD(TODAY,-i),wk=[.8,1,1,1.05,1.15,1.35,1.25][d.getDay()];
+    const ex=new Date(s.created)>d||(!active&&daysBetween(s.lastActive,d)>0);days.push({d:iso(d),v:ex?0:Math.round(base*wk*(.7+r()*.6))})}
+  const sum=n=>days.slice(-n).reduce((a,x)=>a+x.v,0);
+  const avg=[18,25,32,48,60,35][Math.floor(r()*6)];
+  const rev30=sum(30);
+  const br=s.branches.map(b=>({b,v:r()+.4}));const bt=br.reduce((a,x)=>a+x.v,0);br.forEach(x=>x.v=Math.round(rev30*x.v/bt));
+  const pr=(PRODUCTS[s.kind]||PRODUCTS.pet).map(n=>({n,q:Math.round(5+r()*60)})).sort((a,b)=>b.q-a.q).slice(0,5);
+  return {days,today:sum(1),d7:sum(7),d30:rev30,checks:Math.round(rev30/avg),avg,profit:Math.round(rev30*(.26+r()*.12)),
+    customers:Math.round(40+r()*900*({basic:.4,std:1,pro:2.5}[s.plan]||1)),products:Math.round(80+r()*1500),branches:br,top:pr,
+    stockValue:Math.round(base*(18+r()*20))};
+}
+
+/* ================= state & routing ================= */
+let V={view:'login',store:null,tab:'dash',q:'',sf:'all',bm:null,bf:'all',aq:''};
+function go(view,extra){Object.assign(V,{view},extra||{});render();window.scrollTo(0,0)}
+function openStore(id){V.store=id;V.tab='dash';const s=storeOf(id);log('ნახვა: მაღაზიის დეშბორდი (მხოლოდ ნახვა)',id);go('store')}
+
+function render(){
+  if(V.view==='login'){$('#app').innerHTML=loginView();return}
+  const od=D.stores.filter(s=>s.status!=='suspended'&&overdueOf(s).length).length;
+  const nav=[['overview','მიმოხილვა'],['stores','მაღაზიები'],['billing','გადახდები',od],['plans','პაკეტები'],['ann','განცხადებები'],['audit','ჟურნალი'],['settings','პარამეტრები']];
+  const cur=V.view==='store'?'stores':V.view==='register'?'stores':V.view;
+  let body='';
+  try{body=({overview:overviewView,stores:storesView,store:storeView,register:registerView,billing:billingView,plans:plansView,ann:annView,audit:auditView,settings:settingsView}[V.view]||overviewView)()}catch(e){body='<section>შეცდომა: '+esc(e.message)+'</section>';console.error(e)}
+  $('#app').innerHTML='<header><span class="brand">RMS <small>სუპერ ადმინი</small></span><nav>'+nav.map(n=>'<button class="'+(cur===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')">'+n[1]+(n[2]?'<i>'+n[2]+'</i>':'')+'</button>').join('')+
+    '</nav><div class="hr"><button class="pri" onclick="go(\'register\')">+ ახალი მაღაზია</button><button class="sm" style="border:0;color:var(--m)" onclick="logout()">გასვლა</button></div></header><main>'+body+'</main>';
+}
+
+/* ================= login ================= */
+function loginView(){return '<div class="lg"><h2>სუპერ ადმინი</h2><small>პლატფორმის მართვა: ყველა მაღაზია, აბონენტი, გადახდები</small>'+
+  '<input id="lu" placeholder="მომხმარებელი" value="superadmin"><input id="lp" type="password" placeholder="პაროლი" value="demo1234">'+
+  '<input id="l2" placeholder="2FA კოდი (6 ციფრი)" value="123456" inputmode="numeric" maxlength="6">'+
+  '<button class="pri" onclick="login()">შესვლა</button><div class="note">პროტოტიპი: ველები წინასწარ შევსებულია. რეალურ სისტემაში სუპერ ადმინის შესვლა ყოველთვის 2FA-ით მოხდება და ცალკე მისამართზე იქნება.</div></div>'}
+function login(){if(!$('#lu').value||!$('#lp').value||!/^\d{6}$/.test($('#l2').value)){toast('შეავსეთ ყველა ველი, 2FA კოდი 6 ციფრი');return}log('სუპერ ადმინი შევიდა სისტემაში');go('overview')}
+function logout(){log('სუპერ ადმინი გავიდა');go('login')}
+
+/* ================= overview ================= */
+function overviewView(){
+  const act=D.stores.filter(s=>s.status==='active'),trial=D.stores.filter(s=>s.status==='trial');
+  const billable=D.stores.filter(s=>s.status==='active'||s.status==='restricted');
+  const mrr=billable.reduce((a,s)=>a+feeFor(s,ym(TODAY)),0);
+  const cm=ym(TODAY);const recv=D.payments.filter(p=>p.date.slice(0,7)===cm).reduce((a,p)=>a+p.amount,0);
+  const debt=D.stores.filter(s=>s.status!=='suspended').reduce((a,s)=>a+overdueOf(s).reduce((b,i)=>b+i.left,0),0);
+  const gmv=D.stores.reduce((a,s)=>a+metrics(s).d30,0);
+  // alerts
+  const al=[];
+  D.stores.forEach(s=>{
+    if(s.status==='suspended')return;
+    const od=overdueOf(s);
+    if(od.length&&s.status!=='restricted')al.push(['r','!','<b>'+esc(s.name)+'</b> · დავალიანება '+fmt(od.reduce((a,i)=>a+i.left,0))+' ('+od.length+' თვე)',s.id,'გადახდა','pay']);
+    if(s.status==='restricted')al.push(['r','⛔','<b>'+esc(s.name)+'</b> · შეზღუდულია: '+esc(s.statusReason),s.id]);
+    if(s.status==='trial'){const d=daysBetween(TODAY,s.trialEnd);if(d<=7)al.push(['o','⏳','<b>'+esc(s.name)+'</b> · საცდელი პერიოდი მთავრდება '+(d<=0?'დღეს':d+' დღეში'),s.id,'გააქტიურება','activate'])}
+    if(s.syncPending)al.push(['o','⟳','<b>'+esc(s.name)+'</b> · '+s.syncPending+' ჩეკი ელოდება სერვერზე გაგზავნას',s.id]);
+    if(s.branches.length>planOf(s.plan).branches)al.push(['b','↑','<b>'+esc(s.name)+'</b> · ფილიალები ('+s.branches.length+') აღემატება პაკეტის ლიმიტს ('+planOf(s.plan).branches+')',s.id,'პაკეტის შეცვლა','plan']);
+    if(s.status==='active'&&daysBetween(s.lastActive,TODAY)>=14)al.push(['o','💤','<b>'+esc(s.name)+'</b> · '+daysBetween(s.lastActive,TODAY)+' დღეა არ შესულა სისტემაში',s.id]);
+  });
+  // subscription income last 6 months
+  const months=[];for(let i=5;i>=0;i--){const p=ymAdd(cm,-i);months.push({p,v:D.payments.filter(x=>x.period===p).reduce((a,x)=>a+x.amount,0),e:D.stores.reduce((a,s)=>a+(invoicesOf(s).find(v=>v.period===p)||{amount:0}).amount,0)})}
+  const mx=Math.max(1,...months.map(m=>Math.max(m.v,m.e)));
+  const top=D.stores.filter(s=>s.status!=='suspended').map(s=>({s,v:metrics(s).d30})).sort((a,b)=>b.v-a.v).slice(0,6);const tmx=Math.max(1,...top.map(t=>t.v));
+  return '<div class="hd"><h2>მიმოხილვა</h2><small>'+dLabel(iso(TODAY))+'</small></div>'+
+  '<div class="ks"><div><small>ყოველთვიური შემოსავალი (MRR)</small><b>'+fmt(mrr)+'</b><em>'+billable.length+' გადამხდელი მაღაზია</em></div>'+
+  '<div><small>აქტიური მაღაზია</small><b>'+act.length+'</b><em>სულ '+D.stores.length+'</em></div>'+
+  '<div><small>საცდელ პერიოდზე</small><b>'+trial.length+'</b><em>'+trial.filter(s=>daysBetween(TODAY,s.trialEnd)<=7).length+' მთავრდება 7 დღეში</em></div>'+
+  '<div><small>მიღებული ამ თვეში</small><b class="" style="color:var(--g)">'+fmt(recv)+'</b><em>'+MN[TODAY.getMonth()]+'</em></div>'+
+  '<div><small>ვადაგადაცილებული</small><b style="color:'+(debt?'var(--r)':'inherit')+'">'+fmt(debt)+'</b><em>'+D.stores.filter(s=>s.status!=='suspended'&&overdueOf(s).length).length+' მაღაზია</em></div>'+
+  '<div><small>ბრუნვა ყველა მაღაზიით</small><b>'+fmt(gmv)+'</b><em>ბოლო 30 დღე</em></div></div>'+
+  '<div class="g2"><section><h3>საჭიროებს ყურადღებას <span class="tg '+(al.length?'r':'g')+'">'+al.length+'</span></h3>'+
+  (al.length?al.map(a=>'<div class="al"><span class="ic '+a[0]+'">'+a[1]+'</span><span>'+a[2]+'</span>'+(a[4]?'<button class="sm" onclick="quick(\''+a[5]+'\',\''+a[3]+'\')">'+a[4]+'</button>':'')+'<button class="sm" onclick="openStore(\''+a[3]+'\')">გახსნა</button></div>').join(''):'<div class="empty">ყველაფერი წესრიგშია ✓</div>')+
+  '</section><section><h3>სისტემის მდგომარეობა</h3>'+
+  '<div class="row"><span><span class="dot g"></span>სერვერი და ბაზა</span><span class="tg g">მუშაობს</span></div>'+
+  '<div class="row"><span><span class="dot g"></span>ბოლო ბექაფი</span><b>დღეს 03:00</b></div>'+
+  '<div class="row"><span><span class="dot '+(D.stores.some(s=>s.syncPending)?'o':'g')+'"></span>სინქრონიზაციის რიგი</span><b>'+D.stores.reduce((a,s)=>a+s.syncPending,0)+' ჩეკი</b></div>'+
+  '<div class="row"><span><span class="dot g"></span>ბაზის მოცულობა</span><b>1.8 / 8 GB</b></div>'+
+  '<div class="row"><span><span class="dot g"></span>ელფოსტის შეტყობინებები</span><span class="tg g">ჩართულია</span></div>'+
+  '<div class="note" style="margin-top:10px">პროტოტიპში ეს მონაცემები საჩვენებელია. რეალურ სისტემაში Supabase-იდან წაიკითხება.</div></section></div>'+
+  '<div class="g2"><section><h3>სააბონენტო შემოსავალი თვეების მიხედვით</h3><div class="chart big">'+months.map(m=>'<div title="'+ymLabel(m.p)+': მიღებული '+fmt(m.v)+' / მოსალოდნელი '+fmt(m.e)+'"><small style="margin:0 0 4px;color:var(--t);font-weight:600">'+fmt(m.v)+'</small><i style="height:'+(m.v/mx*100)+'%"></i><small>'+MS[+m.p.slice(5)-1]+'</small></div>').join('')+'</div></section>'+
+  '<section><h3>ყველაზე აქტიური მაღაზიები <small>(ბრუნვა, 30 დღე)</small></h3>'+top.map(t=>'<div class="bar" style="cursor:pointer" onclick="openStore(\''+t.s.id+'\')"><span>'+esc(t.s.name)+'</span><i style="width:'+(t.v/tmx*100)+'%"></i><b>'+fmt(t.v)+'</b></div>').join('')+'</section></div>';
+}
+function quick(act,id){if(act==='pay')payModal(id);else if(act==='activate')activateModal(id);else if(act==='plan')planModal(id)}
+
+/* ================= stores list ================= */
+function storesView(){
+  const q=V.q.toLowerCase();
+  const F={all:()=>true,active:s=>s.status==='active',trial:s=>s.status==='trial',debt:s=>s.status!=='suspended'&&overdueOf(s).length>0,restricted:s=>s.status==='restricted'||s.status==='suspended'};
+  const cnt=k=>D.stores.filter(F[k]).length;
+  const list=D.stores.filter(F[V.sf]).filter(s=>!q||[s.name,s.login,s.legal,s.owner,s.idcode,s.phone,s.email].join(' ').toLowerCase().includes(q));
+  return '<div class="hd"><h2>მაღაზიები</h2><div><input class="srch" type="search" placeholder="ძებნა: სახელი, ს/კ, მფლობელი, ტელეფონი…" value="'+esc(V.q)+'" oninput="V.q=this.value;rStores()" id="sq"><button onclick="exportStores()">ცხრილის კოპირება (Excel)</button></div></div>'+
+  '<div class="sg2" style="margin-bottom:12px">'+[['all','ყველა'],['active','აქტიური'],['trial','საცდელი'],['debt','დავალიანებით'],['restricted','შეზღუდული / შეჩერებული']].map(f=>'<button class="'+(V.sf===f[0]?'on':'')+'" onclick="V.sf=\''+f[0]+'\';render()">'+f[1]+' <small>'+cnt(f[0])+'</small></button>').join('')+'</div>'+
+  '<section id="stbl">'+storesTable(list)+'</section>';
+}
+function rStores(){const q=V.q.toLowerCase();const F={all:()=>true,active:s=>s.status==='active',trial:s=>s.status==='trial',debt:s=>s.status!=='suspended'&&overdueOf(s).length>0,restricted:s=>s.status==='restricted'||s.status==='suspended'};
+  $('#stbl').innerHTML=storesTable(D.stores.filter(F[V.sf]).filter(s=>!q||[s.name,s.login,s.legal,s.owner,s.idcode,s.phone,s.email].join(' ').toLowerCase().includes(q)))}
+function storesTable(list){
+  if(!list.length)return '<div class="empty">მაღაზია ვერ მოიძებნა</div>';
+  return '<table><tr><th>მაღაზია</th><th>მფლობელი</th><th>პაკეტი</th><th>ფილიალი</th><th>სტატუსი</th><th>აბონენტი</th><th>შემდეგი გადახდა</th><th>ბოლო აქტივობა</th></tr>'+
+  list.map(s=>{const p=planOf(s.plan),la=daysBetween(s.lastActive,TODAY);return '<tr class="cl" onclick="openStore(\''+s.id+'\')"><td><b>'+esc(s.name)+'</b><small>'+esc(s.login)+' · '+esc(s.legal)+'</small></td><td>'+esc(s.owner)+'<small>'+esc(s.phone)+'</small></td>'+
+  '<td><span class="tg b">'+p.name+'</span><small>'+fmt(feeFor(s,ym(TODAY)))+' / თვე</small></td><td>'+s.branches.length+' / '+p.branches+(s.branches.length>p.branches?' <span class="tg o">ლიმიტს ზემოთ</span>':'')+'</td>'+
+  '<td>'+statusTag(s)+'</td><td>'+payTag(s)+'</td><td>'+(s.status==='suspended'?'—':dLabel(nextDue(s)))+'</td><td><span class="dot '+(la<=1?'g':la<14?'o':'n')+'"></span>'+(la===0?'დღეს':la===1?'გუშინ':la+' დღის წინ')+'</td></tr>'}).join('')+'</table>';
+}
+function csv(name,rows){const t=rows.map(r=>r.map(c=>{c=String(c);return /[\t\n"]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c}).join('\t')).join('\n');try{navigator.clipboard.writeText(t).then(()=>toast('ცხრილი დაკოპირდა: ჩასვით Excel-ში (Ctrl+V)'),()=>toast('კოპირება ვერ მოხერხდა'))}catch(e){toast('კოპირება ვერ მოხერხდა')}}
+function exportStores(){csv('stores.csv',[['მაღაზია','სისტემის სახელი','იურიდიული','ს/კ','მფლობელი','ტელეფონი','ელფოსტა','პაკეტი','ფასი','ფილიალები','სტატუსი','დავალიანება','რეგისტრაცია']].concat(D.stores.map(s=>[s.name,s.login,s.legal,s.idcode,s.owner,s.phone,s.email,planOf(s.plan).name,feeFor(s,ym(TODAY)),s.branches.length,s.status,debtOf(s),s.created])));log('ექსპორტი: მაღაზიების სია')}
+
+/* ================= single store ================= */
+function storeView(){
+  const s=storeOf(V.store);if(!s)return '<div class="empty">მაღაზია არ მოიძებნა</div>';
+  const p=planOf(s.plan);
+  const acts=[];
+  if(s.status!=='trial'&&s.status!=='suspended')acts.push('<button class="pri" onclick="payModal(\''+s.id+'\')">+ გადახდის აღრიცხვა</button>');
+  if(s.status==='trial')acts.push('<button class="pri" onclick="activateModal(\''+s.id+'\')">გააქტიურება</button><button onclick="extendTrial(\''+s.id+'\')">საცდელის გახანგრძლივება</button>');
+  acts.push('<button onclick="planModal(\''+s.id+'\')">პაკეტი / ფასი</button>');
+  if(s.status==='active'||s.status==='trial')acts.push('<button class="dng" onclick="restrictModal(\''+s.id+'\')">შეზღუდვა</button>');
+  else acts.push('<button class="okb" onclick="unrestrict(\''+s.id+'\')">✓ აღდგენა</button>');
+  const tabs=[['dash','დეშბორდი'],['users','ფილიალები და მომხმარებლები'],['pay','გადახდები'],['info','რეკვიზიტები'],['log','ჟურნალი']];
+  return '<button class="sm" style="margin-bottom:12px" onclick="go(\'stores\')">← მაღაზიები</button>'+
+  '<div class="sh"><div class="av">'+esc(s.name[0])+'</div><div><h2>'+esc(s.name)+' '+statusTag(s)+'</h2><small>'+esc(s.legal)+' · ს/კ '+esc(s.idcode)+' · სისტემის სახელი: <b>'+esc(s.login)+'</b> · '+p.name+' ('+fmt(feeFor(s,ym(TODAY)))+'/თვე) · რეგისტრაცია '+dLabel(s.created)+'</small></div><div class="acts">'+acts.join('')+'</div></div>'+
+  (s.status==='restricted'?'<div class="banner r">⛔ <span><b>შეზღუდულია:</b> '+esc(s.statusReason)+'. მაღაზია ხედავს მონაცემებს და ექსპორტს აკეთებს, მაგრამ ახალი გაყიდვები დაბლოკილია.</span></div>':'')+
+  (s.status==='suspended'?'<div class="banner r">⏸ <span><b>შეჩერებულია:</b> '+esc(s.statusReason)+'. მომხმარებლები ვერ შედიან. მონაცემები შენახულია და არ იშლება.</span></div>':'')+
+  '<div class="tabs">'+tabs.map(t=>'<button class="'+(V.tab===t[0]?'on':'')+'" onclick="V.tab=\''+t[0]+'\';render()">'+t[1]+'</button>').join('')+'</div>'+
+  ({dash:sDash,users:sUsers,pay:sPay,info:sInfo,log:sLog}[V.tab])(s);
+}
+function sDash(s){
+  const m=metrics(s),mx=Math.max(1,...m.days.map(d=>d.v)),bmx=Math.max(1,...m.branches.map(b=>b.v)),tmx=Math.max(1,...m.top.map(t=>t.q));
+  return '<div class="banner b">👁 <span><b>მხოლოდ ნახვის რეჟიმი.</b> მაღაზიის მონაცემებს ვერ შეცვლით. ეს ნახვა ჩაიწერა ჟურნალში.</span><button class="sm" style="margin-left:auto" onclick="openAsStore(\''+s.id+'\')">მაღაზიის სისტემაში შესვლა (ნახვა) ↗</button></div>'+
+  '<div class="ks"><div><small>ბრუნვა · 30 დღე</small><b>'+fmt(m.d30)+'</b><em>7 დღე: '+fmt(m.d7)+'</em></div><div><small>დღეს</small><b>'+fmt(m.today)+'</b></div><div><small>მოგება · 30 დღე</small><b style="color:var(--g)">'+fmt(m.profit)+'</b></div><div><small>ჩეკები · 30 დღე</small><b>'+m.checks.toLocaleString('en-US')+'</b><em>საშ. ჩეკი '+fmt(m.avg)+'</em></div><div><small>მომხმარებლები</small><b>'+m.customers.toLocaleString('en-US')+'</b></div><div><small>მარაგის ღირებულება</small><b>'+fmt(m.stockValue)+'</b><em>'+m.products+' პროდუქტი</em></div></div>'+
+  '<section><h3>გაყიდვების დინამიკა · ბოლო 30 დღე</h3><div class="chart">'+m.days.map((d,i)=>'<div title="'+dLabel(d.d)+': '+fmt(d.v)+'"><i style="height:'+(d.v/mx*100)+'%"></i><small>'+(i%5===4?new Date(d.d).getDate():'&nbsp;')+'</small></div>').join('')+'</div></section>'+
+  '<div class="g2"><section><h3>ფილიალების მიხედვით · 30 დღე</h3>'+m.branches.map(b=>'<div class="bar"><span>'+esc(b.b)+'</span><i style="width:'+(b.v/bmx*100)+'%"></i><b>'+fmt(b.v)+'</b></div>').join('')+'</section>'+
+  '<section><h3>ტოპ პროდუქტები · 30 დღე</h3>'+m.top.map(t=>'<div class="bar"><span>'+esc(t.n)+'</span><i style="width:'+(t.q/tmx*100)+'%"></i><b>'+t.q+' ც</b></div>').join('')+'</section></div>'+
+  '<section><h3>ტექნიკური მდგომარეობა</h3><div class="mini"><div><small>სინქრონიზაცია</small><b>'+(s.syncPending?'<span style="color:var(--o)">'+s.syncPending+' ჩეკი რიგში</span>':'<span style="color:var(--g)">✓ ყველაფერი სერვერზეა</span>')+'</b></div><div><small>ბოლო აქტივობა</small><b>'+dLabel(s.lastActive)+'</b></div><div><small>სალაროები</small><b>'+s.branches.length+' მოწყობილობა</b></div></div>'+
+  '<div class="note" style="margin-top:10px">ციფრები პროტოტიპში საჩვენებელია. რეალურ სისტემაში აქ მაღაზიის ნამდვილი დეშბორდი გამოჩნდება, იგივე ღამის ჯამებიდან.</div></section>';
+}
+function openAsStore(id){const s=storeOf(id);log('შესვლა მაღაზიის სისტემაში ნახვის რეჟიმში',id);
+  modal('<h3>მაღაზიის სისტემაში შესვლა</h3><p style="margin:0">რეალურ სისტემაში ეს ღილაკი გახსნის <b>'+esc(s.name)+'</b>-ის დეშბორდს ახალ ფანჯარაში, <b>მხოლოდ ნახვის</b> რეჟიმში: ზემოთ გამოჩნდება ზოლი „სუპერ ადმინი ათვალიერებს", ცვლილების ღილაკები გათიშული იქნება, ხოლო ყოველი შესვლა ჩაიწერება ჟურნალში (თარიღი, დრო, რა ნახეთ).</p><div class="note">მაღაზიის მფლობელს შეგიძლიათ აჩვენოთ, როდის შეხვედით მის სისტემაში. ეს ნდობისთვის მნიშვნელოვანია.</div><div class="ft"><button class="pri" onclick="closeM();render()">გასაგებია</button></div>')}
+function sUsers(s){const p=planOf(s.plan);
+  return '<div class="g2"><section><h3>მომხმარებლები <small>'+s.users.length+' / '+p.users+'</small></h3><table><tr><th>მომხმარებელი</th><th>როლი</th><th>ფილიალი</th><th>ბოლო შესვლა</th><th></th></tr>'+
+  s.users.map((u,i)=>'<tr><td><b>'+esc(u.u)+'</b><small>'+esc(u.name)+'</small></td><td><span class="tg '+(u.role==='ადმინი'?'b':'n')+'">'+u.role+'</span></td><td>'+esc(u.branch)+'</td><td>'+dLabel(u.last)+'</td><td class="r"><button class="sm" onclick="resetPass(\''+s.id+'\','+i+')">პაროლის აღდგენა</button></td></tr>').join('')+'</table>'+
+  '<div class="note" style="margin-top:10px">ახალ მოლარეებს მაღაზიის ადმინი თვითონ ამატებს დეშბორდიდან. სუპერ ადმინს პაროლის <b>ნახვა</b> არ შეუძლია, მხოლოდ დროებითი პაროლის მიცემა.</div></section>'+
+  '<section><h3>ფილიალები <small>'+s.branches.length+' / '+p.branches+'</small></h3>'+s.branches.map(b=>'<div class="row"><span>'+esc(b)+'</span><span class="tg g">აქტიური</span></div>').join('')+
+  (s.branches.length>=p.branches?'<div class="banner" style="margin:10px 0 0">პაკეტის ლიმიტი შევსებულია. მეტი ფილიალისთვის საჭიროა პაკეტის შეცვლა. <button class="sm" onclick="planModal(\''+s.id+'\')">პაკეტის შეცვლა</button></div>':'')+'</section></div>';
+}
+function resetPass(id,i){const s=storeOf(id),u=s.users[i],pw=genPass();log('დროებითი პაროლი: '+u.u,id);
+  modal('<h3>დროებითი პაროლი</h3><div class="cred">მაღაზია: '+esc(s.login)+'<br>მომხმარებელი: '+esc(u.u)+'<br>პაროლი: <b>'+pw+'</b></div><small>მომხმარებელი პირველივე შესვლისას შეცვლის პაროლს. გადაეცით უსაფრთხოდ (ტელეფონით / პირადად).</small><div class="ft"><button onclick="copyT(\''+pw+'\')">კოპირება</button><button class="pri" onclick="closeM();render()">დახურვა</button></div>')}
+function copyT(t){try{navigator.clipboard.writeText(t);toast('დაკოპირდა')}catch(e){toast('ვერ დაკოპირდა')}}
+function sPay(s){
+  if(s.status==='trial')return '<section><div class="empty">საცდელი პერიოდი მთავრდება <b>'+dLabel(s.trialEnd)+'</b>. ამის შემდეგ დაიწყება ყოველთვიური აბონენტი: '+fmt(feeFor(s,ym(TODAY)))+'/თვე, გადახდის დღე: ყოველი თვის '+s.payDay+'.</div></section>';
+  const inv=invoicesOf(s).slice().reverse(),pays=D.payments.filter(p=>p.store===s.id).sort((a,b)=>a.date<b.date?1:-1);
+  const tot=inv.reduce((a,i)=>a+i.amount,0),paid=inv.reduce((a,i)=>a+Math.min(i.paid,i.amount),0);
+  return '<div class="ks k4"><div><small>ყოველთვიური</small><b>'+fmt(feeFor(s,ym(TODAY)))+'</b><em>გადახდის დღე: '+s.payDay+'</em></div><div><small>სულ დარიცხული</small><b>'+fmt(tot)+'</b></div><div><small>სულ გადახდილი</small><b style="color:var(--g)">'+fmt(paid)+'</b></div><div><small>დავალიანება</small><b style="color:'+(debtOf(s)?'var(--r)':'inherit')+'">'+fmt(debtOf(s))+'</b></div></div>'+
+  '<div class="g2"><section><h3>თვეები</h3><table><tr><th>თვე</th><th>ვადა</th><th class="r">თანხა</th><th class="r">გადახდილი</th><th>სტატუსი</th><th></th></tr>'+
+  inv.map(i=>'<tr><td><b>'+ymLabel(i.period)+'</b></td><td>'+dLabel(i.due)+'</td><td class="r">'+fmt(i.amount)+'</td><td class="r">'+fmt(i.paid)+'</td><td>'+INV_TAG[i.status]+'</td><td class="r">'+(i.status!=='paid'?'<button class="sm" onclick="payModal(\''+s.id+'\',\''+i.period+'\')">გადახდა</button>':'<button class="sm" onclick="invoiceModal(\''+s.id+'\',\''+i.period+'\')">ინვოისი</button>')+'</td></tr>').join('')+'</table></section>'+
+  '<section><h3>გადახდების ისტორია</h3>'+(pays.length?pays.map(p=>'<div class="row"><span><b>'+fmt(p.amount)+'</b><small>'+ymLabel(p.period)+' · '+esc(p.method)+(p.note?' · '+esc(p.note):'')+'</small></span><span style="text-align:right"><small>'+dLabel(p.date)+'</small><button class="sm dng" style="margin-top:3px" onclick="delPay(\''+p.id+'\')">გაუქმება</button></span></div>').join(''):'<div class="empty">გადახდა ჯერ არ არის</div>')+'</section></div>';
+}
+function sInfo(s){
+  const f=(k,l,ph)=>'<label class="fl">'+l+'<input id="i_'+k+'" value="'+esc(s[k])+'" placeholder="'+(ph||'')+'"></label>';
+  return '<section><h3>რეკვიზიტები და კონტაქტი</h3><div class="fg">'+f('name','მაღაზიის დასახელება')+f('legal','იურიდიული სახელი')+f('idcode','საიდენტიფიკაციო კოდი / პირადი №')+f('address','მისამართი')+f('owner','მფლობელი / საკონტაქტო პირი')+f('phone','ტელეფონი')+f('email','ელფოსტა')+
+  '<label class="fl">სისტემის სახელი (შესვლისთვის)<input value="'+esc(s.login)+'" disabled><small>არ იცვლება, მაღაზიის მომხმარებლები ამით შედიან</small></label></div>'+
+  '<label class="fl" style="margin-top:12px">შიდა შენიშვნა (მხოლოდ სუპერ ადმინი ხედავს)<textarea id="i_notes" rows="3">'+esc(s.notes)+'</textarea></label>'+
+  '<div style="margin-top:12px;display:flex;gap:8px"><button class="pri" onclick="saveInfo(\''+s.id+'\')">შენახვა</button></div></section>'+
+  '<section><h3>მონაცემები</h3><div class="row"><span>მაღაზიის ყველა მონაცემის ჩამოტვირთვა<small>მაგ. თუ მფლობელი ითხოვს ან მაღაზია ტოვებს სისტემას</small></span><button onclick="toast(\'რეალურ სისტემაში ჩამოიტვირთება Excel/ZIP ფაილი\');log(\'მონაცემების ექსპორტი\',\''+s.id+'\')">⬇ ექსპორტი</button></div>'+
+  '<div class="row"><span>მაღაზიის წაშლა<small>წაშლა არ ხდება: ჩეკები ბუღალტრული ვალდებულებით ინახება. ნაცვლად ამისა გამოიყენეთ „შეზღუდვა → შეჩერება".</small></span><button disabled>წაშლა</button></div></section>';
+}
+function saveInfo(id){const s=storeOf(id);['name','legal','idcode','address','owner','phone','email','notes'].forEach(k=>s[k]=$('#i_'+k).value.trim());if(!s.name){toast('დასახელება აუცილებელია');return}log('რეკვიზიტები შეიცვალა',id);toast('შენახულია');render()}
+function sLog(s){const l=D.audit.filter(a=>a.s===s.id).slice().reverse();return '<section><h3>ამ მაღაზიასთან დაკავშირებული ქმედებები</h3>'+(l.length?'<table><tr><th>დრო</th><th>ქმედება</th></tr>'+l.map(a=>'<tr><td style="white-space:nowrap">'+esc(a.t)+'</td><td>'+esc(a.a)+'</td></tr>').join('')+'</table>':'<div class="empty">ჩანაწერი არ არის</div>')+'</section>'}
+
+/* ================= modals: pay, plan, restrict, trial ================= */
+function modal(h){$('#md').innerHTML='<div class="box">'+h+'</div>';$('#md').style.display='flex'}
+function closeM(){$('#md').style.display='none'}
+function payModal(id,period){
+  const ss=D.stores.filter(s=>s.status!=='trial'&&s.status!=='suspended');
+  const s=storeOf(id)||ss[0];
+  const open=invoicesOf(s).filter(i=>i.status!=='paid');
+  const sel=period||(open[0]&&open[0].period)||ym(TODAY);
+  const inv=invoicesOf(s).find(i=>i.period===sel);
+  modal('<h3>გადახდის აღრიცხვა</h3>'+
+  '<label class="fl">მაღაზია<select id="p_s" onchange="payModal(this.value)">'+ss.map(x=>'<option value="'+x.id+'" '+(x.id===s.id?'selected':'')+'>'+esc(x.name)+(debtOf(x)?' · '+fmt(debtOf(x)):'')+'</option>').join('')+'</select></label>'+
+  '<label class="fl">რომელი თვის<select id="p_p" onchange="payModal(\''+s.id+'\',this.value)">'+invoicesOf(s).slice().reverse().map(i=>'<option value="'+i.period+'" '+(i.period===sel?'selected':'')+'>'+ymLabel(i.period)+' — '+(i.status==='paid'?'გადახდილი':'დარჩა '+fmt(i.left))+'</option>').join('')+'<option value="'+ymAdd(ym(TODAY),1)+'" '+(sel===ymAdd(ym(TODAY),1)?'selected':'')+'>'+ymLabel(ymAdd(ym(TODAY),1))+' — წინასწარ</option></select></label>'+
+  '<div class="fg"><label class="fl">თანხა (₾)<input id="p_a" type="number" min="1" value="'+(inv?inv.left||inv.amount:feeFor(s,sel))+'"></label><label class="fl">თარიღი<input id="p_d" type="date" value="'+iso(TODAY)+'"></label></div>'+
+  '<label class="fl">მეთოდი<select id="p_m"><option>გადარიცხვა</option><option>ბარათი</option><option>ნაღდი</option></select></label>'+
+  '<label class="fl">შენიშვნა<input id="p_n" placeholder="მაგ. ბანკის ტრანზაქციის ნომერი"></label>'+
+  (s.status==='restricted'?'<div class="banner b" style="margin:0">მაღაზია ახლა შეზღუდულია. დავალიანების სრულად დაფარვის შემდეგ ავტომატურად აღდგება.</div>':'')+
+  '<div class="ft"><button onclick="closeM()">გაუქმება</button><button class="pri" onclick="savePay()">შენახვა</button></div>')}
+function savePay(){
+  const s=storeOf($('#p_s').value),a=+$('#p_a').value,p=$('#p_p').value;
+  if(!(a>0)){toast('მიუთითეთ თანხა');return}
+  D.payments.push({id:uid(),store:s.id,period:p,amount:a,date:$('#p_d').value||iso(TODAY),method:$('#p_m').value,note:$('#p_n').value.trim()});
+  log('გადახდა აღირიცხა: '+fmt(a)+' ('+ymLabel(p)+')',s.id);
+  if(s.status==='restricted'&&debtOf(s)===0&&/დავალიანება/.test(s.statusReason)){s.status='active';s.statusReason='';log('ავტომატურად აღდგა დავალიანების დაფარვის შემდეგ',s.id)}
+  save();closeM();toast('გადახდა აღირიცხა');render()}
+function delPay(pid){const p=D.payments.find(x=>x.id===pid);modal('<h3>გადახდის გაუქმება?</h3><p style="margin:0">'+fmt(p.amount)+' · '+ymLabel(p.period)+' · '+dLabel(p.date)+'</p><small>გამოიყენეთ მხოლოდ შეცდომით შეყვანილ გადახდაზე. გაუქმება ჩაიწერება ჟურნალში.</small><div class="ft"><button onclick="closeM()">არა</button><button class="dngf" onclick="doDelPay(\''+pid+'\')">გაუქმება</button></div>')}
+function doDelPay(pid){const p=D.payments.find(x=>x.id===pid);D.payments=D.payments.filter(x=>x.id!==pid);log('გადახდა გაუქმდა: '+fmt(p.amount)+' ('+ymLabel(p.period)+')',p.store);closeM();render()}
+function invoiceModal(id,period){const s=storeOf(id),i=invoicesOf(s).find(x=>x.period===period),pl=planOf(s.plan);
+  modal('<h3>ინვოისი · '+ymLabel(period)+'</h3><div class="cred" style="font-family:inherit;line-height:1.6">მყიდველი: <b>'+esc(s.legal)+'</b><br>ს/კ: '+esc(s.idcode)+'<br>მომსახურება: RMS · '+pl.name+' პაკეტი, '+ymLabel(period)+'<br>თანხა: <b>'+fmt(i.amount)+'</b> <small>('+esc(D.settings.vatNote)+')</small><br>გადახდილი: '+fmt(i.paid)+'</div><small>რეალურ სისტემაში ინვოისი PDF-ად ჩამოიტვირთება და ელფოსტით გაიგზავნება '+esc(s.email)+'-ზე.</small><div class="ft"><button onclick="toast(\'PDF — რეალურ სისტემაში\')">⬇ PDF</button><button class="pri" onclick="closeM()">დახურვა</button></div>')}
+function planModal(id){const s=storeOf(id);
+  modal('<h3>პაკეტი და ფასი · '+esc(s.name)+'</h3><div class="pc" id="pm_pc">'+D.plans.map(p=>'<div class="pcard '+(p.id===s.plan?'on':'')+'" data-p="'+p.id+'" onclick="document.querySelectorAll(\'#pm_pc .pcard\').forEach(x=>x.classList.toggle(\'on\',x===this));$(\'#pm_f\').value='+p.price+'"><b>'+p.name+'</b><span class="pp">'+fmt(p.price)+'</span><small>'+p.branches+' ფილიალი · '+p.users+' მომხმარებელი</small></div>').join('')+'</div>'+
+  '<div class="fg"><label class="fl">ფასი ამ მაღაზიისთვის (₾/თვე)<input id="pm_f" type="number" value="'+feeFor(s,ym(TODAY))+'"><small>შეგიძლიათ ფასდაკლებით მისცეთ</small></label><label class="fl">მოქმედებს<select id="pm_w"><option value="'+ym(TODAY)+'">ამ თვიდან ('+ymLabel(ym(TODAY))+')</option><option value="'+ymAdd(ym(TODAY),1)+'">მომავალი თვიდან ('+ymLabel(ymAdd(ym(TODAY),1))+')</option></select></label></div>'+
+  '<small>ძველი თვეების თანხები არ იცვლება.</small><div class="ft"><button onclick="closeM()">გაუქმება</button><button class="pri" onclick="savePlan(\''+id+'\')">შენახვა</button></div>')}
+function savePlan(id){const s=storeOf(id),np=document.querySelector('#pm_pc .pcard.on').dataset.p,f=+$('#pm_f').value,w=$('#pm_w').value;if(!(f>=0)){toast('ფასი არასწორია');return}
+  const old=planOf(s.plan).name+' '+fmt(feeFor(s,w));s.plan=np;s.feeHist=s.feeHist.filter(h=>h.from<w);s.feeHist.push({from:w,fee:f});
+  log('პაკეტი: '+old+' → '+planOf(np).name+' '+fmt(f)+' ('+ymLabel(w)+'-დან)',id);closeM();toast('შენახულია');render()}
+function restrictModal(id){const s=storeOf(id);
+  modal('<h3>შეზღუდვა · '+esc(s.name)+'</h3><label class="fl">რა ხდება<select id="r_t"><option value="restricted">შეზღუდვა: მხოლოდ ნახვა და ექსპორტი, გაყიდვა დაბლოკილია</option><option value="suspended">სრული შეჩერება: შესვლა დაბლოკილია</option></select></label>'+
+  '<label class="fl">მიზეზი (ჩანს მაღაზიისთვის)<input id="r_r" value="'+(overdueOf(s).length?overdueOf(s).length+' თვის დავალიანება':'')+'" placeholder="მაგ. დავალიანება, მფლობელის მოთხოვნა"></label>'+
+  '<div class="note">მონაცემები არცერთ შემთხვევაში არ იშლება. აღდგენა ერთი ღილაკით შეიძლება. რეკომენდაცია: დავალიანების დროს გამოიყენეთ „შეზღუდვა" და არა „შეჩერება", რომ მფლობელმა თავისი მონაცემები მაინც ნახოს.</div>'+
+  '<div class="ft"><button onclick="closeM()">გაუქმება</button><button class="dngf" onclick="doRestrict(\''+id+'\')">დადასტურება</button></div>')}
+function doRestrict(id){const s=storeOf(id),r=$('#r_r').value.trim();if(!r){toast('მიუთითეთ მიზეზი');return}s.status=$('#r_t').value;s.statusReason=r;if(s.status==='suspended')s.suspendedAt=iso(TODAY);log((s.status==='suspended'?'შეჩერდა':'შეიზღუდა')+': '+r,id);closeM();render()}
+function unrestrict(id){const s=storeOf(id);s.status=s.trialEnd>iso(TODAY)&&!D.payments.some(p=>p.store===id)?'trial':'active';s.statusReason='';delete s.suspendedAt;log('აღდგა (სტატუსი: აქტიური)',id);toast('მაღაზია აღდგა');render()}
+function extendTrial(id){const s=storeOf(id);s.trialEnd=iso(addD(new Date(s.trialEnd),14));log('საცდელი გახანგრძლივდა 14 დღით ('+dLabel(s.trialEnd)+'-მდე)',id);toast('საცდელი გახანგრძლივდა 14 დღით');render()}
+function activateModal(id){const s=storeOf(id);
+  modal('<h3>გააქტიურება · '+esc(s.name)+'</h3><p style="margin:0">საცდელი პერიოდი დასრულდება და დაიწყება ყოველთვიური აბონენტი: <b>'+fmt(feeFor(s,ym(TODAY)))+'/თვე</b> ('+planOf(s.plan).name+').</p>'+
+  '<label class="fl">გადახდის დღე (თვის)<input id="a_d" type="number" min="1" max="28" value="'+Math.min(28,TODAY.getDate())+'"></label><div class="ft"><button onclick="closeM()">გაუქმება</button><button class="pri" onclick="doActivate(\''+id+'\')">გააქტიურება</button></div>')}
+function doActivate(id){const s=storeOf(id);s.status='active';s.trialEnd=iso(TODAY);s.payDay=Math.max(1,Math.min(28,+$('#a_d').value||1));s.feeHist=[{from:ym(TODAY),fee:feeFor(s,ym(TODAY))}];log('გააქტიურდა, აბონენტი იწყება '+ymLabel(ym(TODAY))+'-დან',id);closeM();toast('მაღაზია გააქტიურდა');render()}
+
+/* ================= register ================= */
+let REG={plan:'std'};
+function registerView(){
+  return '<button class="sm" style="margin-bottom:12px" onclick="go(\'stores\')">← მაღაზიები</button><div class="hd"><h2>ახალი მაღაზიის რეგისტრაცია</h2></div>'+
+  '<section><h3>1. მაღაზია</h3><div class="fg">'+
+  '<label class="fl">მაღაზიის დასახელება *<input id="r_name" placeholder="მაგ. ზოო მარკეტი" oninput="suggestLogin()"></label>'+
+  '<label class="fl">სისტემის სახელი (შესვლისთვის) *<input id="r_login" placeholder="მაგ. zoomarket" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,\'\');chkLogin()"><small id="r_lm">ლათინური ასოები და ციფრები. ამით შევლენ მომხმარებლები.</small></label>'+
+  '<label class="fl">იურიდიული სახელი<input id="r_legal" placeholder="შპს „…" / ი/მ …"></label>'+
+  '<label class="fl">საიდენტიფიკაციო კოდი / პირადი №<input id="r_idcode" inputmode="numeric"></label>'+
+  '<label class="fl">მისამართი<input id="r_address" placeholder="ქალაქი, ქუჩა"></label>'+
+  '<label class="fl">საქმიანობა<select id="r_kind"><option value="pet">ზოომაღაზია</option><option value="kids">ბავშვის ტანსაცმელი</option><option value="shoes">ფეხსაცმელი</option><option value="sport">სპორტი</option><option value="flowers">ყვავილები</option><option value="tech">ტექნიკა / აქსესუარები</option></select></label></div></section>'+
+  '<section><h3>2. მფლობელი / საკონტაქტო პირი</h3><div class="fg"><label class="fl">სახელი, გვარი *<input id="r_owner"></label><label class="fl">ტელეფონი *<input id="r_phone" placeholder="5XX XX XX XX"></label><label class="fl">ელფოსტა *<input id="r_email" type="email"><small>აქ მივა ინვოისები და შეხსენებები</small></label></div></section>'+
+  '<section><h3>3. პაკეტი</h3><div class="pc">'+D.plans.map(p=>'<div class="pcard '+(REG.plan===p.id?'on':'')+'" onclick="REG.plan=\''+p.id+'\';document.querySelectorAll(\'.pc .pcard\').forEach(x=>x.classList.toggle(\'on\',x===this));$(\'#r_fee\').value='+p.price+'"><b>'+p.name+'</b><span class="pp">'+fmt(p.price)+'<small style="font-size:12px;font-weight:500"> / თვე</small></span><small>'+esc(p.desc)+'</small><small>'+p.branches+' ფილიალი · '+p.users+' მომხმარებელი</small></div>').join('')+'</div>'+
+  '<div class="fg" style="margin-top:12px"><label class="fl">ფასი ამ მაღაზიისთვის (₾/თვე)<input id="r_fee" type="number" value="'+planOf(REG.plan).price+'"><small>ფასდაკლების შემთხვევაში შეცვალეთ</small></label>'+
+  '<label class="fl">საცდელი პერიოდი<select id="r_trial"><option value="0">საცდელის გარეშე</option><option value="7">7 დღე</option><option value="14" selected>14 დღე</option><option value="30">30 დღე</option></select></label>'+
+  '<label class="fl">გადახდის დღე (თვის)<input id="r_payday" type="number" min="1" max="28" value="'+Math.min(28,addD(TODAY,14).getDate())+'"><small>1–28</small></label></div></section>'+
+  '<section><h3>4. ფილიალები</h3><label class="fl">ფილიალების სახელები (თითო ხაზზე ერთი)<textarea id="r_br" rows="3" placeholder="მაგ.&#10;ვაკე&#10;საბურთალო">მთავარი</textarea><small>თითო ფილიალზე ავტომატურად შეიქმნება მოლარის ანგარიში (kasa1, kasa2…)</small></label></section>'+
+  '<section><h3>5. ადმინის ანგარიში</h3><div class="fg"><label class="fl">მომხმარებლის სახელი<input id="r_au" value="admin"></label><label class="fl">დროებითი პაროლი<input id="r_ap" value="'+genPass()+'"><small>მფლობელი პირველ შესვლაზე შეცვლის</small></label></div>'+
+  '<label class="fl" style="flex-direction:row;align-items:center;gap:8px;margin-top:12px;font-weight:500;color:var(--t)"><input type="checkbox" id="r_terms" style="width:auto"> მფლობელი გაეცნო და დაეთანხმა მომსახურების პირობებს და კონფიდენციალურობის პოლიტიკას</label></section>'+
+  '<div style="display:flex;justify-content:flex-end;gap:8px"><button onclick="go(\'stores\')">გაუქმება</button><button class="pri" onclick="doRegister()">მაღაზიის რეგისტრაცია</button></div>';
+}
+const TR={'ა':'a','ბ':'b','გ':'g','დ':'d','ე':'e','ვ':'v','ზ':'z','თ':'t','ი':'i','კ':'k','ლ':'l','მ':'m','ნ':'n','ო':'o','პ':'p','ჟ':'zh','რ':'r','ს':'s','ტ':'t','უ':'u','ფ':'f','ქ':'k','ღ':'gh','ყ':'y','შ':'sh','ჩ':'ch','ც':'ts','ძ':'dz','წ':'ts','ჭ':'ch','ხ':'kh','ჯ':'j','ჰ':'h'};
+function suggestLogin(){const l=$('#r_login');if(l.dataset.t)return;l.value=[...$('#r_name').value.toLowerCase()].map(c=>TR[c]||c).join('').replace(/[^a-z0-9]/g,'');chkLogin()}
+function chkLogin(){const l=$('#r_login'),v=l.value,m=$('#r_lm');if(document.activeElement===l)l.dataset.t=1;const taken=D.stores.some(s=>s.login===v);m.innerHTML=!v?'ლათინური ასოები და ციფრები. ამით შევლენ მომხმარებლები.':taken?'<span style="color:var(--r)">ეს სახელი დაკავებულია</span>':'<span style="color:var(--g)">✓ თავისუფალია</span>'}
+function doRegister(){
+  const g=k=>$('#r_'+k).value.trim();
+  const req=[['name','დასახელება'],['login','სისტემის სახელი'],['owner','მფლობელი'],['phone','ტელეფონი'],['email','ელფოსტა']];
+  for(const [k,l] of req)if(!g(k)){toast('შეავსეთ: '+l);$('#r_'+k).focus();return}
+  if(D.stores.some(s=>s.login===g('login'))){toast('სისტემის სახელი დაკავებულია');return}
+  if(!/^\S+@\S+\.\S+$/.test(g('email'))){toast('ელფოსტა არასწორია');return}
+  if(!$('#r_terms').checked){toast('მონიშნეთ პირობებზე თანხმობა');return}
+  const br=g('br').split('\n').map(x=>x.trim()).filter(Boolean);if(!br.length)br.push('მთავარი');
+  const pl=planOf(REG.plan);
+  const trial=+$('#r_trial').value,fee=+$('#r_fee').value||pl.price,pw=g('ap')||genPass(),au=g('au')||'admin';
+  const s={id:uid(),login:g('login'),name:g('name'),legal:g('legal')||g('name'),idcode:g('idcode'),address:g('address'),owner:g('owner'),phone:g('phone'),email:g('email'),plan:pl.id,kind:$('#r_kind').value,branches:br,
+    status:trial?'trial':'active',statusReason:'',created:iso(TODAY),trialEnd:iso(addD(TODAY,trial)),payDay:Math.max(1,Math.min(28,+$('#r_payday').value||1)),
+    feeHist:[{from:ym(addD(TODAY,trial)),fee}],users:[{u:au,name:g('owner'),role:'ადმინი',branch:'ყველა',last:''}].concat(br.map((b,i)=>({u:'kasa'+(i+1),name:'მოლარე '+(i+1),role:'მოლარე',branch:b,last:''}))),
+    lastActive:iso(TODAY),syncPending:0,notes:''};
+  D.stores.push(s);log('მაღაზია დარეგისტრირდა ('+pl.name+', '+fmt(fee)+'/თვე'+(trial?', საცდელი '+trial+' დღე':'')+')',s.id);
+  const warn=br.length>pl.branches?'<div class="banner" style="margin:0">ფილიალების რაოდენობა ('+br.length+') აღემატება '+pl.name+' პაკეტის ლიმიტს ('+pl.branches+').</div>':'';
+  window._cred='მაღაზია: '+s.login+'\nმომხმარებელი: '+au+'\nპაროლი: '+pw;
+  V.store=s.id;V.tab='dash';V.view='store';render();
+  modal('<h3>✓ მაღაზია დარეგისტრირდა</h3><p style="margin:0">გადაეცით ეს მონაცემები მფლობელს (<b>'+esc(s.owner)+'</b>):</p><div class="cred">მაღაზია: <b>'+esc(s.login)+'</b><br>მომხმარებელი: <b>'+esc(au)+'</b><br>პაროლი: <b>'+esc(pw)+'</b></div>'+warn+
+  '<small>რეალურ სისტემაში ეს მონაცემები ავტომატურად გაიგზავნება '+esc(s.email)+'-ზე. პაროლი სუპერ ადმინთან არ ინახება, ამიტომ ფანჯრის დახურვის შემდეგ ვეღარ ნახავთ.</small><div class="ft"><button onclick="copyT(window._cred)">კოპირება</button><button class="pri" onclick="closeM()">დახურვა</button></div>');
+  REG={plan:'std'};
+}
+
+/* ================= billing ================= */
+function billingView(){
+  const cm=ym(TODAY);if(!V.bm)V.bm=cm;
+  const months=[];for(let i=0;i<12;i++)months.push(ymAdd(cm,-i));
+  const all=V.bm==='debt';
+  let rows=[];
+  D.stores.forEach(s=>invoicesOf(s).forEach(i=>{if(all?(i.status==='overdue'||i.status==='due'):i.period===V.bm)rows.push(Object.assign({s},i))}));
+  const exp=rows.reduce((a,r)=>a+r.amount,0),got=rows.reduce((a,r)=>a+Math.min(r.paid,r.amount),0),left=exp-got;
+  const F={all:()=>true,paid:r=>r.status==='paid',unpaid:r=>r.status!=='paid',overdue:r=>r.status==='overdue'};
+  const shown=rows.filter(F[V.bf]).sort((a,b)=>({overdue:0,due:1,upcoming:2,paid:3}[a.status]-{overdue:0,due:1,upcoming:2,paid:3}[b.status])||(a.period<b.period?-1:1));
+  const trials=D.stores.filter(s=>s.status==='trial');
+  return '<div class="hd"><h2>გადახდები · აბონენტი</h2><div><select onchange="V.bm=this.value;render()"><option value="debt" '+(all?'selected':'')+'>ყველა გადაუხდელი</option>'+months.map(m=>'<option value="'+m+'" '+(V.bm===m?'selected':'')+'>'+ymLabel(m)+'</option>').join('')+'</select><button onclick="exportBilling()">ცხრილის კოპირება (Excel)</button><button class="pri" onclick="payModal()">+ გადახდის აღრიცხვა</button></div></div>'+
+  '<div class="ks k4"><div><small>'+(all?'სულ გადასახდელი':'დარიცხული · '+ymLabel(V.bm))+'</small><b>'+fmt(exp)+'</b><em>'+rows.length+' ინვოისი</em></div><div><small>მიღებული</small><b style="color:var(--g)">'+fmt(got)+'</b><em>'+(exp?Math.round(got/exp*100):0)+'%</em></div><div><small>დარჩენილი</small><b style="color:'+(left?'var(--r)':'inherit')+'">'+fmt(left)+'</b><em>'+rows.filter(r=>r.status!=='paid').length+' მაღაზია</em></div><div><small>საცდელზე (ჯერ არ იხდის)</small><b>'+trials.length+'</b><em>პოტენციური '+fmt(trials.reduce((a,s)=>a+feeFor(s,ym(TODAY)),0))+'/თვე</em></div></div>'+
+  '<div class="sg2" style="margin-bottom:12px">'+[['all','ყველა'],['paid','გადახდილი'],['unpaid','გადაუხდელი'],['overdue','ვადაგადაცილებული']].map(f=>'<button class="'+(V.bf===f[0]?'on':'')+'" onclick="V.bf=\''+f[0]+'\';render()">'+f[1]+' <small>'+rows.filter(F[f[0]]).length+'</small></button>').join('')+'</div>'+
+  '<section>'+(shown.length?'<table><tr><th>მაღაზია</th>'+(all?'<th>თვე</th>':'')+'<th>პაკეტი</th><th>ვადა</th><th class="r">თანხა</th><th class="r">გადახდილი</th><th>სტატუსი</th><th></th></tr>'+
+  shown.map(r=>{const lp=D.payments.filter(p=>p.store===r.s.id&&p.period===r.period).sort((a,b)=>a.date<b.date?1:-1)[0];const late=r.status==='overdue'?daysBetween(r.due,TODAY):0;
+    return '<tr><td><b style="cursor:pointer" onclick="openStore(\''+r.s.id+'\')">'+esc(r.s.name)+'</b><small>'+esc(r.s.owner)+' · '+esc(r.s.phone)+'</small></td>'+(all?'<td>'+ymLabel(r.period)+'</td>':'')+'<td>'+planOf(r.s.plan).name+'</td><td>'+dLabel(r.due)+(late?'<small style="color:var(--r)">'+late+' დღით გადაცილებული</small>':'')+'</td><td class="r">'+fmt(r.amount)+'</td><td class="r">'+fmt(r.paid)+(lp?'<small>'+dLabel(lp.date)+'</small>':'')+'</td><td>'+INV_TAG[r.status]+'</td>'+
+    '<td class="r" style="white-space:nowrap">'+(r.status!=='paid'?'<button class="sm" onclick="remind(\''+r.s.id+'\',\''+r.period+'\')">შეხსენება</button> <button class="sm pri" onclick="payModal(\''+r.s.id+'\',\''+r.period+'\')">გადახდა</button>':'<button class="sm" onclick="invoiceModal(\''+r.s.id+'\',\''+r.period+'\')">ინვოისი</button>')+'</td></tr>'}).join('')+'</table>':'<div class="empty">ჩანაწერი არ არის</div>')+'</section>'+
+  '<div class="note">ვადაგადაცილებულად ითვლება გადახდის დღიდან '+D.settings.grace+' დღის შემდეგ (იცვლება „პარამეტრებში"). საცდელ და შეჩერებულ მაღაზიებს ახალი თანხა არ ერიცხებათ.</div>';
+}
+function remind(id,p){const s=storeOf(id),i=invoicesOf(s).find(x=>x.period===p);log('შეხსენება გაიგზავნა: '+ymLabel(p)+', '+fmt(i.left),id);toast('შეხსენება გაეგზავნა: '+s.email+' (რეალურ სისტემაში)')}
+function exportBilling(){const r=[['მაღაზია','იურიდიული','ს/კ','თვე','ვადა','თანხა','გადახდილი','სტატუსი']];D.stores.forEach(s=>invoicesOf(s).forEach(i=>r.push([s.name,s.legal,s.idcode,i.period,i.due,i.amount,i.paid,{paid:'გადახდილი',upcoming:'მოსალოდნელი',due:'გადასახდელი',overdue:'ვადაგადაცილებული'}[i.status]])));csv('billing.csv',r);log('ექსპორტი: გადახდები')}
+
+/* ================= plans ================= */
+function plansView(){
+  return '<div class="hd"><h2>პაკეტები და ფასები</h2></div><div class="g3">'+D.plans.map((p,i)=>{const n=D.stores.filter(s=>s.plan===p.id&&s.status!=='suspended').length;
+    return '<section><h3>'+p.name+' <span class="tg b">'+n+' მაღაზია</span></h3><div class="fg" style="grid-template-columns:1fr 1fr">'+
+    '<label class="fl">ფასი (₾/თვე)<input id="pl_p'+i+'" type="number" value="'+p.price+'"></label><label class="fl">დასახელება<input id="pl_n'+i+'" value="'+esc(p.name)+'"></label>'+
+    '<label class="fl">ფილიალების ლიმიტი<input id="pl_b'+i+'" type="number" value="'+p.branches+'"></label><label class="fl">მომხმარებლების ლიმიტი<input id="pl_u'+i+'" type="number" value="'+p.users+'"></label></div>'+
+    '<label class="fl" style="margin-top:10px">აღწერა<input id="pl_d'+i+'" value="'+esc(p.desc)+'"></label></section>'}).join('')+'</div>'+
+  '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div class="note" style="flex:1">ახალი ფასი მოქმედებს <b>ახლად დარეგისტრირებულ</b> მაღაზიებზე. არსებულ მაღაზიებს ფასი ავტომატურად არ ეცვლებათ, ამისთვის გამოიყენეთ მაღაზიის გვერდზე „პაკეტი / ფასი".</div><button class="pri" onclick="savePlans()">შენახვა</button></div>';
+}
+function savePlans(){D.plans.forEach((p,i)=>{p.price=+$('#pl_p'+i).value||p.price;p.name=$('#pl_n'+i).value.trim()||p.name;p.branches=+$('#pl_b'+i).value||p.branches;p.users=+$('#pl_u'+i).value||p.users;p.desc=$('#pl_d'+i).value.trim()});log('პაკეტების პარამეტრები შეიცვალა');toast('შენახულია');render()}
+
+/* ================= announcements ================= */
+function annView(){
+  return '<div class="hd"><h2>განცხადებები მაღაზიებისთვის</h2></div><div class="g2"><section><h3>ახალი განცხადება</h3>'+
+  '<div class="fg"><label class="fl">ვის<select id="an_t"><option value="all">ყველა მაღაზიას</option>'+D.stores.filter(s=>s.status!=='suspended').map(s=>'<option value="'+s.id+'">'+esc(s.name)+'</option>').join('')+'</select></label><label class="fl">ტიპი<select id="an_y"><option>ინფორმაცია</option><option>ტექნიკური სამუშაო</option><option>ახალი ფუნქცია</option><option>გაფრთხილება</option></select></label></div>'+
+  '<label class="fl" style="margin-top:10px">ტექსტი<textarea id="an_x" rows="4" placeholder="მაგ. ახალი ფუნქცია: ინვოისები იურიდიული პირებისთვის"></textarea></label>'+
+  '<label class="fl" style="flex-direction:row;align-items:center;gap:8px;margin-top:10px;font-weight:500;color:var(--t)"><input type="checkbox" id="an_e" style="width:auto"> ელფოსტითაც გაგზავნა</label>'+
+  '<div style="margin-top:12px;display:flex;justify-content:flex-end"><button class="pri" onclick="sendAnn()">გაგზავნა</button></div>'+
+  '<div class="note" style="margin-top:10px">განცხადება გამოჩნდება მაღაზიის დეშბორდსა და სალაროში, ზედა ზოლში.</div></section>'+
+  '<section><h3>გაგზავნილი</h3>'+(D.ann.length?D.ann.slice().reverse().map(a=>'<div class="row" style="align-items:flex-start"><span><span class="tg '+({'გაფრთხილება':'r','ტექნიკური სამუშაო':'o','ახალი ფუნქცია':'g'}[a.type]||'b')+'">'+esc(a.type)+'</span> <small style="display:inline">'+(a.target==='all'?'ყველას':esc((storeOf(a.target)||{}).name))+' · '+esc(a.t)+'</small><div style="margin-top:4px">'+esc(a.text)+'</div></span><button class="sm" onclick="delAnn(\''+a.id+'\')">✕</button></div>').join(''):'<div class="empty">ჯერ არაფერი</div>')+'</section></div>';
+}
+function sendAnn(){const x=$('#an_x').value.trim();if(!x){toast('დაწერეთ ტექსტი');return}const a={id:uid(),t:nowStr(),type:$('#an_y').value,target:$('#an_t').value,text:x};D.ann.push(a);log('განცხადება გაიგზავნა: '+a.type,a.target==='all'?'':a.target);toast('გაიგზავნა');render()}
+function delAnn(id){D.ann=D.ann.filter(a=>a.id!==id);save();render()}
+
+/* ================= audit ================= */
+function auditView(){
+  const q=V.aq.toLowerCase();const l=D.audit.slice().reverse().filter(a=>!q||(a.a+' '+((storeOf(a.s)||{}).name||'')).toLowerCase().includes(q));
+  return '<div class="hd"><h2>ჟურნალი</h2><div><input class="srch" type="search" placeholder="ძებნა ჟურნალში…" value="'+esc(V.aq)+'" onchange="V.aq=this.value;render()"></div></div>'+
+  '<section><table><tr><th>დრო</th><th>ქმედება</th><th>მაღაზია</th></tr>'+l.slice(0,300).map(a=>{const s=storeOf(a.s);return '<tr><td style="white-space:nowrap">'+esc(a.t)+'</td><td>'+esc(a.a)+'</td><td>'+(s?'<span style="cursor:pointer;color:var(--a)" onclick="V.store=\''+s.id+'\';V.tab=\'log\';go(\'store\')">'+esc(s.name)+'</span>':'<span class="m">—</span>')+'</td></tr>'}).join('')+'</table></section>'+
+  '<div class="note">სუპერ ადმინის ყველა ქმედება (მაღაზიის ნახვა, გადახდა, სტატუსის შეცვლა, პაროლის აღდგენა, ექსპორტი) იწერება აქ. ჩანაწერების წაშლა შეუძლებელია.</div>';
+}
+
+/* ================= settings ================= */
+function settingsView(){const st=D.settings;
+  return '<div class="hd"><h2>პარამეტრები</h2></div><section><h3>აბონენტის წესები</h3><div class="fg">'+
+  '<label class="fl">საშეღავათო პერიოდი (დღე)<input id="st_g" type="number" min="0" value="'+st.grace+'"><small>გადახდის დღიდან რამდენ დღეში ჩაითვლება ვადაგადაცილებულად</small></label>'+
+  '<label class="fl">შეზღუდვის შეთავაზება (დღე)<input id="st_r" type="number" min="1" value="'+st.restrictAfter+'"><small>ამდენი დღის დავალიანებისას სისტემა შეგახსენებთ შეზღუდვას. ავტომატურად არაფერი იბლოკება.</small></label>'+
+  '<label class="fl">შეხსენება გადახდამდე (დღე)<input id="st_b" type="number" min="0" value="'+st.remindBefore+'"><small>მაღაზიას ელფოსტა მიუვა გადახდის დღემდე</small></label>'+
+  '<label class="fl">სუპერ ადმინის ელფოსტა<input id="st_e" value="'+esc(st.email)+'"><small>აქ მოვა: ახალი რეგისტრაცია, დავალიანება, სისტემის შეცდომები</small></label>'+
+  '<label class="fl">ინვოისის შენიშვნა<input id="st_v" value="'+esc(st.vatNote)+'"></label></div><div style="margin-top:12px"><button class="pri" onclick="saveSettings()">შენახვა</button></div></section>'+
+  '<section><h3>უსაფრთხოება</h3><div class="row"><span>ორფაქტორიანი ავთენტიფიკაცია (2FA)<small>სუპერ ადმინისთვის სავალდებულოა, არ ითიშება</small></span><span class="tg g">ჩართულია</span></div>'+
+  '<div class="row"><span>მაღაზიის მონაცემების ნახვა<small>მხოლოდ ნახვის რეჟიმი, ყოველი ნახვა ჟურნალში</small></span><span class="tg g">ჩართულია</span></div>'+
+  '<div class="row"><span>მომხმარებლების პაროლები<small>ჰეშირებულია, სუპერ ადმინიც ვერ ხედავს</small></span><span class="tg g">დაცულია</span></div></section>'+
+  '<section><h3>პროტოტიპი</h3><div class="row"><span>საჩვენებელი მონაცემების თავიდან დაყენება<small>ყველა ცვლილება წაიშლება ამ ბრაუზერში</small></span><button class="dng" onclick="resetDemo()">თავიდან დაყენება</button></div></section>';
+}
+function saveSettings(){const st=D.settings;st.grace=Math.max(0,+$('#st_g').value||0);st.restrictAfter=Math.max(1,+$('#st_r').value||30);st.remindBefore=Math.max(0,+$('#st_b').value||0);st.email=$('#st_e').value.trim();st.vatNote=$('#st_v').value.trim();log('პარამეტრები შეიცვალა');toast('შენახულია');render()}
+function resetDemo(){modal('<h3>თავიდან დაყენება?</h3><p style="margin:0">ყველა თქვენი ცვლილება ამ პროტოტიპში წაიშლება.</p><div class="ft"><button onclick="closeM()">არა</button><button class="dngf" onclick="D=null;D=seed();save();closeM();go(\'overview\')">დიახ</button></div>')}
+
+/* ================= boot ================= */
+D=load();
+render();
+</script>
+</body></html>
