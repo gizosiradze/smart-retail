@@ -85,6 +85,13 @@ How to export the prototype data is described at the top of `scripts/import-lega
 `SUPABASE_ANON_KEY`. Every branch gets a preview link; add the live and preview addresses to
 `ALLOWED_ORIGINS` and run `npm run deploy` again.
 
+**GitHub Pages** (automatic): every push to `main` runs `.github/workflows/pages.yml`, which writes
+`web/config.js` and publishes `web/` to `https://<owner>.github.io/<repo>/` (Super Admin at `.../superadmin/`).
+Once: repo *Settings → Pages → Source: GitHub Actions*. The Supabase URL and public key can be overridden
+with repository variables `SUPABASE_URL` / `SUPABASE_ANON_KEY`. Only the web pages are deployed; the
+database and `store-login` still go through `npm run deploy`. Add the Pages address to `ALLOWED_ORIGINS`
+if you restrict it.
+
 ## Tests
 
 ```bash
