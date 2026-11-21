@@ -1,0 +1,16 @@
+{
+  "name": "smart-retail",
+  "private": true,
+  "description": "Smart Retail: retail management (POS + dashboard) on Supabase",
+  "scripts": {
+    "dev": "scripts/dev.sh",
+    "dev:reset": "scripts/dev.sh --reset",
+    "dev:stop": "scripts/dev.sh --stop",
+    "deploy": "scripts/deploy.sh",
+    "test": "scripts/test-db.sh && scripts/e2e/run.sh",
+    "import": "node scripts/import-legacy.mjs",
+    "superadmin": "node scripts/create-superadmin.mjs",
+    "build:web": "python3 scripts/build-web-from-prototype.py"
+  },
+  "engines": { "node": ">=18" }
+}
