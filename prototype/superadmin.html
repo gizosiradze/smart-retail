@@ -106,7 +106,7 @@ function seed(){
       plan:o.plan,kind:o.kind,branches:o.branches,status:o.status||'active',statusReason:o.reason||'',created:iso(created),
       trialEnd:iso(o.status==='trial'?addD(TODAY,o.trialLeft):addD(created,14)),payDay:Math.min(28,addD(created,14).getDate()),
       feeHist:[{from:ym(addD(created,14)),fee:o.fee||P[o.plan].price}],
-      users:[{u:'admin',name:o.owner,role:'ადმინი',branch:'ყველა',last:iso(addD(TODAY,-(o.lastAgo||0)))}].concat(o.branches.map((b,i)=>({u:'kasa'+(i+1),name:'მოლარე '+(i+1),role:'მოლარე',branch:b,last:iso(addD(TODAY,-(o.lastAgo||0)))}))),
+      users:[{u:'admin',name:o.owner,role:'ადმინი',branch:'ყველა',last:iso(addD(TODAY,-(o.lastAgo||0)))}].concat(o.branches.map((b,i)=>({u:'point'+(i+1),name:'მოლარე '+(i+1),role:'მოლარე',branch:b,last:iso(addD(TODAY,-(o.lastAgo||0)))}))),
       lastActive:iso(addD(TODAY,-(o.lastAgo||0))),syncPending:o.sync||0,notes:o.notes||''};
     if(s.status==='suspended')s.suspendedAt=s.lastActive;
     stores.push(s);
@@ -420,7 +420,7 @@ function registerView(){
   '<div class="fg" style="margin-top:12px"><label class="fl">ფასი ამ მაღაზიისთვის (₾/თვე)<input id="r_fee" type="number" value="'+planOf(REG.plan).price+'"><small>ფასდაკლების შემთხვევაში შეცვალეთ</small></label>'+
   '<label class="fl">საცდელი პერიოდი<select id="r_trial"><option value="0">საცდელის გარეშე</option><option value="7">7 დღე</option><option value="14" selected>14 დღე</option><option value="30">30 დღე</option></select></label>'+
   '<label class="fl">გადახდის დღე (თვის)<input id="r_payday" type="number" min="1" max="28" value="'+Math.min(28,addD(TODAY,14).getDate())+'"><small>1–28</small></label></div></section>'+
-  '<section><h3>4. ფილიალები</h3><label class="fl">ფილიალების სახელები (თითო ხაზზე ერთი)<textarea id="r_br" rows="3" placeholder="მაგ.&#10;ვაკე&#10;საბურთალო">მთავარი</textarea><small>თითო ფილიალზე ავტომატურად შეიქმნება მოლარის ანგარიში (kasa1, kasa2…)</small></label></section>'+
+  '<section><h3>4. ფილიალები</h3><label class="fl">ფილიალების სახელები (თითო ხაზზე ერთი)<textarea id="r_br" rows="3" placeholder="მაგ.&#10;ვაკე&#10;საბურთალო">მთავარი</textarea><small>შეიქმნება მხოლოდ ადმინის ანგარიში. მოლარეებს (point1, point2…) ადმინი თავად დაამატებს მაღაზიის პანელიდან</small></label></section>'+
   '<section><h3>5. ადმინის ანგარიში</h3><div class="fg"><label class="fl">მომხმარებლის სახელი<input id="r_au" value="admin"></label><label class="fl">დროებითი პაროლი<input id="r_ap" value="'+genPass()+'"><small>მფლობელი პირველ შესვლაზე შეცვლის</small></label></div>'+
   '<label class="fl" style="flex-direction:row;align-items:center;gap:8px;margin-top:12px;font-weight:500;color:var(--t)"><input type="checkbox" id="r_terms" style="width:auto"> მფლობელი გაეცნო და დაეთანხმა მომსახურების პირობებს და კონფიდენციალურობის პოლიტიკას</label></section>'+
   '<div style="display:flex;justify-content:flex-end;gap:8px"><button onclick="go(\'stores\')">გაუქმება</button><button class="pri" onclick="doRegister()">მაღაზიის რეგისტრაცია</button></div>';
