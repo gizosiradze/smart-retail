@@ -447,7 +447,7 @@ function doRegisterLocal(){
   const trial=+$('#r_trial').value,fee=+$('#r_fee').value||pl.price,pw=g('ap')||genPass(),au=g('au')||'admin';
   const s={id:uid(),login:g('login'),name:g('name'),legal:g('legal')||g('name'),idcode:g('idcode'),address:g('address'),owner:g('owner'),phone:g('phone'),email:g('email'),plan:pl.id,kind:$('#r_kind').value,branches:br,
     status:trial?'trial':'active',statusReason:'',created:iso(TODAY),trialEnd:iso(addD(TODAY,trial)),payDay:Math.max(1,Math.min(28,+$('#r_payday').value||1)),
-    feeHist:[{from:ym(addD(TODAY,trial)),fee}],users:[{u:au,name:g('owner'),role:'ადმინი',branch:'ყველა',last:''}].concat(br.map((b,i)=>({u:'kasa'+(i+1),name:'მოლარე '+(i+1),role:'მოლარე',branch:b,last:''}))),
+    feeHist:[{from:ym(addD(TODAY,trial)),fee}],users:[{u:au,name:g('owner'),role:'ადმინი',branch:'ყველა',last:''}],
     lastActive:iso(TODAY),syncPending:0,notes:''};
   D.stores.push(s);log('მაღაზია დარეგისტრირდა ('+pl.name+', '+fmt(fee)+'/თვე'+(trial?', საცდელი '+trial+' დღე':'')+')',s.id);
   const warn=br.length>pl.branches?'<div class="banner" style="margin:0">ფილიალების რაოდენობა ('+br.length+') აღემატება '+pl.name+' პაკეტის ლიმიტს ('+pl.branches+').</div>':'';
