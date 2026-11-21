@@ -109,6 +109,8 @@ def build_superadmin() -> None:
     s = patch(s, 'sa reset', "function resetPass(id,i){", "function resetPass(id,i){if(window.SRP&&SRP.on)return SRP.resetPass(id,i);resetPassLocal(id,i)}\nfunction resetPassLocal(id,i){")
     # real numbers instead of the random demo metrics
     s = patch(s, 'sa metrics', "function metrics(s){", "function metrics(s){if(window.SRP&&SRP.on)return SRP.metrics(s);return metricsDemo(s)}\nfunction metricsDemo(s){")
+    # the store's real dashboard in a new tab, read-only (prototype only explains what it would do)
+    s = patch(s, 'sa open as store', "function openAsStore(id){", "function openAsStore(id){if(window.SRP&&SRP.on)return SRP.openAsStore(id);openAsStoreLocal(id)}\nfunction openAsStoreLocal(id){")
     s = patch(s, 'sa reset demo', "function resetDemo(", "function resetDemo(){if(window.SRP&&SRP.on){toast('რეალურ სისტემაში დემოს აღდგენა გამორთულია');return}resetDemoLocal()}\nfunction resetDemoLocal(")
     s = patch(s, 'sa boot', "D=load();\nrender();", "if(window.SRP&&SRP.on){SRP.boot()}else{D=load();render()}")
     (ROOT / 'web/superadmin/index.html').write_text(s)

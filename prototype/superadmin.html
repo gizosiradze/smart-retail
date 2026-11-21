@@ -288,7 +288,7 @@ function rStores(){const q=V.q.toLowerCase();const F={all:()=>true,active:s=>s.s
 function storesTable(list){
   if(!list.length)return '<div class="empty">მაღაზია ვერ მოიძებნა</div>';
   return '<table><tr><th>მაღაზია</th><th>მფლობელი</th><th>პაკეტი</th><th>ფილიალი</th><th>სტატუსი</th><th>აბონენტი</th><th>შემდეგი გადახდა</th><th>ბოლო აქტივობა</th></tr>'+
-  list.map(s=>{const p=planOf(s.plan),la=daysBetween(s.lastActive,TODAY);return '<tr class="cl" onclick="openStore(\''+s.id+'\')"><td><b>'+esc(s.name)+'</b><small>'+esc(s.login)+' · '+esc(s.legal)+'</small></td><td>'+esc(s.owner)+'<small>'+esc(s.phone)+'</small></td>'+
+  list.map(s=>{const p=planOf(s.plan),la=daysBetween(s.lastActive,TODAY);return '<tr class="cl" onclick="openStore(\''+s.id+'\')"><td><b>'+esc(s.name)+'</b><small>'+esc(s.login)+' · '+esc(s.legal)+'</small>'+(s.status!=='suspended'?'<button class="sm" style="margin-top:6px" title="მაღაზიის სრული დეშბორდი ახალ ფანჯარაში (მხოლოდ ნახვა)" onclick="event.stopPropagation();openAsStore(\''+s.id+'\')">დეშბორდი ↗</button>':'')+'</td><td>'+esc(s.owner)+'<small>'+esc(s.phone)+'</small></td>'+
   '<td><span class="tg b">'+p.name+'</span><small>'+fmt(feeFor(s,ym(TODAY)))+' / თვე</small></td><td>'+s.branches.length+' / '+p.branches+(s.branches.length>p.branches?' <span class="tg o">ლიმიტს ზემოთ</span>':'')+'</td>'+
   '<td>'+statusTag(s)+'</td><td>'+payTag(s)+'</td><td>'+(s.status==='suspended'?'—':dLabel(nextDue(s)))+'</td><td><span class="dot '+(la<=1?'g':la<14?'o':'n')+'"></span>'+(la===0?'დღეს':la===1?'გუშინ':la+' დღის წინ')+'</td></tr>'}).join('')+'</table>';
 }
@@ -300,6 +300,7 @@ function storeView(){
   const s=storeOf(V.store);if(!s)return '<div class="empty">მაღაზია არ მოიძებნა</div>';
   const p=planOf(s.plan);
   const acts=[];
+  if(s.status!=='suspended')acts.push('<button class="pri" title="მაღაზიის სრული დეშბორდი ახალ ფანჯარაში, მხოლოდ ნახვა" onclick="openAsStore(\''+s.id+'\')">სრული დეშბორდი ↗</button>');
   if(s.status!=='trial'&&s.status!=='suspended')acts.push('<button class="pri" onclick="payModal(\''+s.id+'\')">+ გადახდის აღრიცხვა</button>');
   if(s.status==='trial')acts.push('<button class="pri" onclick="activateModal(\''+s.id+'\')">გააქტიურება</button><button onclick="extendTrial(\''+s.id+'\')">საცდელის გახანგრძლივება</button>');
   acts.push('<button onclick="planModal(\''+s.id+'\')">პაკეტი / ფასი</button>');
@@ -321,7 +322,7 @@ function sDash(s){
   '<div class="g2"><section><h3>ფილიალების მიხედვით · 30 დღე</h3>'+m.branches.map(b=>'<div class="bar"><span>'+esc(b.b)+'</span><i style="width:'+(b.v/bmx*100)+'%"></i><b>'+fmt(b.v)+'</b></div>').join('')+'</section>'+
   '<section><h3>ტოპ პროდუქტები · 30 დღე</h3>'+m.top.map(t=>'<div class="bar"><span>'+esc(t.n)+'</span><i style="width:'+(t.q/tmx*100)+'%"></i><b>'+t.q+' ც</b></div>').join('')+'</section></div>'+
   '<section><h3>ტექნიკური მდგომარეობა</h3><div class="mini"><div><small>სინქრონიზაცია</small><b>'+(s.syncPending?'<span style="color:var(--o)">'+s.syncPending+' ჩეკი რიგში</span>':'<span style="color:var(--g)">✓ ყველაფერი სერვერზეა</span>')+'</b></div><div><small>ბოლო აქტივობა</small><b>'+dLabel(s.lastActive)+'</b></div><div><small>სალაროები</small><b>'+s.branches.length+' მოწყობილობა</b></div></div>'+
-  '<div class="note" style="margin-top:10px">ციფრები პროტოტიპში საჩვენებელია. რეალურ სისტემაში აქ მაღაზიის ნამდვილი დეშბორდი გამოჩნდება, იგივე ღამის ჯამებიდან.</div></section>';
+  '<div class="note" style="margin-top:10px">აქ მოკლე შეჯამებაა. მაღაზიის სრული დეშბორდი, ყველა სტატისტიკით, ისე, როგორც მაღაზიის ადმინი ხედავს, იხსნება ღილაკით „სრული დეშბორდი ↗".</div></section>';
 }
 function openAsStore(id){const s=storeOf(id);log('შესვლა მაღაზიის სისტემაში ნახვის რეჟიმში',id);
   modal('<h3>მაღაზიის სისტემაში შესვლა</h3><p style="margin:0">რეალურ სისტემაში ეს ღილაკი გახსნის <b>'+esc(s.name)+'</b>-ის დეშბორდს ახალ ფანჯარაში, <b>მხოლოდ ნახვის</b> რეჟიმში: ზემოთ გამოჩნდება ზოლი „სუპერ ადმინი ათვალიერებს", ცვლილების ღილაკები გათიშული იქნება, ხოლო ყოველი შესვლა ჩაიწერება ჟურნალში (თარიღი, დრო, რა ნახეთ).</p><div class="note">მაღაზიის მფლობელს შეგიძლიათ აჩვენოთ, როდის შეხვედით მის სისტემაში. ეს ნდობისთვის მნიშვნელოვანია.</div><div class="ft"><button class="pri" onclick="closeM();render()">გასაგებია</button></div>')}
