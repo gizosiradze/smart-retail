@@ -87,6 +87,16 @@ def build_app() -> None:
            "if(window.SR&&SR.on){SR.boot()}else{" + body + "}")
     s = s[:start] + new + s[tail_end:]
 
+    # 7. installable app (PWA): manifest, icons, service worker (files live in web/, see web/sw.js)
+    s = patch(s, 'pwa head', '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
+              '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+              '<meta name="theme-color" content="#6d1a2e"><meta name="mobile-web-app-capable" content="yes">'
+              '<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Smart Retail">'
+              '<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">')
+    s = patch(s, 'pwa sw', '<script src="config.js"></script>\n',
+              '<script src="config.js"></script>\n'
+              "<script>if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>\n")
+
     (ROOT / 'web/index.html').write_text(s)
     print('web/index.html written')
 
