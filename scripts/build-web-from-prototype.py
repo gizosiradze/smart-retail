@@ -165,6 +165,23 @@ def build_app() -> None:
               '<script src="../config.js"></script>\n'
               "<script>if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>\n")
 
+
+    # menu and footer items become real links (crawlers follow <a href>, not onclick); same look as the buttons they replace
+    home, n = re.subn(r'<button onclick="lpGo\(\'(lp-[a-z0-9]+)\'\)">([^<]*)</button>',
+                      r'<a href="#\1" onclick="lpGo(this.hash.slice(1));return false">\2</a>', home)
+    if n != 12:
+        sys.exit(f"home links: expected 12 lpGo buttons, found {n}")
+    home = patch(home, 'home login link 1', '<button onclick="lpLogin()" style="color:var(--wine);font-weight:600">სისტემაში შესვლა</button>',
+                 '<a href="/app/" onclick="lpLogin();return false" style="color:var(--wine);font-weight:600">სისტემაში შესვლა</a>')
+    home = patch(home, 'home login link 2', '<li><button onclick="lpLogin()">შესვლა</button></li>',
+                 '<li><a href="/app/" onclick="lpLogin();return false">შესვლა</a></li>')
+    home = patch(home, 'home link css', '</style></head><body>',
+                 '.lp-nav a,.lp-mn a,.lp-ft li a{font:inherit;cursor:pointer;text-decoration:none;text-align:center;color:inherit}'
+                 '.lp-nav a{padding:8px 13px;border-radius:10px;font-size:15px;color:#4a3f43;transition:background .15s,color .15s}'
+                 '.lp-nav a:hover{background:var(--soft);color:var(--ink)}'
+                 '.lp-ft li a{display:inline-block;color:#c9bec2;transition:color .15s}.lp-ft li a:hover{color:#fff}'
+                 '@media(max-width:860px){.lp-mn a{display:block;width:100%;text-align:left;padding:14px 4px;font-size:17px;border-bottom:1px solid #f1eaec}}'
+                 '</style></head><body>')
     home = seo_home(home)
     (ROOT / 'web/index.html').write_text(home)
     s = patch(s, 'app noindex', '<title>' + TITLE + '</title>', '<meta name="robots" content="noindex,nofollow"><title>' + TITLE + '</title>')
