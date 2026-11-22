@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuilds web/index.html and web/superadmin/index.html from the prototype artifacts.
+"""Rebuilds web/app/index.html and web/superadmin/index.html from the prototype artifacts.
 
 The prototypes stay the design source of truth on claude.ai. When a new prototype version is exported
 to prototype/app.html and prototype/superadmin.html, run:
@@ -36,7 +36,7 @@ def build_app() -> None:
     s = strip_host_wrapper((ROOT / 'prototype/app.html').read_text())
 
     # 1. config + data layer load before the app script
-    s = patch(s, 'scripts', '</template>\n<script>\n', '</template>\n<script src="config.js"></script>\n<script src="js/sr.js"></script>\n<script>\n')
+    s = patch(s, 'scripts', '</template>\n<script>\n', '</template>\n<script src="../config.js"></script>\n<script src="../js/sr.js"></script>\n<script>\n')
 
     # 2. save(): Supabase instead of localStorage (the landing-page demo iframe keeps its in-memory copy)
     s = patch(s, 'save',
@@ -87,18 +87,19 @@ def build_app() -> None:
            "if(window.SR&&SR.on){SR.boot()}else{" + body + "}")
     s = s[:start] + new + s[tail_end:]
 
-    # 7. installable app (PWA): manifest, icons, service worker (files live in web/, see web/sw.js)
+    # 7. installable app (PWA): manifest, icons, service worker (manifest and service worker live in web/app/, icons in web/icons/)
     s = patch(s, 'pwa head', '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
               '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
               '<meta name="theme-color" content="#6d1a2e"><meta name="mobile-web-app-capable" content="yes">'
               '<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Smart Retail">'
-              '<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">')
-    s = patch(s, 'pwa sw', '<script src="config.js"></script>\n',
-              '<script src="config.js"></script>\n'
+              '<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">')
+    s = patch(s, 'pwa sw', '<script src="../config.js"></script>\n',
+              '<script src="../config.js"></script>\n'
               "<script>if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>\n")
 
-    (ROOT / 'web/index.html').write_text(s)
-    print('web/index.html written')
+    (ROOT / 'web/app').mkdir(exist_ok=True)
+    (ROOT / 'web/app/index.html').write_text(s)
+    print('web/app/index.html written')
 
 
 def build_superadmin() -> None:

@@ -6,7 +6,8 @@ Edge Functions, Auth for the Super Admin).
 
 ```
 web/                     the app (static files, deploy anywhere, e.g. Cloudflare Pages)
-  index.html             main app: login → cashier or dashboard
+  index.html             home page (public) with a "Sign in" button
+  app/index.html         main app: login → cashier or dashboard (installable on phones: manifest + sw.js)
   superadmin/index.html  platform owner panel
   js/sr.js               data layer of the main app (Supabase instead of localStorage)
   js/sr-platform.js      data layer + sign-in (with authenticator app) of the Super Admin
@@ -45,7 +46,8 @@ free **test project** on Supabase, so production data is never touched.
 
 | | |
 |---|---|
-| App | http://localhost:5173 |
+| Home page | http://localhost:5173 |
+| App (login) | http://localhost:5173/app/ |
 | Super Admin | http://localhost:5173/superadmin/ |
 | Database | your test project in the Supabase dashboard |
 
@@ -91,7 +93,7 @@ How to export the prototype data is described at the top of `scripts/import-lega
 `ALLOWED_ORIGINS` and run `npm run deploy` again.
 
 **GitHub Pages** (automatic): every push to `main` runs `.github/workflows/pages.yml`, which writes
-`web/config.js` and publishes `web/` to `https://<owner>.github.io/<repo>/` (Super Admin at `.../superadmin/`).
+`web/config.js` and publishes `web/` to `https://<owner>.github.io/<repo>/` (app login at `.../app/`, Super Admin at `.../superadmin/`).
 Once: repo *Settings → Pages → Source: GitHub Actions*. The Supabase URL and public key can be overridden
 with repository variables `SUPABASE_URL` / `SUPABASE_ANON_KEY`. Only the web pages are deployed; the
 database and `store-login` still go through `npm run deploy`. Add the Pages address to `ALLOWED_ORIGINS`

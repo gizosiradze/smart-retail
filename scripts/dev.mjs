@@ -57,10 +57,10 @@ writeConfig({ url: process.env.SUPABASE_URL, anonKey: process.env.SUPABASE_ANON_
 // ---------------------------------------------------------------- static web server
 const WEB = path.join(ROOT, 'web');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon' };
+  '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon', '.webmanifest': 'application/manifest+json' };
 http.createServer((req, res) => {
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-  if (p === '/superadmin') { res.writeHead(301, { Location: '/superadmin/' }); return res.end() }
+  if (p === '/superadmin' || p === '/app') { res.writeHead(301, { Location: p + '/' }); return res.end() }
   let file = path.normalize(path.join(WEB, p));
   if (!file.startsWith(WEB)) { res.writeHead(403); return res.end() }
   if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
@@ -70,7 +70,8 @@ http.createServer((req, res) => {
 }).listen(port, lan ? '0.0.0.0' : '127.0.0.1', () => console.log(`
   Smart Retail (test project ${ref})
   ─────────────────────────────────────────
-  App          http://localhost:${port}
+  Home page    http://localhost:${port}
+  App (login)  http://localhost:${port}/app/
   Super Admin  http://localhost:${port}/superadmin/
 ${lan ? lanIps().map(ip => `  Network      http://${ip}:${port}   (other devices on this Wi-Fi)\n`).join('') || '  Network      no Wi-Fi/LAN address found\n' : ''}  Database     https://supabase.com/dashboard/project/${ref}
 

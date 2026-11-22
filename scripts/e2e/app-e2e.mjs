@@ -1,4 +1,4 @@
-// End-to-end test of the real app code (web/index.html + web/js/sr.js) against the database.
+// End-to-end test of the real app code (web/app/index.html + web/js/sr.js) against the database.
 // Runs the page's scripts in a Node VM with a tiny DOM stand-in, logs in as cashier and admin,
 // makes changes the way the screens do (mutate D, call save()) and checks what landed in Postgres.
 //
@@ -30,7 +30,7 @@ function makeContext() {
     Image: class {}, FileReader: class {}, TextEncoder, performance, SR_CONFIG: { url: API, anonKey: 'anon-test-key' } };
   ctx.window = ctx; ctx.self = ctx;
   vm.createContext(ctx);
-  const html = fs.readFileSync(new URL('../../web/index.html', import.meta.url), 'utf8');
+  const html = fs.readFileSync(new URL('../../web/app/index.html', import.meta.url), 'utf8');
   const main = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).find(s => s.includes('function render('));
   vm.runInContext(fs.readFileSync(new URL('../../web/js/sr.js', import.meta.url), 'utf8'), ctx, { filename: 'sr.js' });
   // the screens are not under test here: keep render() from touching the DOM stand-in
