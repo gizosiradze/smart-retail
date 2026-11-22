@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuilds web/app/index.html and web/superadmin/index.html from the prototype artifacts.
+"""Rebuilds web/index.html (home page), web/app/index.html (the app) and web/superadmin/index.html from the prototype artifacts.
 
 The prototypes stay the design source of truth on claude.ai. When a new prototype version is exported
 to prototype/app.html and prototype/superadmin.html, run:
@@ -87,7 +87,33 @@ def build_app() -> None:
            "if(window.SR&&SR.on){SR.boot()}else{" + body + "}")
     s = s[:start] + new + s[tail_end:]
 
-    # 7. installable app (PWA): manifest, icons, service worker (manifest and service worker live in web/app/, icons in web/icons/)
+    # 6b. cashier (wide screens): the cart and the search/tabs are frozen; only the product list scrolls.
+    #     The two-column block gets exactly the height left on the screen (--gh, measured by srFit), so the page itself never scrolls.
+    css = ("@media(min-width:761px){.g2:has(>#cart){height:calc(100vh - 300px);height:var(--gh,calc(100dvh - 300px));align-items:stretch}"
+           ".g2:has(>#cart)>#cart{position:static;align-self:start;max-height:100%;display:flex;flex-direction:column}"
+           "#cart .cth{flex:none}#cart .cbd{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}"
+           "#cart .cil{max-height:none;overflow:visible;margin:0;padding:0}#cart #paybtn{position:sticky;bottom:0;z-index:1}"
+           ".g2:has(>#cart)>section:not(#cart){display:flex;flex-direction:column;min-height:0;height:100%}"
+           ".g2:has(>#cart)>section:not(#cart)>#sc,.g2:has(>#cart)>section:not(#cart)>#ptabs{flex:none}"
+           ".g2:has(>#cart)>section:not(#cart)>#pl{flex:1 1 auto;min-height:0;overflow-y:auto;align-content:start;overscroll-behavior:contain;padding-bottom:4px}}")
+    a = '#sc{padding:12px 16px;font-size:15px;border-radius:12px}#cart .pri{padding:13px;font-size:15px}'
+    s = patch(s, 'cart pinned', a, a + '\n' + css)
+    fit = ("<script>(function(){function f(){var c=document.querySelector('.g2>#cart');if(!c)return;var t=c.parentElement.getBoundingClientRect().top+scrollY;"
+           "document.documentElement.style.setProperty('--gh',Math.max(320,innerHeight-t-56)+'px')}var q=0;"
+           "function g(){cancelAnimationFrame(q);q=requestAnimationFrame(f)}"
+           "addEventListener('DOMContentLoaded',function(){new MutationObserver(g).observe(document.getElementById('app'),{childList:true,subtree:true});g()});"
+           "addEventListener('resize',g)})()</script>\n")
+    s = patch(s, 'cart height script', '<script src="../config.js"></script>\n', '<script src="../config.js"></script>\n' + fit)
+
+    # 7a. home page (web/index.html): the prototype's own landing page, "sign in" leads to /app/
+    home = patch(s, 'home sign in', 'function lpLogin(){LPG=false;render();scrollTo(0,0);', "function lpLogin(){location.href='app/';return;")
+    home = home.replace('src="../config.js"', 'src="config.js"').replace('src="../js/sr.js"', 'src="js/sr.js"')
+
+    # 7b. the app itself (web/app/index.html) opens straight on the login form; the landing page is a separate address
+    s = patch(s, 'app opens on login', 'let LPG=true;', 'let LPG=false;')
+    s = patch(s, 'app back link', 'onclick="LPG=1;render();scrollTo(0,0)">← მთავარი გვერდი', "onclick=\"location.href='../'\">← მთავარი გვერდი")
+
+    # 7c. installable app (PWA): manifest, icons, service worker (manifest and service worker live in web/app/, icons in web/icons/)
     s = patch(s, 'pwa head', '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
               '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
               '<meta name="theme-color" content="#6d1a2e"><meta name="mobile-web-app-capable" content="yes">'
@@ -97,9 +123,10 @@ def build_app() -> None:
               '<script src="../config.js"></script>\n'
               "<script>if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>\n")
 
+    (ROOT / 'web/index.html').write_text(home)
     (ROOT / 'web/app').mkdir(exist_ok=True)
     (ROOT / 'web/app/index.html').write_text(s)
-    print('web/app/index.html written')
+    print('web/index.html and web/app/index.html written')
 
 
 def build_superadmin() -> None:
