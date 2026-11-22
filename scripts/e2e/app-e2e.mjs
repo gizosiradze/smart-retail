@@ -25,7 +25,7 @@ function makeContext() {
   const ctx = { document, sessionStorage: { getItem: k => store[k] ?? null, setItem: (k, v) => { store[k] = String(v) }, removeItem: k => { delete store[k] } },
     localStorage: { getItem: () => null, setItem() {}, removeItem() {} }, navigator: { onLine: true }, matchMedia: () => ({ matches: false }),
     addEventListener() {}, innerWidth: 1280, innerHeight: 800, location: { hash: '' }, parent: { postMessage() {} },
-    setTimeout, clearTimeout, setInterval: () => 0, clearInterval() {}, requestAnimationFrame: () => 0, console, fetch, crypto: globalThis.crypto,
+    setTimeout, clearTimeout, setInterval: () => 0, clearInterval() {}, requestAnimationFrame: () => 0, console, fetch, AbortController, crypto: globalThis.crypto,
     URL, Blob, Intl, scrollTo() {}, ResizeObserver: class { observe() {} }, MutationObserver: class { observe() {} disconnect() {} },
     Image: class {}, FileReader: class {}, TextEncoder, performance, SR_CONFIG: { url: API, anonKey: 'anon-test-key' } };
   ctx.window = ctx; ctx.self = ctx;

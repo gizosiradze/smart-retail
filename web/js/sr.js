@@ -10,8 +10,11 @@
  * Super Admin view: the Super Admin page opens this page at "#sa" in a new tab and hands it a read-only
  *   store-admin token by postMessage (never in the URL). Everything loads as for the store admin;
  *   nothing is saved (the server refuses writes from that session too).
- * Online only (phase 1): without internet nothing is lost while the page stays open, but nothing is sent
- * either; the existing red "not saved · retry" banners show it.
+ * Offline: the whole working copy (data, baseline, the batch being sent, id block, session) is kept in
+ *   IndexedDB ("sr-offline"). Without internet the till keeps selling; the changes wait in that copy and
+ *   are sent when the connection returns, even after the page or the app was closed and reopened.
+ *   Every batch carries an id (bid) so a batch whose answer was lost is never applied twice (stock changes
+ *   are deltas): the server remembers batch ids (app.push_batches).
  */
 (function () {
   const CFG = window.SR_CONFIG || {};
@@ -35,16 +38,24 @@
   let token = null, exp = 0, me = null, role = 'c';
   let snap = {}, snapSt = {}, snapKv = {}, loaded = new Set(), cursors = {}, fetchedAt = {};
   let pushing = false, again = false, pending = false, lastErr = '', idRefill = null, pendingExpiry = false, ro = false, roWarned = 0;
+  let inflight = null;          // the batch being sent: { bid, sent } (kept until the server answers for sure)
+  let netFailAt = 0, pendN = 0, pendS = 0, hadOffline = false, resuming = false;
 
   // ---------------------------------------------------------------- HTTP
-  async function call(fn, args) {
-    const r = await fetch(`${CFG.url}/rest/v1/rpc/${fn}`, {
-      method: 'POST',
-      headers: { apikey: CFG.anonKey, Authorization: 'Bearer ' + (token || CFG.anonKey), 'Content-Type': 'application/json' },
-      body: JSON.stringify(args || {})
-    });
-    const txt = await r.text();
-    const j = txt ? JSON.parse(txt) : null;
+  async function call(fn, args, timeoutMs) {
+    const ac = new AbortController(), tm = setTimeout(() => ac.abort(), timeoutMs || 25000);
+    let r, txt;
+    try {
+      r = await fetch(`${CFG.url}/rest/v1/rpc/${fn}`, {
+        method: 'POST', signal: ac.signal,
+        headers: { apikey: CFG.anonKey, Authorization: 'Bearer ' + (token || CFG.anonKey), 'Content-Type': 'application/json' },
+        body: JSON.stringify(args || {})
+      });
+      txt = await r.text();
+    } finally { clearTimeout(tm) }
+    netFailAt = 0;
+    let j = null;
+    try { j = txt ? JSON.parse(txt) : null } catch (_) { if (r.ok) throw new TypeError('bad response') }   // a gateway page, not our answer
     if (!r.ok) {
       const e = new Error((j && (j.message || j.error)) || ('HTTP ' + r.status));
       e.status = r.status; e.code = j && j.code;
@@ -63,15 +74,17 @@
     NO_STORE_ADMIN: 'მაღაზიას აქტიური ადმინისტრატორი არ ჰყავს', PLATFORM_ADMIN_REQUIRED: 'საჭიროა სუპერ ადმინის შესვლა',
     MFA_REQUIRED: 'საჭიროა 2FA დადასტურება'
   };
+  // no answer from the server (offline, timeout, bad gateway): the request may or may not have been applied
+  const isNet = e => !!e && (e.name === 'TypeError' || e.name === 'AbortError' || (e.status >= 502 && e.status <= 504));
   const msg = e => {
     const m = String((e && e.message) || e || '');
-    if (e && e.name === 'TypeError') return 'სერვერთან კავშირი ვერ დამყარდა. შეამოწმე ინტერნეტი';
+    if (isNet(e)) return 'სერვერთან კავშირი ვერ დამყარდა. შეამოწმე ინტერნეტი';
     const k = Object.keys(MSG).find(k => m.includes(k));
     return k ? MSG[k] : m;
   };
 
   // ---------------------------------------------------------------- session
-  function storeToken(t, e) { token = t; exp = e; try { sessionStorage.setItem(TOKEN_KEY, JSON.stringify({ t, e })) } catch (_) {} }
+  function storeToken(t, e) { token = t; exp = e; try { sessionStorage.setItem(TOKEN_KEY, JSON.stringify({ t, e })) } catch (_) {} persistSoon(500); }
   function clearToken() { token = null; exp = 0; try { sessionStorage.removeItem(TOKEN_KEY) } catch (_) {} }
 
   async function login(shop, username, password) {
@@ -92,11 +105,18 @@
     role = roleL(me.user.role);
     ro = !!me.read_only;
     if (Array.isArray(me.branches) && me.branches.length) { BR.length = 0; BR.push(...me.branches); }
-    D = {}; snap = {}; snapSt = {}; snapKv = {}; loaded = new Set(); cursors = {}; fetchedAt = {};
+    D = {}; snap = {}; snapSt = {}; snapKv = {}; loaded = new Set(); cursors = {}; fetchedAt = {}; inflight = null;
     // the core data and the receipt-number block are independent: ask for both at once
-    await Promise.all([pull(CORE.filter(c => c === 'st' || c === 'kv' || READ[c].includes(role))), allocIds(true)]);
+    await Promise.all([pull(CORE.filter(c => c === 'st' || c === 'kv' || READ[c].includes(role)), true), allocIds(true)]);
     window.srNormalize && srNormalize();          // defaults the prototype added on startup
     rebase();                                     // ...but those defaults are not "changes"
+    enter();
+    // then load every other screen's data in the background, so switching screens never waits
+    (ensuring || Promise.resolve()).then(prefetch);
+    persistSoon(1500);
+  }
+  // the signed-in user's screen (after a fresh start and after a restore from the offline copy)
+  function enter() {
     const u = me.user;
     U = { store: me.store.name, u: u.u, id: u.id, name: u.name, branch: u.branch || '', role: u.role == 'cashier' ? 'pos' : 'dash',
           type: u.role, perms: u.perms || {} };
@@ -106,8 +126,7 @@
     if (me.store.status === 'restricted') toast('მაღაზია შეზღუდულია: გაყიდვა დაბლოკილია, ნახვა და ექსპორტი მუშაობს', 1);
     render();
     roBar();
-    // then load every other screen's data in the background, so switching screens never waits
-    (ensuring || Promise.resolve()).then(prefetch);
+    chip();
   }
 
   // ---------------------------------------------------------------- Super Admin view (read-only)
@@ -152,27 +171,145 @@
         render(); toast(got && got.m ? 'ვერ გაიხსნა: ' + got.m : 'მაღაზია ვერ გაიხსნა. სცადე ხელახლა სუპერ ადმინიდან', 1); return;
       }
     }
-    if (s && s.t && s.e * 1000 > Date.now() + 60000) {
-      token = s.t; exp = s.e;
-      try { await start(); return } catch (e) { clearToken() }
+    // the offline copy from the last session on this device
+    let rec = on && idbOk ? await cacheGet() : null;
+    if (rec && !rec.pend && Date.now() - rec.savedAt > STALE_MS) { cacheDrop(); rec = null }
+    if (rec && (rec.pend || navigator.onLine === false)) {
+      // unsent changes (or no internet): continue from the copy, send/refresh when possible
+      try { restore(rec, s); return } catch (e) { console.error('[sr] restore failed', e); if (!rec.pend) rec = null }
+    }
+    const fromCopy = !(s && s.t) && rec && rec.token ? { t: rec.token, e: rec.exp } : null;   // app reopened: same sign-in, no password
+    const tk = s && s.t ? s : fromCopy;
+    if (tk && tk.e * 1000 > Date.now() + 60000) {
+      token = tk.t; exp = tk.e;
+      try { await start(); return } catch (e) { if (isNet(e) && rec) { try { restore(rec, tk); return } catch (_) {} } clearToken() }
     }
     render();
   }
 
+  // ---------------------------------------------------------------- offline copy (IndexedDB)
+  // One record "cur": everything needed to carry on without the server. The baseline (snap) is stored as the
+  // difference from D, so the copy is about the size of the data itself.
+  const STALE_MS = 24 * 3600 * 1000;        // an idle copy with nothing unsent is dropped after a day
+  let idbOk = typeof indexedDB !== 'undefined', idbP = null, pTimer = 0, persisting = null;
+  const idb = () => idbP || (idbP = new Promise((res, rej) => {
+    const r = indexedDB.open('sr-offline', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('sess');
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }));
+  const idbDo = (mode, f) => idb().then(db => new Promise((res, rej) => {
+    const tx = db.transaction('sess', mode); let out;
+    out = f(tx.objectStore('sess'));
+    tx.oncomplete = () => res(out && 'result' in out ? out.result : undefined); tx.onerror = tx.onabort = () => rej(tx.error);
+  }));
+  const cacheGet = () => idbDo('readonly', s => s.get('cur')).catch(() => null);
+  const cacheDrop = () => { clearTimeout(pTimer); idbDo('readwrite', s => s.delete('cur')).catch(() => {}) };
+
+  function snapshot() {
+    const over = {}, news = {}, gone = {};
+    for (const c of COLLS) {
+      const arr = Array.isArray(D[c]) ? D[c] : [], s = snap[c] || new Map(), seen = new Set();
+      for (const x of arr) {
+        if (!x || typeof x !== 'object' || !x._k) continue;
+        seen.add(x._k);
+        const sj = s.get(x._k);
+        if (sj === undefined) (news[c] = news[c] || []).push(x._k);
+        else if (sj !== JSON.stringify(x)) (over[c] = over[c] || {})[x._k] = sj;
+      }
+      for (const [k, sj] of s) if (!seen.has(k)) (gone[c] = gone[c] || {})[k] = sj;
+    }
+    return { v: 1, savedAt: Date.now(), token, exp, me, role, D: JSON.stringify(D), over, news, gone, snapSt, snapKv, cursors,
+      loaded: [...loaded], blk: { ...blk }, inflight };
+  }
+  function persistSoon(ms) {
+    if (!on || !U || ro || !idbOk) return;
+    clearTimeout(pTimer); pTimer = setTimeout(persistNow, ms == null ? 400 : ms);
+  }
+  // resolves when the copy is written (a sale is "kept on this device" only after that)
+  function persistNow() {
+    if (!on || !U || !me || ro || !idbOk) return Promise.resolve();
+    clearTimeout(pTimer);
+    if (persisting) return persisting.then(persistNow);
+    const d = diff();
+    pendS = ((inflight && inflight.sent.up.s) || []).length + (d.up.s || []).length;
+    pendN = pendS + (inflight ? Object.keys(inflight.sent.up).filter(c => c !== 's').length : 0)
+      + Object.keys(d.up).filter(c => c !== 's').length + Object.keys(d.rm).length + Object.keys(d.kv).length;
+    const rec = snapshot(); rec.pend = !!inflight || !empty(d);
+    chip();
+    persisting = idbDo('readwrite', s => s.put(rec, 'cur'))
+      .catch(e => { idbOk = false; console.error('[sr] offline copy not saved', e); chip() })
+      .finally(() => { persisting = null });
+    return persisting;
+  }
+
+  function restore(rec, s) {
+    if (!rec.me || !rec.D || rec.v !== 1) throw new Error('bad copy');
+    const t = s && s.t && s.e * 1000 > rec.exp * 1000 ? s : { t: rec.token, e: rec.exp };
+    token = t.t; exp = t.e; me = rec.me; role = rec.role; ro = false;
+    if (Array.isArray(me.branches) && me.branches.length) { BR.length = 0; BR.push(...me.branches); }
+    D = JSON.parse(rec.D); snap = {};
+    for (const c of COLLS) {
+      if (!Array.isArray(D[c])) continue;
+      const m = new Map(), nw = new Set((rec.news || {})[c] || []), ov = (rec.over || {})[c] || {};
+      for (const x of D[c]) if (x && x._k && !nw.has(x._k)) m.set(x._k, ov[x._k] !== undefined ? ov[x._k] : JSON.stringify(x));
+      for (const [k, sj] of Object.entries((rec.gone || {})[c] || {})) m.set(k, sj);
+      snap[c] = m;
+    }
+    snapSt = rec.snapSt || {}; snapKv = rec.snapKv || {}; cursors = rec.cursors || {}; fetchedAt = {};
+    loaded = new Set(rec.loaded || []); blk.next = rec.blk.next; blk.end = rec.blk.end; blk.queued = rec.blk.queued; inflight = rec.inflight || null;
+    defineN();
+    enter();
+    (ensuring || Promise.resolve()).then(prefetch);
+    resume();
+  }
+
+  // back online (or just opened with unsent changes): send what waits, then catch up with the other devices
+  async function resume() {
+    if (!on || !U || ro || resuming || navigator.onLine === false) return;
+    resuming = true;
+    try {
+      if (!token || exp * 1000 < Date.now() + 30000) { expired(); return }     // sends and refreshes after the password
+      const n = pendS;
+      pending = true; if (!pushing) await push();
+      if (inflight || dirty()) return;                    // still unsent: keep the copy, try again later
+      const fresh = await call('sr_me');
+      me = fresh; ro = !!fresh.read_only; role = roleL(fresh.user.role);
+      if (blk.queued == null && blk.end - blk.next < REFILL && !idRefill) await allocIds(false);
+      await pull([...new Set([...CORE.filter(c => c === 'st' || c === 'kv' || READ[c].includes(role)), ...loaded])], true);
+      if (!document.querySelector('#md .box') && !isTyping()) render();
+      if (hadOffline) { hadOffline = false; toast(n ? '✓ ინტერნეტი დაბრუნდა, ოფლაინში გაყიდული ჩეკები გაიგზავნა' : '✓ ინტერნეტი დაბრუნდა') }
+      persistSoon(1000);
+    } catch (e) { if (e && e.session) expired(); else if (!isNet(e)) console.error('[sr] resume', e); else netFailAt = Date.now() }
+    finally { resuming = false; chip() }
+  }
+
+  // small status mark: offline, and how much waits to be sent
+  function chip() {
+    if (!on || !U || ro) { const o = document.getElementById('srof'); if (o) o.remove(); return }
+    const off = navigator.onLine === false || Date.now() - netFailAt < 15000;
+    if (off) hadOffline = true;
+    let b = document.getElementById('srof');
+    if (!off && !(pendN && !idbOk)) { if (b) b.remove(); return }
+    if (!b) { b = el('<div id="srof" role="status" style="position:fixed;left:12px;bottom:12px;z-index:9998;max-width:calc(100vw - 24px);padding:7px 12px;border-radius:999px;background:#fff8e6;border:1px solid #e3c06a;color:#8a600a;font:600 12.5px Inter,\'Noto Sans Georgian\',sans-serif;box-shadow:0 6px 18px #2a232626;pointer-events:none"></div>'); if (!b) return; document.body.appendChild(b) }
+    b.textContent = '📴 ინტერნეტი არ არის · მუშაობა გრძელდება' + (pendN ? ` · გასაგზავნი: ${pendS ? pendS + ' ჩეკი' : pendN + ' ცვლილება'}` : '')
+      + (idbOk ? '' : ' · ⚠ მოწყობილობაში ვერ ინახება, გვერდი არ დახურო');
+  }
+
   async function logout() {
     if (ro) { try { await call('sr_logout') } catch (_) {} clearToken(); window.close(); location.reload(); return }
-    if (dirty() && !await confirmBox('შეუნახავი ცვლილებები დაიკარგება. მაინც გასვლა?')) return;
+    if ((dirty() || inflight) && !await confirmBox('გაუგზავნელი ცვლილებები (ჩეკები) დაიკარგება. მაინც გასვლა?')) return;
     try { await call('sr_logout') } catch (_) {}
     clearToken(); U = null; cart = []; D = { p: [], dp: [], c: [], s: [], st: {}, us: [], sh: [], cm: [], pu: [], sup: [], cats: [] };
-    snap = {}; snapSt = {}; snapKv = {}; loaded = new Set();
+    snap = {}; snapSt = {}; snapKv = {}; loaded = new Set(); inflight = null; pendN = pendS = 0;
+    cacheDrop(); chip();
     render();
   }
 
   // ---------------------------------------------------------------- loading
-  async function pull(colls) {
+  async function pull(colls, long) {
     let todo = colls.slice();
     while (todo.length) {
-      const res = await call('sr_pull', { p_colls: todo, p_cursors: cursors });
+      const res = await call('sr_pull', { p_colls: todo, p_cursors: cursors }, long ? 90000 : 40000);
       const more = [];
       for (const c of todo) {
         const r = res[c];
@@ -201,6 +338,7 @@
       }
       todo = more;
     }
+    persistSoon(2500);
   }
 
   const readable = c => READ[c] && READ[c].includes(role);
@@ -245,11 +383,12 @@
   const loadingHtml = () => `<div class="lgp"><section class="lg" style="text-align:center"><h2 class="lgl">${typeof SRL !== 'undefined' ? SRL : 'Smart Retail'}</h2><p class="m">მონაცემები იტვირთება…</p></section></div>`;
 
   // ---------------------------------------------------------------- id blocks (D.n)
-  const BLOCK = 300;
+  // a till that sells offline all day must not run out of numbers: big blocks, refilled early
+  const BLOCK = 1000, REFILL = 400;
   const blk = { next: 0, end: 0, queued: null };
   async function allocIds(first) {
     const start = await call('sr_alloc_ids', { p_count: BLOCK });
-    if (first) { blk.next = start; blk.end = start + BLOCK; blk.queued = null; defineN(); } else blk.queued = start;
+    if (first) { blk.next = start; blk.end = start + BLOCK; blk.queued = null; defineN(); } else { blk.queued = start; blk.warned = 0; persistSoon(); }
   }
   function defineN() {
     Object.defineProperty(D, 'n', {
@@ -258,8 +397,9 @@
       set(v) {
         blk.next = v;
         if (blk.next >= blk.end && blk.queued != null) { blk.next = blk.queued; blk.end = blk.queued + BLOCK; blk.queued = null; }
-        if (blk.end - blk.next < 60 && blk.queued == null && !idRefill)
+        if (blk.end - blk.next < REFILL && blk.queued == null && !idRefill && navigator.onLine !== false)
           idRefill = allocIds(false).catch(() => {}).finally(() => { idRefill = null });
+        if (blk.end - blk.next < 30 && blk.queued == null && !blk.warned) { blk.warned = 1; toast('ნომრების მარაგი იწურება. დაუკავშირდი ინტერნეტს', 1) }
       }
     });
   }
@@ -324,6 +464,7 @@
     if (ro) { if (Date.now() - roWarned > 8000) { roWarned = Date.now(); toast('სუპერ ადმინის ნახვის რეჟიმი: ცვლილება არ შეინახება', 1) } return }
     SVOK = navigator.onLine === false ? 0 : 1;
     pending = true;
+    persistSoon(150);                // kept on this device at once, whatever happens to the connection
     if (pushing) { again = true; return }
     push();
   }
@@ -335,14 +476,22 @@
       do {
         again = false;
         if (navigator.onLine === false) throw new TypeError('offline');
-        const d = diff();
-        if (d.local.length) console.info('[sr] kept on this device only (no permission to save):', d.local.join(', '));
-        if (empty(d)) { markLocalAsBaseline(d.local); break; }
-        await uploadImages(d.up);
-        // JSON as sent is captured now: edits made while the request is in flight stay pending
-        const sent = { up: d.up, upJ: d.upJ, rm: d.rm, st: d.st, kv: d.kv };
-        const res = await call('sr_push', { p: { up: sent.up, rm: sent.rm, st: sent.st, kv: sent.kv } });
-        confirm(sent);
+        if (!inflight) {
+          const d = diff();
+          if (d.local.length) console.info('[sr] kept on this device only (no permission to save):', d.local.join(', '));
+          if (empty(d)) { markLocalAsBaseline(d.local); break; }
+          await uploadImages(d.up);
+          // JSON as sent is captured now: edits made while the request is in flight stay pending.
+          // The batch (with its id) is written to the offline copy first: if the page dies mid-request,
+          // the same batch is sent again with the same id and the server applies it only once.
+          inflight = { bid: uuid(), sent: { up: d.up, upJ: d.upJ, rm: d.rm, st: d.st, kv: d.kv } };
+          await persistNow();
+        }
+        const sent = inflight.sent;
+        let res;
+        try { res = await call('sr_push', { p: { bid: inflight.bid, up: sent.up, rm: sent.rm, st: sent.st, kv: sent.kv } }, 45000) }
+        catch (e) { if (!isNet(e)) inflight = null; throw e }      // a real refusal changed nothing; no answer: the same batch is retried
+        confirm(sent); inflight = null;
         // server-side corrections (cost of goods on receipts) and sanitized user records
         for (const doc of (res.patched && res.patched.s) || []) {
           const x = (D.s || []).find(y => y._k === doc._k); if (x) { Object.assign(x, doc); (snap.s = snap.s || new Map()).set(x._k, JSON.stringify(x)); }
@@ -350,8 +499,9 @@
         for (const u of res.users || []) {
           const x = (D.us || []).find(y => y._k === u._k); if (x) { delete x.pw; Object.assign(x, u); (snap.us = snap.us || new Map()).set(x._k, JSON.stringify(x)); }
         }
-        markLocalAsBaseline(d.local);
-      } while (again);
+        markLocalAsBaseline(diff().local);
+        persistSoon(300);
+      } while (again || inflight);
       pending = false;
       setSaved(true);
     } catch (e) {
@@ -374,18 +524,22 @@
     }
   }
 
-  function setSaved(ok, why) {
+  function setSaved(ok, why, quiet) {
     SVOK = ok ? 1 : 0;
     lastErr = ok ? '' : why || '';
     try {
       if (typeof PSV !== 'undefined' && PSV) { if (ok) { PSV.ok = 1; UNS.clear() } else if (PSV.ok) { PSV.ok = 0; UNS.add(PSV.id) } PSV.t = Date.now(); psvUp() }
     } catch (_) {}
-    banner(ok ? '' : why);
+    banner(ok || quiet ? '' : why);
+    if (ok) { pendN = pendS = 0; persistSoon(200); }
+    chip();
   }
   function onError(e) {
     console.error('[sr]', e);
     if (e && e.session && ro) { clearToken(); toast('ნახვის სესია დასრულდა. გახსენი ხელახლა სუპერ ადმინიდან', 1); return; }
     if (e && e.session) { expired(); setSaved(false, 'სესია დასრულდა'); return; }
+    // no connection: nothing is lost, the changes wait in the offline copy and go out when the server answers
+    if (isNet(e)) { netFailAt = Date.now(); setSaved(false, msg(e), true); persistSoon(100); return; }
     setSaved(false, msg(e));
   }
 
@@ -426,7 +580,7 @@
           body: JSON.stringify({ shop: me.store.slug, username: me.user.u, password: document.getElementById('srrp').value }) });
         const j = await r.json().catch(() => ({}));
         if (!r.ok || !j.token) throw new Error(j.error || 'invalid_credentials');
-        storeToken(j.token, j.exp); pendingExpiry = false; modal(); save();
+        storeToken(j.token, j.exp); pendingExpiry = false; modal(); resume();
       } catch (x) { e.textContent = msg(x) }
     };
     if (!document.getElementById('srrb')) return;
@@ -452,10 +606,17 @@
 
   // Some screens change data right after calling save() (e.g. the daily-goal check after a sale);
   // pick those changes up a moment later instead of waiting for the next action.
-  setInterval(() => { if (on && U && token && !pushing && navigator.onLine !== false && dirty()) save() }, 3000);
+  setInterval(() => {
+    if (!on || !U || !token || pushing || resuming || navigator.onLine === false) return;
+    if (Date.now() - netFailAt < 8000) return;          // the server did not answer a moment ago: do not hammer it
+    if (inflight || dirty()) save(); else if (netFailAt) resume();
+  }, 3000);
 
-  window.addEventListener('beforeunload', e => { if (dirty()) { e.preventDefault(); e.returnValue = '' } });
-  window.addEventListener('online', () => { if (dirty()) save() });
+  window.addEventListener('beforeunload', e => { if (!idbOk && (dirty() || inflight)) { e.preventDefault(); e.returnValue = '' } });
+  window.addEventListener('pagehide', () => { persistNow() });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persistNow() });
+  window.addEventListener('online', () => { netFailAt = 0; chip(); resume() });
+  window.addEventListener('offline', () => chip());
 
-  window.SR = { on, login, boot, logout, save, ready, ensure, touch, loadingHtml, mainLoadingHtml, retryLoad, loadError: () => loadErr, msg, changePassword, dirty, pendingChanges: () => diff(), get me() { return me }, get readOnly() { return ro } };
+  window.SR = { on, login, boot, logout, save, ready, ensure, touch, loadingHtml, mainLoadingHtml, retryLoad, loadError: () => loadErr, msg, changePassword, dirty, safe: () => idbOk, queued: () => pendN > 0 || !!inflight, pendingChanges: () => diff(), get me() { return me }, get readOnly() { return ro } };
 })();

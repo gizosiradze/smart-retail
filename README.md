@@ -160,11 +160,27 @@ Every `save()` sends exactly what changed, in one transaction; failures show the
 "not saved · retry" banners. If the session expires mid-work, a password prompt appears and the
 pending changes are sent after signing in again.
 
+## Offline till (`web/js/sr.js`, `web/app/sw.js`)
+
+* The service worker keeps the app shell and product photos, so the app opens without internet.
+* The browser keeps a working copy in IndexedDB (`sr-offline`): data, the baseline, the batch being sent, the id
+  block and the sign-in. It is written after every `save()` (and when the page is hidden), so closing the page
+  or the app loses nothing. Opening the app again continues from it; the sign-in is kept for its 8 hours, and
+  after that the password is asked only when the connection is back (the unsent changes go out right after).
+* Every push carries a batch id; `app.push_batches` remembers it, so a batch whose answer was lost (stock changes
+  are deltas) is applied once. Logging out deletes the copy (it asks first if something is unsent).
+* A small mark at the bottom left shows "no internet" and how many receipts wait; the red "not saved" banner
+  now appears only for real refusals from the server.
+* Tests: `scripts/e2e/offline-e2e.mjs` (headless Chrome goes offline, sells, reloads, reconnects) and the
+  re-send test in `supabase/tests/10_auth_sync.sql`.
+
 ## Known limits of this phase
 
-* **Online only**: without internet nothing is lost while the page stays open, but nothing is sent either
-  (the till shows "not saved"). The offline queue is the next step (ids are already reserved on the
-  server, and saves are idempotent).
+* **Offline till** (see below): sales and other changes made without internet wait in the browser and are
+  sent when the connection returns. Not covered: signing in for the first time (or after logging out)
+  needs internet; reports and screens whose data was never loaded on this device stay empty offline;
+  ids come from reserved blocks of 1000 (refilled early), so one device can sell about that many receipts
+  offline before it must reconnect (a warning appears 30 numbers before).
 * **Statistics are still computed in the browser** from the receipts loaded at login. The typed columns
   and `sale_lines` are in place for moving them to SQL functions; until then a store with very many
   receipts will load slowly.

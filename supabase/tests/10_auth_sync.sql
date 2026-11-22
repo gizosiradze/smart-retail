@@ -99,6 +99,13 @@ reset role;
 select pg_temp.ok((select count(*) from app.sales) = 2, 'no duplicate receipt');
 select pg_temp.as_user((select c from cl));
 
+-- offline queue: a batch with an id is applied once, a re-send returns the stored answer and moves no stock
+select pg_temp.ok((public.sr_push(jsonb_build_object('bid','aaaaaaaa-0000-4000-8000-000000000001','st',jsonb_build_object('თბილისი|10|M',-1))))->>'ok' = 'true', 'batch applied');
+select pg_temp.ok((public.sr_push(jsonb_build_object('bid','aaaaaaaa-0000-4000-8000-000000000001','st',jsonb_build_object('თბილისი|10|M',-1))))->>'replayed' = 'true', 'same batch id is recognised');
+reset role;
+select pg_temp.ok((select qty from app.stock_levels where skey = 'თბილისი|10|M') = 2, 'stock moved once for a re-sent batch');
+select pg_temp.as_user((select c from cl));
+
 -- receipts cannot be changed or removed
 select pg_temp.ok(pg_temp.err($q$select public.sr_push('{"up":{"s":[{"_k":"11111111-1111-1111-1111-111111111111","id":51,"tot":1}]}}')$q$)
   like '%RECEIPTS_ARE_IMMUTABLE%', 'receipt edit refused');

@@ -20,17 +20,19 @@ node scripts/e2e/app-e2e.mjs
 # Real browser, if Chrome/Chromium is installed (a copy of web/ pointing at the fake gateway)
 CHROME="${CHROME:-$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)}"
 if [ -n "$CHROME" ]; then
-  # the browser test gets its own fresh demo database and gateway
-  kill "$GW" 2>/dev/null || true
-  psql "$ADMIN" -qc "drop database $DBN with (force)" >/dev/null; psql "$ADMIN" -qc "create database $DBN" >/dev/null
-  psql "$E2E_DB_URL" -Atc "select 1 from pg_namespace where nspname='auth'" | grep -q 1 || apply supabase/tests/00_supabase_stub.sql
-  for f in supabase/migrations/*.sql supabase/seed.sql; do apply "$f"; done
-  node scripts/e2e/fake-gateway.mjs > /tmp/sr-fake-gateway.log 2>&1 & GW=$!
-  WEBDIR=$(mktemp -d); cp -r web/. "$WEBDIR/"; WEBPORT=$((55000 + RANDOM % 500))
-  printf 'window.SR_CONFIG={url:"%s",anonKey:"anon-test-key"};\n' "$E2E_API" > "$WEBDIR/config.js"
-  python3 -m http.server "$WEBPORT" --bind 127.0.0.1 -d "$WEBDIR" >/dev/null 2>&1 & WEBPID=$!
-  sleep 1
-  CHROME="$CHROME" APP_URL="http://127.0.0.1:$WEBPORT/app/" node scripts/e2e/browser-e2e.mjs
+  # each browser test gets its own fresh demo database and gateway
+  for TEST in ${E2E_TESTS:-browser-e2e offline-e2e}; do
+    kill "$GW" 2>/dev/null || true; kill "${WEBPID:-}" 2>/dev/null || true
+    psql "$ADMIN" -qc "drop database if exists $DBN with (force)" >/dev/null; psql "$ADMIN" -qc "create database $DBN" >/dev/null
+    psql "$E2E_DB_URL" -Atc "select 1 from pg_namespace where nspname='auth'" | grep -q 1 || apply supabase/tests/00_supabase_stub.sql
+    for f in supabase/migrations/*.sql supabase/seed.sql; do apply "$f"; done
+    node scripts/e2e/fake-gateway.mjs > /tmp/sr-fake-gateway.log 2>&1 & GW=$!
+    rm -rf "${WEBDIR:-/nonexistent}"; WEBDIR=$(mktemp -d); cp -r web/. "$WEBDIR/"; WEBPORT=$((55000 + RANDOM % 500))
+    printf 'window.SR_CONFIG={url:"%s",anonKey:"anon-test-key"};\n' "$E2E_API" > "$WEBDIR/config.js"
+    python3 -m http.server "$WEBPORT" --bind 127.0.0.1 -d "$WEBDIR" >/dev/null 2>&1 & WEBPID=$!
+    sleep 1
+    CHROME="$CHROME" APP_URL="http://127.0.0.1:$WEBPORT/app/" node "scripts/e2e/$TEST.mjs"
+  done
 else
   echo "(Chrome not found: browser test skipped)"
 fi
