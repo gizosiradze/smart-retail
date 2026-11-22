@@ -96,8 +96,9 @@ def build_app() -> None:
               'placeholder="მაღაზიის სახელი (ლათინურად)" autocomplete="organization" autocapitalize="off"')
 
     # 4. logout
-    s = patch(s, 'logout', '<button onclick="U=null;cart=[];render()">გასვლა</button>',
-              '<button onclick="if(window.SR&&SR.on)SR.logout();else{U=null;cart=[];render()}">გასვლა</button>')
+    for cls in ('lgx', 'lgo'):
+        s = patch(s, 'logout ' + cls, f'<button class="{cls}" onclick="U=null;cart=[];render()">გასვლა</button>',
+                  f'<button class="{cls}" onclick="if(window.SR&&SR.on)SR.logout();else{{U=null;cart=[];render()}}">გასვლა</button>')
 
     # 5. per-screen loading: wait for this screen's data, then refresh it in the background.
     #    While a screen's data is still loading, the header and menu stay on screen (only <main> waits).
