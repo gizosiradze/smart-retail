@@ -49,10 +49,11 @@ def seo_home(home: str) -> str:
             '<meta property="og:type" content="website"><meta property="og:site_name" content="Smart Retail">'
             f'<meta property="og:locale" content="ka_GE"><meta property="og:url" content="{SITE}/">'
             f'<meta property="og:title" content="{html.escape(TITLE)}"><meta property="og:description" content="{html.escape(DESC)}">'
-            f'<meta property="og:image" content="{SITE}/icons/icon-512.png">'
-            '<meta name="twitter:card" content="summary">'
+            f'<meta property="og:image" content="{SITE}/icons/og-image.png">'
+            '<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">'
+            '<meta name="twitter:card" content="summary_large_image">'
             f'<meta name="twitter:title" content="{html.escape(TITLE)}"><meta name="twitter:description" content="{html.escape(DESC)}">'
-            f'<meta name="twitter:image" content="{SITE}/icons/icon-512.png">'
+            f'<meta name="twitter:image" content="{SITE}/icons/og-image.png">'
             + ''.join(f'<script type="application/ld+json">{json.dumps(x, ensure_ascii=False)}</script>' for x in ld))
     home = patch(home, 'seo head', f'<title>{TITLE}</title>', f'<title>{TITLE}</title>' + head)
     # visible only without JavaScript (crawlers, link previews): the page text the script would draw
