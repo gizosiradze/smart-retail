@@ -182,6 +182,16 @@ def build_app() -> None:
                  '.lp-ft li a{display:inline-block;color:#c9bec2;transition:color .15s}.lp-ft li a:hover{color:#fff}'
                  '@media(max-width:860px){.lp-mn a{display:block;width:100%;text-align:left;padding:14px 4px;font-size:17px;border-bottom:1px solid #f1eaec}}'
                  '</style></head><body>')
+
+    # speed: Google Fonts CSS no longer blocks the first paint (display=swap shows text at once), earlier connection to the font host
+    fonts = re.search(r'<link href="(https://fonts\.googleapis\.com/css2\?[^"]*)" rel="stylesheet">', home)
+    if not fonts:
+        sys.exit('home fonts: Google Fonts link not found')
+    furl = fonts.group(1)
+    home = home.replace(fonts.group(0),
+        '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+        f'<link href="{furl}" rel="stylesheet" media="print" onload="this.media=\'all\'">'
+        f'<noscript><link href="{furl}" rel="stylesheet"></noscript>')
     home = seo_home(home)
     (ROOT / 'web/index.html').write_text(home)
     s = patch(s, 'app noindex', '<title>' + TITLE + '</title>', '<meta name="robots" content="noindex,nofollow"><title>' + TITLE + '</title>')
