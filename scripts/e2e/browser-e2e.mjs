@@ -1,11 +1,11 @@
 // Real-browser smoke test: headless Chrome opens the app, logs in through the login screen,
 // opens screens and makes a sale through the cashier UI. Fails on any uncaught page error.
-//   CHROME=/usr/bin/google-chrome APP_URL=http://127.0.0.1:5173 node scripts/e2e/browser-e2e.mjs
+//   CHROME=/usr/bin/google-chrome APP_URL=http://127.0.0.1:5173/app/ node scripts/e2e/browser-e2e.mjs
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 
 const CHROME = process.env.CHROME || 'google-chrome';
-const APP = process.env.APP_URL || 'http://127.0.0.1:5173';
+const APP = process.env.APP_URL || 'http://127.0.0.1:5173/app/';
 const SHOTS = process.env.SHOTS || '/tmp/sr-shots';
 fs.mkdirSync(SHOTS, { recursive: true });
 const sleep = ms => new Promise(r => setTimeout(r, ms));

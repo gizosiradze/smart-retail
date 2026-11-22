@@ -30,7 +30,7 @@ if [ -n "$CHROME" ]; then
   printf 'window.SR_CONFIG={url:"%s",anonKey:"anon-test-key"};\n' "$E2E_API" > "$WEBDIR/config.js"
   python3 -m http.server "$WEBPORT" --bind 127.0.0.1 -d "$WEBDIR" >/dev/null 2>&1 & WEBPID=$!
   sleep 1
-  CHROME="$CHROME" APP_URL="http://127.0.0.1:$WEBPORT" node scripts/e2e/browser-e2e.mjs
+  CHROME="$CHROME" APP_URL="http://127.0.0.1:$WEBPORT/app/" node scripts/e2e/browser-e2e.mjs
 else
   echo "(Chrome not found: browser test skipped)"
 fi
