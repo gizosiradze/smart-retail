@@ -1,0 +1,4 @@
+/app/*
+  X-Robots-Tag: noindex, nofollow
+/superadmin/*
+  X-Robots-Tag: noindex, nofollow

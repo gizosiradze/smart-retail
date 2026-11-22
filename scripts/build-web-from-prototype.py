@@ -21,6 +21,47 @@ def patch(src: str, name: str, old: str, new: str) -> str:
     return src.replace(old, new)
 
 
+SITE = 'https://smartretail.ge'
+TITLE = 'Smart Retail · საცალო ვაჭრობის მართვის სისტემა'
+DESC = ('Smart Retail: ბრაუზერში მომუშავე სალარო და მართვის სისტემა ტანსაცმლის, ფეხსაცმლისა და ბავშვთა ნივთების '
+        'მაღაზიებისთვის. მარაგი ზომის დონეზე, რამდენიმე ფილიალი, დაბრუნება და ზუსტი ციფრები ლარში.')
+
+
+def seo_home(home: str) -> str:
+    """Search and social tags for the home page. The text comes from the page itself, so it cannot drift."""
+    import html, json
+    faq = re.findall(r'<details><summary>(.*?)</summary><p>(.*?)</p>', home)
+    lead = re.search(r'<p class="lead">(.*?)</p>', home).group(1)
+    h1 = re.search(r'<h1 class="lp-ser">(.*?)</h1>', home).group(1)
+    ld = [
+        {'@context': 'https://schema.org', '@type': 'Organization', 'name': 'Smart Retail', 'url': SITE + '/',
+         'logo': SITE + '/icons/icon-512.png', 'email': 'info@smartretail.ge'},
+        {'@context': 'https://schema.org', '@type': 'SoftwareApplication', 'name': 'Smart Retail',
+         'applicationCategory': 'BusinessApplication', 'operatingSystem': 'Web', 'inLanguage': 'ka',
+         'description': DESC, 'url': SITE + '/'},
+        {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
+            {'@type': 'Question', 'name': html.unescape(q),
+             'acceptedAnswer': {'@type': 'Answer', 'text': html.unescape(a)}} for q, a in faq]},
+    ]
+    head = (f'<meta name="description" content="{html.escape(DESC)}">'
+            f'<link rel="canonical" href="{SITE}/">'
+            '<meta name="theme-color" content="#6d1a2e">'
+            '<meta property="og:type" content="website"><meta property="og:site_name" content="Smart Retail">'
+            f'<meta property="og:locale" content="ka_GE"><meta property="og:url" content="{SITE}/">'
+            f'<meta property="og:title" content="{html.escape(TITLE)}"><meta property="og:description" content="{html.escape(DESC)}">'
+            f'<meta property="og:image" content="{SITE}/icons/icon-512.png">'
+            '<meta name="twitter:card" content="summary">'
+            f'<meta name="twitter:title" content="{html.escape(TITLE)}"><meta name="twitter:description" content="{html.escape(DESC)}">'
+            f'<meta name="twitter:image" content="{SITE}/icons/icon-512.png">'
+            + ''.join(f'<script type="application/ld+json">{json.dumps(x, ensure_ascii=False)}</script>' for x in ld))
+    home = patch(home, 'seo head', f'<title>{TITLE}</title>', f'<title>{TITLE}</title>' + head)
+    # visible only without JavaScript (crawlers, link previews): the page text the script would draw
+    ns = ('<noscript><main><h1>' + h1 + '</h1><p>' + lead + '</p><h2>ხშირი კითხვები</h2>'
+          + ''.join(f'<h3>{q}</h3><p>{a}</p>' for q, a in faq)
+          + '<p>info@smartretail.ge</p></main></noscript>')
+    return patch(home, 'seo noscript', '<body><div id="app"></div>', '<body><div id="app"></div>' + ns)
+
+
 def strip_host_wrapper(s: str) -> str:
     # claude.ai stores artifacts inside its own small <html> shell; keep only the page itself
     i = s.find('<!doctype html><html lang="ka">')
@@ -123,7 +164,9 @@ def build_app() -> None:
               '<script src="../config.js"></script>\n'
               "<script>if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>\n")
 
+    home = seo_home(home)
     (ROOT / 'web/index.html').write_text(home)
+    s = patch(s, 'app noindex', '<title>' + TITLE + '</title>', '<meta name="robots" content="noindex,nofollow"><title>' + TITLE + '</title>')
     (ROOT / 'web/app').mkdir(exist_ok=True)
     (ROOT / 'web/app/index.html').write_text(s)
     print('web/index.html and web/app/index.html written')
@@ -153,6 +196,7 @@ def build_superadmin() -> None:
     s = patch(s, 'sa open as store', "function openAsStore(id){", "function openAsStore(id){if(window.SRP&&SRP.on)return SRP.openAsStore(id);openAsStoreLocal(id)}\nfunction openAsStoreLocal(id){")
     s = patch(s, 'sa reset demo', "function resetDemo(", "function resetDemo(){if(window.SRP&&SRP.on){toast('რეალურ სისტემაში დემოს აღდგენა გამორთულია');return}resetDemoLocal()}\nfunction resetDemoLocal(")
     s = patch(s, 'sa boot', "D=load();\nrender();", "if(window.SRP&&SRP.on){SRP.boot()}else{D=load();render()}")
+    s = patch(s, 'sa noindex', '<title>RMS · სუპერ ადმინი</title>', '<meta name="robots" content="noindex,nofollow"><title>RMS · სუპერ ადმინი</title>')
     (ROOT / 'web/superadmin/index.html').write_text(s)
     print('web/superadmin/index.html written')
 
