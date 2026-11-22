@@ -119,7 +119,7 @@ login errors, a cashier sale, every dashboard screen. GitHub Actions runs both o
 browser ──shop, user, password──▶ Edge Function store-login ──▶ public.sr_login (database)
                                                                  bcrypt check, 5 failures → 15 min lock,
                                                                  30 failures per IP, session row
-browser ◀──── JWT (8 h): role=authenticated, sub, store_id, app_role, jti ─────┘
+browser ◀──── JWT (12 h): role=authenticated, sub, store_id, app_role, jti ─────┘
 browser ──JWT──▶ /rest/v1/rpc/sr_* ──▶ app.ctx(): session not revoked/expired, user active,
                                        store not suspended → store, role, branch for this call
 ```
@@ -165,7 +165,7 @@ pending changes are sent after signing in again.
 * The service worker keeps the app shell and product photos, so the app opens without internet.
 * The browser keeps a working copy in IndexedDB (`sr-offline`): data, the baseline, the batch being sent, the id
   block and the sign-in. It is written after every `save()` (and when the page is hidden), so closing the page
-  or the app loses nothing. Opening the app again continues from it; the sign-in is kept for its 8 hours, and
+  or the app loses nothing. Opening the app again continues from it; the sign-in is kept for its 12 hours, and
   after that the password is asked only when the connection is back (the unsent changes go out right after).
 * Every push carries a batch id; `app.push_batches` remembers it, so a batch whose answer was lost (stock changes
   are deltas) is applied once. Logging out deletes the copy (it asks first if something is unsent).

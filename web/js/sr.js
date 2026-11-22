@@ -2,7 +2,7 @@
  *
  * The screens keep working on the in-memory object D exactly as in the prototype.
  * This file replaces localStorage with Supabase:
- *   - login: Edge Function "store-login" -> JWT kept in sessionStorage (8 hours)
+ *   - login: Edge Function "store-login" -> JWT kept in sessionStorage (12 hours)
  *   - load:  core collections at login, heavier ones when their screen opens, then only changes (sr_pull)
  *   - save:  every save() sends what changed since the last confirmed state, in one transaction (sr_push)
  *   - ids:   integer ids (receipt numbers etc.) come from blocks reserved on the server (sr_alloc_ids)
