@@ -1,2 +1,19 @@
-# the admin pages have their own addresses (/app/today, /app/stats ...): all of them open the app
-/app/*  /app/index.html  200
+# the app's pages have their own addresses: each one opens the app (a catch-all would also swallow /app/sw.js and the manifest)
+/app/sale  /app/  200
+/app/shift  /app/  200
+/app/tx  /app/  200
+/app/rx  /app/  200
+/app/rcv  /app/  200
+/app/stk  /app/  200
+/app/today  /app/  200
+/app/stats  /app/  200
+/app/prod  /app/  200
+/app/shl  /app/  200
+/app/buy  /app/  200
+/app/trf  /app/  200
+/app/sup  /app/  200
+/app/cu  /app/  200
+/app/inv  /app/  200
+/app/emp  /app/  200
+/app/wr  /app/  200
+/app/none  /app/  200
