@@ -1,7 +1,7 @@
 // Smart Retail service worker: app shell (so the till opens without internet) and product photos.
 // Data requests (Supabase API) are never cached: the app keeps its own offline copy in IndexedDB (js/sr.js).
-const CACHE = 'sr-app-v6', IMG = 'sr-img-v1', IMG_MAX = 400, NET_WAIT_MS = 4000;
-const SHELL = ['./', '../config.js', '../js/sr.js', '../js/sr-notify.js', 'manifest.webmanifest', '../icons/icon-192.png', '../icons/icon-512.png'];
+const CACHE = 'sr-app-v7', IMG = 'sr-img-v1', IMG_MAX = 400, NET_WAIT_MS = 4000;
+const SHELL = ['./', '../config.js', '../js/sr.js', '../js/sr-notify.js', 'manifest.webmanifest', '../icons/icon-192-v2.png', '../icons/icon-512-v2.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -53,7 +53,7 @@ self.addEventListener('push', e => {
   let d = {};
   try { d = e.data ? e.data.json() : {} } catch (_) { d = { body: e.data && e.data.text() } }
   e.waitUntil(self.registration.showNotification(d.title || 'Smart Retail', {
-    body: d.body || '', tag: d.tag, icon: '../icons/icon-192.png', badge: '../icons/icon-192.png',
+    body: d.body || '', tag: d.tag, icon: '../icons/icon-192-v2.png', badge: '../icons/icon-192-v2.png',
     data: { url: d.url || './' }
   }));
 });

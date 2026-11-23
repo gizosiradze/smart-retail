@@ -654,7 +654,7 @@
   }
   // a local notification, to check that this phone shows them
   async function pushTest() {
-    await (await pushReg()).showNotification('Smart Retail', { body: 'შეტყობინებები მუშაობს ✓', tag: 'sr-test', icon: '../icons/icon-192.png', badge: '../icons/icon-192.png' });
+    await (await pushReg()).showNotification('Smart Retail', { body: 'შეტყობინებები მუშაობს ✓', tag: 'sr-test', icon: '../icons/icon-192-v2.png', badge: '../icons/icon-192-v2.png' });
   }
 
   window.SR = { on, login, boot, logout, save, ready, ensure, touch, loadingHtml, mainLoadingHtml, retryLoad, loadError: () => loadErr, msg, changePassword, pushState, pushEnable, pushDisable, pushPrefs, pushSetPrefs, pushTest, dirty, safe: () => idbOk, queued: () => pendN > 0 || !!inflight, pendingChanges: () => diff(), get me() { return me }, get readOnly() { return ro } };
