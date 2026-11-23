@@ -48,7 +48,10 @@ async function ntLoad() {
     if (!(window.SR && SR.on)) ntSt = 'demo';
     else {
       ntSt = await SR.pushState();
-      if (ntSt === 'on') { const p = await SR.pushPrefs(); if (p) { NT = ntNorm(p); ntLocal(true) } }
+      if (ntSt === 'on') {
+        try { const p = await SR.pushPrefs(); if (p) { NT = ntNorm(p); ntLocal(true) } else ntSave() }   // nothing saved on the server yet: send this phone's choices
+        catch (e) { ntErr = SR.msg ? SR.msg(e) : 'არჩევანი ვერ ჩაიტვირთა' }
+      }
     }
   } catch (_) { ntSt = 'off' }
   ntBusy = false;
