@@ -1,0 +1,2 @@
+# the admin pages have their own addresses (/app/today, /app/stats ...): all of them open the app
+/app/*  /app/index.html  200

@@ -109,10 +109,10 @@ def build_app() -> None:
     # 5. per-screen loading: wait for this screen's data, then refresh it in the background.
     #    While a screen's data is still loading, the header and menu stay on screen (only <main> waits).
     s = patch(s, 'render hook', "const t=navFor();view=view&&t.some(x=>x[0]==view)?view:t[0][0];",
-              "const t=navFor();if(!view){const h=location.hash.slice(1);if(t.some(x=>x[0]==h))view=h}view=view&&t.some(x=>x[0]==view)?view:t[0][0];if(location.hash!=='#'+view&&location.hash!=='#sa')history.pushState(null,'','#'+view);"
+              "const t=navFor();if(!view){const h=location.pathname.replace(/^\\/app\\/?/,'');if(t.some(x=>x[0]==h))view=h}view=view&&t.some(x=>x[0]==view)?view:t[0][0];if(location.hash!=='#sa'&&location.pathname!=='/app/'+view)history[/^\\/app\\/?$/.test(location.pathname)?'replaceState':'pushState'](null,'','/app/'+view);"
               "window.SRLD=0;if(window.SR&&SR.on){if(!SR.ready(view)){SRLD=1;if(!SR.loadError())SR.ensure(view).then(render)}else SR.touch(view)}")
-    # browser Back/Forward: each page has its own address (#view)
-    s = patch(s, 'hashchange', "let sxM=innerWidth<=900;", "addEventListener('hashchange',()=>{if(!U)return;const v=location.hash.slice(1);if(v&&v!=view&&navFor().some(x=>x[0]==v)){view=v;np=0;render()}});let sxM=innerWidth<=900;")
+    # browser Back/Forward: each page has its own address (/app/<view>; Cloudflare rewrites it to the app, see web/_redirects)
+    s = patch(s, 'popstate', "let sxM=innerWidth<=900;", "addEventListener('popstate',()=>{if(!U)return;const v=location.pathname.replace(/^\\/app\\/?/,'');if(v&&v!=view&&navFor().some(x=>x[0]==v)){view=v;np=0;render()}});let sxM=innerWidth<=900;")
     s = patch(s, 'render main', "${V[view]()}</main>", "${window.SRLD?SR.mainLoadingHtml():V[view]()}</main>")
 
     # 6. startup: keep the prototype's own start-up for the demo/offline mode; in Supabase mode the same
@@ -166,7 +166,7 @@ def build_app() -> None:
 
     # 7c. installable app (PWA): manifest, icons, service worker (manifest and service worker live in web/app/, icons in web/icons/)
     s = patch(s, 'pwa head', '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
-              '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+              '<base href="/app/"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
               '<meta name="theme-color" content="#6d1a2e"><meta name="mobile-web-app-capable" content="yes">'
               '<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Smart Retail">'
               '<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">')
