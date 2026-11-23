@@ -186,6 +186,20 @@
       '<div class="ft"><button onclick="copyT(\'' + esc(r.pw) + '\')">კოპირება</button><button class="pri" onclick="closeM();render()">დახურვა</button></div>');
   }
 
+  async function addBranch(id) {
+    const s = storeOf(id), pl = planOf(s.plan);
+    const el = document.getElementById('nb_name'), name = el ? el.value.trim() : '';
+    if (!name) { toast('ჩაწერეთ ფილიალის სახელი'); return }
+    if (s.branches.some(b => b.toLowerCase() === name.toLowerCase())) { toast('ასეთი ფილიალი უკვე არსებობს'); return }
+    if (s.branches.length >= pl.branches && !confirm('პაკეტის ლიმიტი (' + pl.branches + ') შევსებულია. მაინც დაემატოს?')) return;
+    let r;
+    try { r = await rpc('sr_platform_add_branch', { p_store: id, p_name: name }) }
+    catch (e) { toast('ვერ დაემატა: ' + (/BRANCH_EXISTS/.test(e.message) ? 'ასეთი ფილიალი უკვე არსებობს' : e.message)); return }
+    s.branches = r.branches; snap.stores.set(keyOf(s), JSON.stringify(s));
+    log('ფილიალი დაემატა: ' + name, id);
+    render();
+  }
+
   // Opens the store's own app in a new tab as its admin, read-only. The tab is opened first (inside the
   // click, so pop-up blockers allow it); the token goes to it by postMessage once it says it is ready.
   function openAsStore(id) {
@@ -231,5 +245,5 @@
     };
   }
 
-  window.SRP = { on, login, logout, boot, loginView, save, register, resetPass, metrics, openAsStore };
+  window.SRP = { on, login, logout, boot, loginView, save, register, resetPass, addBranch, metrics, openAsStore };
 })();
