@@ -106,8 +106,8 @@
 
   // ---------------------------------------------------------------- data
   async function loadAll() {
-    const [data, met] = await Promise.all([rpc('sr_platform_pull'), rpc('sr_platform_metrics')]);
-    D = data; MET = met || {};
+    const [data, met, demos] = await Promise.all([rpc('sr_platform_pull'), rpc('sr_platform_metrics'), rpc('sr_platform_demo_list').catch(() => [])]);
+    D = data; MET = met || {}; D.demos = demos || [];
     rebase();
   }
   function rebase() {
@@ -141,6 +141,11 @@
       } while (again);
     } finally { pushing = false }
   }
+
+  // ---------------------------------------------------------------- demo requests (home page forms)
+  async function demosLoad() { D.demos = (await rpc('sr_platform_demo_list')) || [] }
+  const demoSet = (id, st, note) => rpc('sr_platform_demo_set', { p_id: id, p_status: st, p_note: note || '' });
+  const demoDel = id => rpc('sr_platform_demo_delete', { p_id: id });
 
   // ---------------------------------------------------------------- server-side actions
   async function register() {
@@ -245,5 +250,5 @@
     };
   }
 
-  window.SRP = { on, login, logout, boot, loginView, save, register, resetPass, addBranch, metrics, openAsStore };
+  window.SRP = { on, demosLoad, demoSet, demoDel, login, logout, boot, loginView, save, register, resetPass, addBranch, metrics, openAsStore };
 })();

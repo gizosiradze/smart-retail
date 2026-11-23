@@ -216,10 +216,11 @@ function openStore(id){V.store=id;V.tab='dash';const s=storeOf(id);log('ნა�
 function render(){
   if(V.view==='login'){$('#app').innerHTML=loginView();return}
   const od=D.stores.filter(s=>s.status!=='suspended'&&overdueOf(s).length).length;
-  const nav=[['overview','მიმოხილვა'],['stores','მაღაზიები'],['billing','გადახდები',od],['plans','პაკეტები'],['ann','განცხადებები'],['audit','ჟურნალი'],['settings','პარამეტრები']];
+  const nd=(D.demos||[]).filter(x=>x.status==='new').length;
+  const nav=[['overview','მიმოხილვა'],['demos','მოთხოვნები',nd],['stores','მაღაზიები'],['billing','გადახდები',od],['plans','პაკეტები'],['ann','განცხადებები'],['audit','ჟურნალი'],['settings','პარამეტრები']];
   const cur=V.view==='store'?'stores':V.view==='register'?'stores':V.view;
   let body='';
-  try{body=({overview:overviewView,stores:storesView,store:storeView,register:registerView,billing:billingView,plans:plansView,ann:annView,audit:auditView,settings:settingsView}[V.view]||overviewView)()}catch(e){body='<section>შეცდომა: '+esc(e.message)+'</section>';console.error(e)}
+  try{body=({overview:overviewView,stores:storesView,store:storeView,register:registerView,billing:billingView,plans:plansView,ann:annView,demos:demosView,audit:auditView,settings:settingsView}[V.view]||overviewView)()}catch(e){body='<section>შეცდომა: '+esc(e.message)+'</section>';console.error(e)}
   $('#app').innerHTML='<header><span class="brand">RMS <small>სუპერ ადმინი</small></span><nav>'+nav.map(n=>'<button class="'+(cur===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')">'+n[1]+(n[2]?'<i>'+n[2]+'</i>':'')+'</button>').join('')+
     '</nav><div class="hr"><button class="pri" onclick="go(\'register\')">+ ახალი მაღაზია</button><button class="sm" style="border:0;color:var(--m)" onclick="logout()">გასვლა</button></div></header><main>'+body+'</main>';
 }
@@ -507,6 +508,26 @@ function annView(){
 }
 function sendAnn(){const x=$('#an_x').value.trim();if(!x){toast('დაწერეთ ტექსტი');return}const a={id:uid(),t:nowStr(),type:$('#an_y').value,target:$('#an_t').value,text:x};D.ann.push(a);log('განცხადება გაიგზავნა: '+a.type,a.target==='all'?'':a.target);toast('გაიგზავნა');render()}
 function delAnn(id){D.ann=D.ann.filter(a=>a.id!==id);save();render()}
+
+/* ================= demo requests (from the public home page) ================= */
+function demosView(){
+  const l=D.demos||[],nw=l.filter(x=>x.status==='new').length;
+  if(!(window.SRP&&SRP.on))return '<div class="hd"><h2>დემოს მოთხოვნები</h2></div><section><div class="note">მოთხოვნები მხოლოდ რეალურ სისტემაში ჩანს (სერვერთან დაკავშირებისას).</div></section>';
+  return '<div class="hd"><h2>დემოს მოთხოვნები</h2><div><span class="m">ახალი: '+nw+' · სულ: '+l.length+'</span> <button class="sm" onclick="demosReload()">განახლება</button></div></div>'+
+  '<section>'+(l.length?'<table><tr><th>დრო</th><th>სახელი</th><th>ტელეფონი</th><th>მაღაზია</th><th>კომენტარი</th><th></th></tr>'+l.map(x=>
+    '<tr'+(x.status==='new'?' style="background:#fff8e6"':'')+'><td style="white-space:nowrap">'+esc(x.t)+(x.status==='new'?' <span class="tg o">ახალი</span>':'')+'</td><td><b>'+esc(x.name)+'</b></td>'+
+    '<td style="white-space:nowrap"><a href="tel:'+esc(x.phone)+'">'+esc(x.phone)+'</a></td>'+
+    '<td>'+esc(x.kind||'—')+(x.branches?'<br><small>ფილიალი: '+esc(x.branches)+'</small>':'')+'</td>'+
+    '<td>'+esc(x.comment||'')+(x.note?'<br><small style="color:var(--a)">შენიშვნა: '+esc(x.note)+'</small>':'')+'</td>'+
+    '<td style="white-space:nowrap;text-align:right"><button class="sm" onclick="demoNote(\''+x.id+'\')">შენიშვნა</button> '+
+    (x.status==='new'?'<button class="sm pri" onclick="demoSet(\''+x.id+'\',\'done\')">დამუშავდა</button>':'<button class="sm" onclick="demoSet(\''+x.id+'\',\'new\')">გახსნა</button>')+
+    ' <button class="sm dng" onclick="demoDel(\''+x.id+'\')">წაშლა</button></td></tr>').join('')+'</table>'
+    :'<div class="note">ჯერ მოთხოვნა არ არის. მთავარი გვერდის „დემოს მოთხოვნა“ ფორმიდან შემოსული განაცხადები აქ გამოჩნდება.</div>')+'</section>'
+}
+async function demosReload(){try{await SRP.demosLoad();render()}catch(e){toast('ვერ განახლდა: '+e.message)}}
+async function demoSet(id,st){const x=(D.demos||[]).find(d=>d.id===id);if(!x)return;try{await SRP.demoSet(id,st,x.note||'');x.status=st;log(st==='done'?'დემოს მოთხოვნა დამუშავდა: '+x.name:'დემოს მოთხოვნა გაიხსნა: '+x.name);render()}catch(e){toast('ვერ შეინახა: '+e.message)}}
+function demoNote(id){const x=(D.demos||[]).find(d=>d.id===id);if(!x)return;const v=prompt('შენიშვნა ('+x.name+')',x.note||'');if(v===null)return;SRP.demoSet(id,x.status,v.trim()).then(()=>{x.note=v.trim();render()}).catch(e=>toast('ვერ შეინახა: '+e.message))}
+async function demoDel(id){const x=(D.demos||[]).find(d=>d.id===id);if(!x||!confirm('წაიშალოს მოთხოვნა: '+x.name+'?'))return;try{await SRP.demoDel(id);D.demos=D.demos.filter(d=>d.id!==id);render()}catch(e){toast('ვერ წაიშალა: '+e.message)}}
 
 /* ================= audit ================= */
 function auditView(){
