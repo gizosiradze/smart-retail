@@ -337,6 +337,7 @@ function sUsers(s){const p=planOf(s.plan);
   s.users.map((u,i)=>'<tr><td><b>'+esc(u.u)+'</b><small>'+esc(u.name)+'</small></td><td><span class="tg '+(u.role==='ადმინი'?'b':'n')+'">'+u.role+'</span></td><td>'+esc(u.branch)+'</td><td>'+dLabel(u.last)+'</td><td class="r"><button class="sm" onclick="resetPass(\''+s.id+'\','+i+')">პაროლის აღდგენა</button></td></tr>').join('')+'</table>'+
   '<div class="note" style="margin-top:10px">ახალ მოლარეებს მაღაზიის ადმინი თვითონ ამატებს დეშბორდიდან. სუპერ ადმინს პაროლის <b>ნახვა</b> არ შეუძლია, მხოლოდ დროებითი პაროლის მიცემა.</div></section>'+
   '<section><h3>ფილიალები <small>'+s.branches.length+' / '+p.branches+'</small></h3>'+s.branches.map(b=>'<div class="row"><span>'+esc(b)+'</span><span class="tg g">აქტიური</span></div>').join('')+
+  (window.SRP&&SRP.on?'<div style="display:flex;gap:8px;margin-top:10px"><input id="nb_name" placeholder="ახალი ფილიალის სახელი" style="flex:1" onkeydown="if(event.key===\'Enter\')SRP.addBranch(\''+s.id+'\')"><button class="pri sm" onclick="SRP.addBranch(\''+s.id+'\')">+ დამატება</button></div>':'')+
   (s.branches.length>=p.branches?'<div class="banner" style="margin:10px 0 0">პაკეტის ლიმიტი შევსებულია. მეტი ფილიალისთვის საჭიროა პაკეტის შეცვლა. <button class="sm" onclick="planModal(\''+s.id+'\')">პაკეტის შეცვლა</button></div>':'')+'</section></div>';
 }
 function resetPass(id,i){if(window.SRP&&SRP.on)return SRP.resetPass(id,i);resetPassLocal(id,i)}
