@@ -1,0 +1,11 @@
+<!doctype html><html lang="ka"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Smart Retail</title>
+<script>
+// GitHub Pages ignores _redirects: /app/<page> lands here. Remember the address and open the app, which restores it.
+(function () {
+  var p = location.pathname;
+  if (/^\/app\/[a-z]+\/?$/.test(p)) {
+    try { sessionStorage.setItem('sr_deep', p.replace(/\/$/, '')); } catch (e) {}
+    location.replace('/app/');
+  } else document.write('<p style="font:16px sans-serif;text-align:center;margin-top:20vh">გვერდი ვერ მოიძებნა · <a href="/">მთავარი</a></p>');
+})();
+</script></head><body></body></html>
