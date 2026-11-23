@@ -54,3 +54,6 @@ policy = "per_worker"
 
 [functions.store-login]
 verify_jwt = false
+
+[functions.push-notify]
+verify_jwt = false

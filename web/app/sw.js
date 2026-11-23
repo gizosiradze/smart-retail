@@ -1,6 +1,6 @@
 // Smart Retail service worker: app shell (so the till opens without internet) and product photos.
 // Data requests (Supabase API) are never cached: the app keeps its own offline copy in IndexedDB (js/sr.js).
-const CACHE = 'sr-app-v2', IMG = 'sr-img-v1', IMG_MAX = 400, NET_WAIT_MS = 4000;
+const CACHE = 'sr-app-v3', IMG = 'sr-img-v1', IMG_MAX = 400, NET_WAIT_MS = 4000;
 const SHELL = ['./', '../config.js', '../js/sr.js', 'manifest.webmanifest', '../icons/icon-192.png', '../icons/icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -46,4 +46,23 @@ self.addEventListener('fetch', e => {
       return res;
     }).catch(() => cached(r))
   );
+});
+
+// Web Push: a sale was recorded (sent by the push-notify Edge Function).
+self.addEventListener('push', e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {} } catch (_) { d = { body: e.data && e.data.text() } }
+  e.waitUntil(self.registration.showNotification(d.title || 'Smart Retail', {
+    body: d.body || '', tag: d.tag, icon: '../icons/icon-192.png', badge: '../icons/icon-192.png',
+    data: { url: d.url || './' }
+  }));
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const target = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+    const c = cs.find(x => x.url.startsWith(self.registration.scope));
+    return c ? c.focus() : self.clients.openWindow(target);
+  }));
 });

@@ -9,6 +9,7 @@
 //
 // Steps: link project → migrations → Edge Function secrets → store-login → token check → web/config.js.
 // Seed data is never deployed.
+import { createHash } from 'node:crypto';
 import readline from 'node:readline/promises';
 import { spawnSync } from 'node:child_process';
 import { arg, flag, loadEnv, need, die, step, supabase, writeConfig, checkTokens, ROOT } from './lib.mjs';
@@ -46,6 +47,21 @@ const t = await checkTokens();
 if (!t.ok) die(`Supabase did not accept a token signed with APP_JWT_SECRET: ${t.body}
   Use the project's legacy JWT secret: Dashboard → Project Settings → JWT Keys → Legacy JWT secret.`);
 console.log('✓ tokens accepted');
+
+step('Push notifications (admins\' phones)');
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  // the shared secret between the database trigger and the function is derived, so there is nothing more to keep
+  const pushSecret = createHash('sha256').update(process.env.APP_JWT_SECRET + ':push-notify').digest('hex');
+  supabase(['secrets', 'set', '--project-ref', ref, `PUSH_SECRET=${pushSecret}`, `VAPID_PUBLIC_KEY=${process.env.VAPID_PUBLIC_KEY}`,
+    `VAPID_PRIVATE_KEY=${process.env.VAPID_PRIVATE_KEY}`, `VAPID_SUBJECT=${process.env.VAPID_SUBJECT || 'mailto:admin@smartretail.ge'}`], { quiet: true });
+  supabase(['functions', 'deploy', 'push-notify', '--project-ref', ref, '--no-verify-jwt', '--use-api']);
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY, h = { 'Content-Type': 'application/json', apikey: key };
+  if (key.startsWith('eyJ')) h.Authorization = `Bearer ${key}`;
+  const r = await fetch(`${process.env.SUPABASE_URL}/rest/v1/rpc/sr_push_config`, { method: 'POST', headers: h,
+    body: JSON.stringify({ p_url: `${process.env.SUPABASE_URL}/functions/v1/push-notify`, p_secret: pushSecret, p_vapid_public: process.env.VAPID_PUBLIC_KEY }) });
+  if (!r.ok) die(`could not save the push settings in the database: ${await r.text()}`);
+  console.log('✓ push-notify deployed and configured');
+} else console.log('skipped: set VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY (node scripts/vapid.mjs) and SUPABASE_SERVICE_ROLE_KEY in ' + envFile + ' to enable');
 
 step('web/config.js');
 writeConfig({ url: process.env.SUPABASE_URL, anonKey: process.env.SUPABASE_ANON_KEY, demoHint: process.env.DEMO_HINT || '' });

@@ -100,11 +100,19 @@ def build_app() -> None:
         s = patch(s, 'logout ' + cls, f'<button class="{cls}" onclick="U=null;cart=[];render()">გასვლა</button>',
                   f'<button class="{cls}" onclick="if(window.SR&&SR.on)SR.logout();else{{U=null;cart=[];render()}}">გასვლა</button>')
 
+    # 4b. push notifications: a bell next to "გასვლა" for the admin dashboard (real server mode only)
+    s = patch(s, 'push bell',
+              '</span><button class="lgx" onclick="if(window.SR&&SR.on)SR.logout();else{U=null;cart=[];render()}">გასვლა</button></header>',
+              '</span>${U.role==\'dash\'&&window.SR&&SR.on&&!SR.readOnly?`<button class="lgx" aria-label="შეტყობინებები" title="შეტყობინებები" onclick="SR.pushUi()">🔔</button>`:\'\'}'
+              '<button class="lgx" onclick="if(window.SR&&SR.on)SR.logout();else{U=null;cart=[];render()}">გასვლა</button></header>')
+
     # 5. per-screen loading: wait for this screen's data, then refresh it in the background.
     #    While a screen's data is still loading, the header and menu stay on screen (only <main> waits).
     s = patch(s, 'render hook', "const t=navFor();view=view&&t.some(x=>x[0]==view)?view:t[0][0];",
-              "const t=navFor();view=view&&t.some(x=>x[0]==view)?view:t[0][0];"
+              "const t=navFor();if(!view){const h=location.hash.slice(1);if(t.some(x=>x[0]==h))view=h}view=view&&t.some(x=>x[0]==view)?view:t[0][0];if(location.hash!=='#'+view&&location.hash!=='#sa')history.pushState(null,'','#'+view);"
               "window.SRLD=0;if(window.SR&&SR.on){if(!SR.ready(view)){SRLD=1;if(!SR.loadError())SR.ensure(view).then(render)}else SR.touch(view)}")
+    # browser Back/Forward: each page has its own address (#view)
+    s = patch(s, 'hashchange', "let sxM=innerWidth<=900;", "addEventListener('hashchange',()=>{if(!U)return;const v=location.hash.slice(1);if(v&&v!=view&&navFor().some(x=>x[0]==v)){view=v;np=0;render()}});let sxM=innerWidth<=900;")
     s = patch(s, 'render main', "${V[view]()}</main>", "${window.SRLD?SR.mainLoadingHtml():V[view]()}</main>")
 
     # 6. startup: keep the prototype's own start-up for the demo/offline mode; in Supabase mode the same
