@@ -111,6 +111,7 @@
     window.srNormalize && srNormalize();          // defaults the prototype added on startup
     rebase();                                     // ...but those defaults are not "changes"
     enter();
+    annCheck(true);
     // then load every other screen's data in the background, so switching screens never waits
     (ensuring || Promise.resolve()).then(prefetch);
     persistSoon(1500);
@@ -259,6 +260,7 @@
     loaded = new Set(rec.loaded || []); blk.next = rec.blk.next; blk.end = rec.blk.end; blk.queued = rec.blk.queued; inflight = rec.inflight || null;
     defineN();
     enter();
+    annCheck(true);
     (ensuring || Promise.resolve()).then(prefetch);
     resume();
   }
@@ -302,6 +304,7 @@
     clearToken(); U = null; cart = []; D = { p: [], dp: [], c: [], s: [], st: {}, us: [], sh: [], cm: [], pu: [], sup: [], cats: [] };
     snap = {}; snapSt = {}; snapKv = {}; loaded = new Set(); inflight = null; pendN = pendS = 0;
     cacheDrop(); chip();
+    annReset();
     render();
   }
 
@@ -657,5 +660,176 @@
     await (await pushReg()).showNotification('Smart Retail', { body: 'შეტყობინებები მუშაობს ✓', tag: 'sr-test', icon: '../icons/icon-192-v2.png', badge: '../icons/icon-192-v2.png' });
   }
 
-  window.SR = { on, login, boot, logout, save, ready, ensure, touch, loadingHtml, mainLoadingHtml, retryLoad, loadError: () => loadErr, msg, changePassword, pushState, pushEnable, pushDisable, pushPrefs, pushSetPrefs, pushTest, dirty, safe: () => idbOk, queued: () => pendN > 0 || !!inflight, pendingChanges: () => diff(), get me() { return me }, get readOnly() { return ro } };
+  // ---------------------------------------------------------------- announcements from Super Admin (pop-up for store admins)
+  // The server decides who sees what (public.sr_announcements): admins only, once per person until confirmed.
+  // "გასაგებია" confirms (public.sr_announcements_read); "მოგვიანებით" only hides it until the next sign-in.
+  const ANN_TYPES = {
+    'ინფორმაცია':        { c: '#2b5fb4', bg: '#eaf1fc', i: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/>' },
+    'ტექნიკური სამუშაო': { c: '#b36b00', bg: '#fff3dc', i: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>' },
+    'ახალი ფუნქცია':    { c: '#1f7a4d', bg: '#e6f5ec', i: '<path d="M12 3l1.9 4.6 4.9.4-3.7 3.2 1.1 4.8L12 13.4 7.8 16l1.1-4.8L5.2 8l4.9-.4z"/>' },
+    'გაფრთხილება':      { c: '#b3261e', bg: '#fdecea', i: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.2v.01"/>' }
+  };
+  let annList = [], annIdx = 0, annSeen = new Set(), annBusy = false, annAt = 0, annEl = null, annPrevFocus = null;
+
+  function annStyle() {
+    if (document.getElementById('sr-ann-css')) return;
+    const st = document.createElement('style'); st.id = 'sr-ann-css';
+    st.textContent = `
+#sr-ann{position:fixed;inset:0;z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(32,22,26,.52);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);font-family:Inter,'Noto Sans Georgian',system-ui,sans-serif;animation:sra-bg .22s ease-out}
+#sr-ann *{box-sizing:border-box}
+#sr-ann .sra-card{position:relative;width:100%;max-width:460px;max-height:min(86vh,640px);max-height:min(86dvh,640px);display:flex;flex-direction:column;background:#fff;color:#2a2326;border-radius:22px;box-shadow:0 30px 70px -18px rgba(42,35,38,.5),0 0 0 1px rgba(42,35,38,.05);overflow:hidden;animation:sra-in .3s cubic-bezier(.2,.9,.3,1.1)}
+#sr-ann .sra-bar{height:5px;flex:none;background:var(--sra-c)}
+#sr-ann .sra-body{padding:26px 26px 8px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#sr-ann .sra-top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+#sr-ann .sra-ic{flex:none;width:44px;height:44px;border-radius:14px;background:var(--sra-bg);color:var(--sra-c);display:flex;align-items:center;justify-content:center}
+#sr-ann .sra-ic svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#sr-ann .sra-tt{min-width:0;flex:1}
+#sr-ann h2{margin:0;font-size:14px;line-height:1.3;font-weight:700;color:var(--sra-c)}
+#sr-ann time{display:block;margin-top:2px;font-size:12.5px;color:#7d7176}
+#sr-ann .sra-cnt{flex:none;font-size:12px;font-weight:600;color:#7d7176;background:#f5efed;border-radius:999px;padding:4px 10px}
+#sr-ann .sra-tx{margin:0;font-size:16.5px;line-height:1.6;white-space:pre-line;overflow-wrap:anywhere;color:#2a2326}
+#sr-ann .sra-ft{flex:none;padding:18px 26px 24px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(#fff0,#fff 14px)}
+#sr-ann .sra-dots{display:flex;justify-content:center;gap:6px;margin-bottom:2px}
+#sr-ann .sra-dots i{width:6px;height:6px;border-radius:50%;background:#e2d8d5;transition:all .2s}
+#sr-ann .sra-dots i.on{width:18px;border-radius:3px;background:var(--sra-c)}
+#sr-ann button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#sr-ann .sra-ok{width:100%;min-height:48px;border:0;border-radius:14px;background:#8c1c3a;color:#fff;font-size:16px;font-weight:700;letter-spacing:.01em;box-shadow:0 8px 18px -8px rgba(140,28,58,.7);transition:background .15s,transform .1s}
+#sr-ann .sra-ok:hover{background:#6f1530}#sr-ann .sra-ok:active{transform:scale(.98)}
+#sr-ann .sra-ok[disabled]{opacity:.7;cursor:progress}
+#sr-ann .sra-later{width:100%;min-height:44px;border:0;border-radius:12px;background:transparent;color:#7d7176;font-size:14.5px;font-weight:600}
+#sr-ann .sra-later:hover{background:#f5efed;color:#2a2326}
+#sr-ann button:focus-visible{outline:3px solid #8c1c3a55;outline-offset:2px}
+#sr-ann .sra-err{margin:0;font-size:13px;color:#b3261e;text-align:center}
+@keyframes sra-bg{from{opacity:0}to{opacity:1}}
+@keyframes sra-in{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes sra-up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes sra-sw{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+#sr-ann .sra-sw{animation:sra-sw .22s ease-out}
+@media(max-width:560px){
+  #sr-ann{align-items:flex-end;padding:0}
+  #sr-ann .sra-card{max-width:none;border-radius:24px 24px 0 0;max-height:88vh;max-height:88dvh;animation:sra-up .32s cubic-bezier(.2,.9,.3,1)}
+  #sr-ann .sra-bar{height:0}
+  #sr-ann .sra-card::before{content:"";flex:none;width:40px;height:4px;border-radius:2px;background:#e2d8d5;margin:10px auto 0}
+  #sr-ann .sra-body{padding:18px 20px 6px}
+  #sr-ann .sra-tx{font-size:16px}
+  #sr-ann .sra-ft{padding:14px 20px calc(18px + env(safe-area-inset-bottom,0px))}
+}
+@media(max-height:480px) and (orientation:landscape){#sr-ann{align-items:center;padding:10px}#sr-ann .sra-card{max-width:560px;border-radius:18px;max-height:96vh;max-height:96dvh}#sr-ann .sra-card::before{display:none}}
+@media(prefers-reduced-motion:reduce){#sr-ann,#sr-ann .sra-card,#sr-ann .sra-sw{animation:none!important}}
+@media(prefers-contrast:more){#sr-ann .sra-card{box-shadow:0 0 0 2px #2a2326}}`;
+    document.head.appendChild(st);
+  }
+
+  function annWhen(t) {
+    const m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})$/.exec(t || '');
+    if (!m) return '';
+    const n = new Date(), pad = x => String(x).padStart(2, '0');
+    if (`${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}` === `${m[1]}-${m[2]}-${m[3]}`) return 'დღეს, ' + m[4];
+    return `${m[3]}.${m[2]}.${m[1]}, ${m[4]}`;
+  }
+
+  function annPaint(first) {
+    const a = annList[annIdx];
+    if (!a || !annEl) return;
+    const k = ANN_TYPES[a.type] || ANN_TYPES['ინფორმაცია'], n = annList.length, last = annIdx === n - 1;
+    const card = annEl.querySelector('.sra-card');
+    card.style.setProperty('--sra-c', k.c); card.style.setProperty('--sra-bg', k.bg);
+    card.querySelector('.sra-ic').innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${k.i}</svg>`;
+    card.querySelector('h2').textContent = a.type || 'ინფორმაცია';
+    const tm = card.querySelector('time'); tm.textContent = annWhen(a.t);
+    card.querySelector('.sra-tx').textContent = a.text;
+    card.querySelector('.sra-cnt').hidden = n < 2; card.querySelector('.sra-cnt').textContent = (annIdx + 1) + ' / ' + n;
+    const dots = card.querySelector('.sra-dots'); dots.hidden = n < 2;
+    dots.innerHTML = n < 2 ? '' : annList.map((_, i) => `<i class="${i === annIdx ? 'on' : ''}"></i>`).join('');
+    card.querySelector('.sra-ok').textContent = 'გასაგებია';
+    card.querySelector('.sra-later').textContent = last ? 'მოგვიანებით' : 'დანარჩენის გამოტოვება';
+    card.querySelector('.sra-err').textContent = '';
+    card.querySelector('.sra-body').scrollTop = 0;
+    if (!first) { const b = card.querySelector('.sra-body'); b.classList.remove('sra-sw'); void b.offsetWidth; b.classList.add('sra-sw') }
+    annEl.setAttribute('aria-label', 'განცხადება: ' + (a.type || ''));
+  }
+
+  function annClose() {
+    if (!annEl) return;
+    const e = annEl; annEl = null; annList = []; annIdx = 0;
+    document.removeEventListener('keydown', annKey, true);
+    e.style.transition = 'opacity .16s'; e.style.opacity = '0';
+    setTimeout(() => e.remove(), 170);
+    if (annPrevFocus && annPrevFocus.focus) { try { annPrevFocus.focus() } catch (_) {} } annPrevFocus = null;
+  }
+
+  function annKey(ev) {
+    if (!annEl) return;
+    if (ev.key === 'Escape') { ev.preventDefault(); annLater(); return }
+    if (ev.key === 'Tab') {                       // keep the focus inside the dialog
+      const bs = [...annEl.querySelectorAll('button:not([disabled])')];
+      if (!bs.length) return;
+      const f = bs[0], l = bs[bs.length - 1];
+      if (ev.shiftKey && document.activeElement === f) { ev.preventDefault(); l.focus() }
+      else if (!ev.shiftKey && document.activeElement === l) { ev.preventDefault(); f.focus() }
+      else if (!annEl.contains(document.activeElement)) { ev.preventDefault(); f.focus() }
+    }
+  }
+
+  function annLater() { annList.forEach(a => annSeen.add(a.id)); annClose() }
+
+  async function annOk() {
+    const a = annList[annIdx], ok = annEl && annEl.querySelector('.sra-ok');
+    if (!a || !ok || ok.disabled) return;
+    ok.disabled = true;
+    try { await call('sr_announcements_read', { p_ids: [a.id] }, 15000) }
+    catch (e) {
+      if (!annEl) return;
+      // no connection: it stays unconfirmed on the server and comes back at the next sign-in, but not again in this session
+      if (!isNet(e)) { ok.disabled = false; annEl.querySelector('.sra-err').textContent = 'ვერ დაფიქსირდა: ' + msg(e); return }
+    }
+    ok.disabled = false;
+    annSeen.add(a.id);
+    if (!annEl) return;
+    annList.splice(annIdx, 1);
+    if (!annList.length) { annClose(); return }
+    if (annIdx >= annList.length) annIdx = annList.length - 1;
+    annPaint();
+    annEl.querySelector('.sra-ok').focus();
+  }
+
+  function annShow(list) {
+    if (annEl) {                                  // a new one arrived while the pop-up is open: append it
+      list.forEach(a => { if (!annList.some(x => x.id === a.id)) annList.push(a) });
+      annPaint(true); return;
+    }
+    annStyle();
+    annList = list.slice(); annIdx = 0;
+    annPrevFocus = document.activeElement;
+    annEl = el(`<div id="sr-ann" role="dialog" aria-modal="true"><div class="sra-card"><div class="sra-bar"></div>
+      <div class="sra-body"><div class="sra-top"><span class="sra-ic" aria-hidden="true"></span><div class="sra-tt"><h2></h2><time></time></div><span class="sra-cnt" hidden></span></div><p class="sra-tx"></p></div>
+      <div class="sra-ft"><div class="sra-dots" hidden aria-hidden="true"></div><p class="sra-err" role="alert"></p><button type="button" class="sra-ok"></button><button type="button" class="sra-later"></button></div></div></div>`);
+    if (!annEl) return;
+    annEl.querySelector('.sra-ok').onclick = annOk;
+    annEl.querySelector('.sra-later').onclick = annLater;
+    document.body.appendChild(annEl);
+    document.addEventListener('keydown', annKey, true);
+    annPaint(true);
+    annEl.querySelector('.sra-ok').focus({ preventScroll: true });
+  }
+
+  async function annCheck(force) {
+    if (!on || !U || !token || ro || annBusy || me.user.role !== 'admin') return;
+    if (!force && Date.now() - annAt < 60000) return;
+    annBusy = true; annAt = Date.now();
+    try {
+      const r = await call('sr_announcements', {}, 15000);
+      const fresh = (Array.isArray(r) ? r : []).filter(a => a && a.id && a.text && !annSeen.has(a.id));
+      if (fresh.length && U && token) annShow(fresh);
+    } catch (_) { /* offline or session ended: nothing to show now */ }
+    finally { annBusy = false }
+  }
+
+  function annReset() { annSeen = new Set(); annAt = 0; if (annEl) { annEl.remove(); annEl = null } annList = []; document.removeEventListener('keydown', annKey, true) }
+
+  setInterval(() => { if (document.visibilityState === 'visible') annCheck() }, 5 * 60 * 1000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') annCheck() });
+  window.addEventListener('online', () => annCheck());
+
+  window.SR = { on, login, boot, logout, save, ready, ensure, touch, loadingHtml, mainLoadingHtml, retryLoad, loadError: () => loadErr, msg, changePassword, pushState, pushEnable, pushDisable, pushPrefs, pushSetPrefs, pushTest, announcements: annCheck, showAnnouncements: annShow, dirty, safe: () => idbOk, queued: () => pendN > 0 || !!inflight, pendingChanges: () => diff(), get me() { return me }, get readOnly() { return ro } };
 })();
