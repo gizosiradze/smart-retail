@@ -78,7 +78,7 @@ def build_app() -> None:
     s = strip_host_wrapper((ROOT / 'prototype/app.html').read_text())
 
     # 1. config + data layer load before the app script
-    s = patch(s, 'scripts', '</template>\n<script>\n', '</template>\n<script src="../config.js"></script>\n<script src="../js/sr.js"></script>\n<script>\n')
+    s = patch(s, 'scripts', '</template>\n<script>\n', '</template>\n<script src="../config.js"></script>\n<script src="../js/sr.js"></script>\n<script src="../js/sr-notify.js"></script>\n<script>\n')
 
     # 2. save(): Supabase instead of localStorage (the landing-page demo iframe keeps its in-memory copy)
     s = patch(s, 'save',
@@ -100,11 +100,9 @@ def build_app() -> None:
         s = patch(s, 'logout ' + cls, f'<button class="{cls}" onclick="U=null;cart=[];render()">გასვლა</button>',
                   f'<button class="{cls}" onclick="if(window.SR&&SR.on)SR.logout();else{{U=null;cart=[];render()}}">გასვლა</button>')
 
-    # 4b. push notifications: a bell next to "გასვლა" for the admin dashboard (real server mode only)
-    s = patch(s, 'push bell',
-              '</span><button class="lgx" onclick="if(window.SR&&SR.on)SR.logout();else{U=null;cart=[];render()}">გასვლა</button></header>',
-              '</span>${U.role==\'dash\'&&window.SR&&SR.on&&!SR.readOnly?`<button class="lgx" aria-label="შეტყობინებები" title="შეტყობინებები" onclick="SR.pushUi()">🔔</button>`:\'\'}'
-              '<button class="lgx" onclick="if(window.SR&&SR.on)SR.logout();else{U=null;cart=[];render()}">გასვლა</button></header>')
+    # 4b. notifications live in Management (Employees -> Notifications, js/sr-notify.js), not in the header
+    s = patch(s, 'notifications tab', "['r','როლები და უფლებები'],['x',", "['r','როლები და უფლებები'],['n','შეტყობინებები'],['x',")
+    s = patch(s, 'notifications page', "emT=='r'?emRoles():", "emT=='n'?ntPage():emT=='r'?emRoles():")
 
     # 5. per-screen loading: wait for this screen's data, then refresh it in the background.
     #    While a screen's data is still loading, the header and menu stay on screen (only <main> waits).
@@ -158,7 +156,7 @@ def build_app() -> None:
 
     # 7a. home page (web/index.html): the prototype's own landing page, "sign in" leads to /app/
     home = patch(s, 'home sign in', 'function lpLogin(){LPG=false;render();scrollTo(0,0);', "function lpLogin(){location.href='app/';return;")
-    home = home.replace('src="../config.js"', 'src="config.js"').replace('src="../js/sr.js"', 'src="js/sr.js"')
+    home = home.replace('src="../config.js"', 'src="config.js"').replace('src="../js/sr.js"', 'src="js/sr.js"').replace('src="../js/sr-notify.js"', 'src="js/sr-notify.js"')
 
     # 7b. the app itself (web/app/index.html) opens straight on the login form; the landing page is a separate address
     s = patch(s, 'app opens on login', 'let LPG=true;', 'let LPG=false;')

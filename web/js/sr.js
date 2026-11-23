@@ -628,14 +628,14 @@
     if (Notification.permission === 'denied') return 'denied';
     try { return (await (await pushReg()).pushManager.getSubscription()) && Notification.permission === 'granted' ? 'on' : 'off' } catch (_) { return 'off' }
   }
-  // must run from a tap (the browser only asks for permission on a user gesture)
-  async function pushEnable() {
+  // must run from a tap (the browser only asks for permission on a user gesture); prefs = the device's chosen events
+  async function pushEnable(prefs) {
     const key = await call('sr_push_key');
     if (!key) throw new Error('შეტყობინებები ჯერ არ არის ჩართული სერვერზე');
     if (await Notification.requestPermission() !== 'granted') throw new Error('შეტყობინებები ბრაუზერში დაბლოკილია');
     const reg = await pushReg();
     const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: u8(key) });
-    await call('sr_push_subscribe', { p: { ...sub.toJSON(), ua: navigator.userAgent } });
+    await call('sr_push_subscribe', { p: { ...sub.toJSON(), ua: navigator.userAgent, ...(prefs ? { prefs } : {}) } });
   }
   async function pushDisable() {
     const sub = await (await pushReg()).pushManager.getSubscription();
@@ -643,26 +643,19 @@
     try { await call('sr_push_unsubscribe', { p_endpoint: sub.endpoint }) } catch (_) { }
     await sub.unsubscribe();
   }
-
-  function pushUi() {
-    const row = (t) => `<p class="m" style="margin:0">${t}</p>`;
-    const draw = async (note) => {
-      const st = await pushState();
-      const body = st === 'unsupported' ? row('ეს ბრაუზერი შეტყობინებებს არ უჭერს მხარს.')
-        : st === 'ios-install' ? row('iPhone-ზე შეტყობინებები მუშაობს მხოლოდ მაშინ, როცა აპი საწყის ეკრანზეა დამატებული: Safari → გაზიარება → „საწყის ეკრანზე დამატება", შემდეგ გახსენი იქიდან.')
-        : st === 'denied' ? row('შეტყობინებები ამ მოწყობილობაზე დაბლოკილია. ჩართე ბრაუზერის ან ტელეფონის პარამეტრებში.')
-        : st === 'on' ? row('ჩართულია: ამ ტელეფონზე მოვა შეტყობინება ყოველ ახალ გაყიდვაზე და დაბრუნებაზე.') + '<button class="pri" id="srpn">გამორთვა</button>'
-        : row('მიიღე შეტყობინება ამ ტელეფონზე ყოველ ახალ გაყიდვაზე და დაბრუნებაზე (ყველა ფილიალში).') + '<button class="pri" id="srpn">ჩართვა</button>';
-      modal(`<div style="min-width:min(380px,84vw);display:flex;flex-direction:column;gap:10px"><h3 style="margin:0">🔔 შეტყობინებები</h3>${body}<small id="srpne" style="color:#c23b3b">${note || ''}</small></div>`);
-      const b = document.getElementById('srpn'); if (!b) return;
-      b.onclick = async () => {
-        b.disabled = true;
-        try { st === 'on' ? await pushDisable() : await pushEnable(); await draw(); toast(st === 'on' ? 'შეტყობინებები გამოირთო' : 'შეტყობინებები ჩაირთო') }
-        catch (x) { await draw(msg(x)) }
-      };
-    };
-    draw();
+  // this device's saved choices (null = none saved yet) and saving them
+  async function pushPrefs() {
+    const sub = await (await pushReg()).pushManager.getSubscription();
+    return sub ? call('sr_push_prefs_get', { p_endpoint: sub.endpoint }) : null;
+  }
+  async function pushSetPrefs(p) {
+    const sub = await (await pushReg()).pushManager.getSubscription();
+    if (sub) await call('sr_push_prefs_set', { p_endpoint: sub.endpoint, p });
+  }
+  // a local notification, to check that this phone shows them
+  async function pushTest() {
+    await (await pushReg()).showNotification('Smart Retail', { body: 'შეტყობინებები მუშაობს ✓', tag: 'sr-test', icon: '../icons/icon-192.png', badge: '../icons/icon-192.png' });
   }
 
-  window.SR = { on, login, boot, logout, save, ready, ensure, touch, loadingHtml, mainLoadingHtml, retryLoad, loadError: () => loadErr, msg, changePassword, pushState, pushEnable, pushDisable, pushUi, dirty, safe: () => idbOk, queued: () => pendN > 0 || !!inflight, pendingChanges: () => diff(), get me() { return me }, get readOnly() { return ro } };
+  window.SR = { on, login, boot, logout, save, ready, ensure, touch, loadingHtml, mainLoadingHtml, retryLoad, loadError: () => loadErr, msg, changePassword, pushState, pushEnable, pushDisable, pushPrefs, pushSetPrefs, pushTest, dirty, safe: () => idbOk, queued: () => pendN > 0 || !!inflight, pendingChanges: () => diff(), get me() { return me }, get readOnly() { return ro } };
 })();
