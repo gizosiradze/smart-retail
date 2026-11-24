@@ -175,7 +175,7 @@
     // the offline copy from the last session on this device
     let rec = on && idbOk ? await cacheGet() : null;
     if (rec && !rec.pend && Date.now() - rec.savedAt > STALE_MS) { cacheDrop(); rec = null }
-    if (rec && (rec.pend || navigator.onLine === false)) {
+    if (rec && (rec.pend || navigator.onLine === false || window.PGO)) {   // PGO: opened by tapping a push notification, show the saved copy at once
       // unsent changes (or no internet): continue from the copy, send/refresh when possible
       try { restore(rec, s); return } catch (e) { console.error('[sr] restore failed', e); if (!rec.pend) rec = null }
     }
