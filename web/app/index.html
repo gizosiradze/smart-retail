@@ -103,7 +103,7 @@ th{font-size:11px;font-weight:600;color:var(--m);text-transform:uppercase;letter
 .cd{padding:0;height:32px;border:0;background:transparent;border-radius:8px;font-size:12px;font-weight:500;color:var(--t)}.cd:hover:not(:disabled){background:var(--as);border:0}
 .cd.rg,.cd.rg:hover:not(:disabled){background:var(--as);border-radius:0;color:var(--a)}
 .cd.se,.cd.se:hover:not(:disabled){background:var(--a);color:#fff;font-weight:700;border:0}.cd.ra{border-radius:8px 0 0 8px}.cd.rb{border-radius:0 8px 8px 0}
-.cd.tdy:not(.se){box-shadow:inset 0 0 0 1px #d8a9b7}
+.cd.ctd:not(.se){box-shadow:inset 0 0 0 1px #d8a9b7;color:var(--a);font-weight:700}
 .cal-f{margin-top:8px;text-align:center}.cal-f small{font-size:11px}
 .lwg{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
 .lsc{border:1px solid var(--b);border-radius:14px;padding:12px 14px;background:linear-gradient(180deg,#fcf8f7,#fff)}.lw-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.lw-h b{font-size:13px}
@@ -1418,7 +1418,7 @@ const fd=s=>{if(!s)return'—';const d=new Date(s+'T12:00:00');return d.getDate(
 function calH(){const tx=view=='tx',cf=tx?tcf:window.cf0(),cto=tx?tct:window.cto0();if(!cm){const d=cf?new Date(cf+'T12:00:00'):new Date();cm=new Date(d.getFullYear(),d.getMonth(),1)}
 const y=cm.getFullYear(),mo=cm.getMonth(),first=(new Date(y,mo,1).getDay()+6)%7,dim=new Date(y,mo+1,0).getDate(),tdy=ymd(new Date());let cells='';
 for(let i=0;i<first;i++)cells+='<i></i>';
-for(let d=1;d<=dim;d++){const s=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),a=cf&&s==cf,b=cto&&s==cto,r=cf&&cto&&s>cf&&s<cto;cells+=`<button class="cd${a||b?' se':''}${r?' rg':''}${s==tdy?' tdy':''}${a&&cto&&cto!=cf?' ra':''}${b&&cf!=cto?' rb':''}" onclick="pickD('${s}')">${d}</button>`}
+for(let d=1;d<=dim;d++){const s=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),a=cf&&s==cf,b=cto&&s==cto,r=cf&&cto&&s>cf&&s<cto;cells+=`<button class="cd${a||b?' se':''}${r?' rg':''}${s==tdy?' ctd':''}${a&&cto&&cto!=cf?' ra':''}${b&&cf!=cto?' rb':''}" onclick="pickD('${s}')">${d}</button>`}
 return`<div class="cal"><div class="cal-h"><button onclick="cmv(-1)">‹</button><b>${MN[mo]} ${y}</b><button onclick="cmv(1)">›</button></div><div class="cal-g">${['ორშ','სამ','ოთხ','ხუთ','პარ','შაბ','კვი'].map(w=>`<small>${w}</small>`).join('')}${cells}</div><div class="cal-f"><small>${cph?'აირჩიე ბოლო თარიღი (ან იგივე დღე ხელახლა)':'აირჩიე თარიღი ან პერიოდის დასაწყისი'}</small></div></div>`}
 function pickD(s){if(view=='tx'){if(!cph||(tcf&&s<tcf)){tcf=s;tct='';cph=1}else{tct=s;cph=0;calO=0}txn=60;render();return}ppk='';if(!cph||(cf&&s<cf)){cf=s;cto='';cph=1}else{cto=s;cph=0;calO=0}render()}
 const perR=p=>{const f=d=>d.toLocaleDateString('sv'),n=new Date();if(!p){const t=D.s.length?Math.min(...D.s.map(x=>x.t)):Date.now();return[f(new Date(t)),f(n)]}return[f(new Date(n.getTime()-(p-1)*864e5)),f(n)]};
