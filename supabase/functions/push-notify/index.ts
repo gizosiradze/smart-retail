@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
     title: String(e.title).slice(0, 120),
     body: String(e.body ?? "").slice(0, 240),
     tag: String(e.tag ?? "").slice(0, 100) || undefined,
-    url: "./",
+    url: e.tag ? `./#n=${encodeURIComponent(String(e.tag).slice(0, 100))}` : "./",
   });
   const d = { subs };
 
