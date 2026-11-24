@@ -29,7 +29,7 @@
   const KV_WRITE = { fav: 'acw', favu: 'acw', glc: 'acw', trn: 'acw', lgn: 'acw', sgp: 'acw', sgd: 'acw',
     is: 'aw', ic: 'aw', cats: 'aw', wrs: 'aw', wrx: 'aw', wrd: 'aw' };
   const CORE = ['us', 'p', 'dp', 'c', 's', 'sh', 'cm', 'tr', 'hold', 'padj', 'gln', 'st', 'kv'];
-  const BY_VIEW = { buy: ['pu', 'sup'], sup: ['sup', 'pu'], prod: ['pu', 'sup'], trf: ['pu', 'sup'], inv: ['ih'],
+  const BY_VIEW = { buy: ['pu', 'sup'], sup: ['sup', 'pu'], prod: ['pu', 'sup'], trf: [], inv: ['ih'],
     stats: ['pu', 'sup', 'ex', 'sgl'], today: ['pu', 'ex'], emp: ['ex', 'lg', 'sgl', 'pu'], wr: ['ex', 'sgl', 'pu'] };
   const REFRESH_MS = 15000;
   const TOKEN_KEY = 'sr_session';
