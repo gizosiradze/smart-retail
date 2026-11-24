@@ -20,7 +20,7 @@ function makeContext() {
     innerHTML: '', value: '', children: [], appendChild() {}, append() {}, insertAdjacentHTML() {}, querySelector() { return null }, querySelectorAll() { return [] },
     addEventListener() {}, setAttribute() {}, getAttribute() { return null }, remove() {}, focus() {}, closest() { return null },
     getContext() { return {} }, getBoundingClientRect() { return { left: 0, top: 0, width: 0, height: 0 } }, scrollBy() {} }, {});
-  const document = { querySelector: () => el(), querySelectorAll: () => [], getElementById: () => null, addEventListener() {},
+  const document = { querySelector: () => el(), querySelectorAll: () => [], getElementById: () => null, addEventListener() {}, removeEventListener() {},
     createElement: () => el(), body: el(), documentElement: el(), activeElement: null };
   const ctx = { document, sessionStorage: { getItem: k => store[k] ?? null, setItem: (k, v) => { store[k] = String(v) }, removeItem: k => { delete store[k] } },
     localStorage: { getItem: () => null, setItem() {}, removeItem() {} }, navigator: { onLine: true }, matchMedia: () => ({ matches: false }),
