@@ -923,6 +923,13 @@ main .tdsc{background:#fff;border:1px solid var(--b);border-radius:16px;padding:
 #cart #paybtn b{font-size:18px;letter-spacing:-.01em}
 #cart #paybtn:hover:not(:disabled){background:linear-gradient(135deg,#a8234a,#7a1d33);transform:translateY(-1px)}
 #cart #paybtn:disabled{background:#ece5e3;color:#a99ea2;box-shadow:none;opacity:1}
+#cart .rdm{display:flex;flex-direction:column;align-items:stretch;gap:4px;margin-top:10px}
+#cart .rdm label{font-size:12px;color:var(--m);display:block}
+#cart .rdr{display:flex;align-items:center;gap:8px}
+#cart .rdr input{flex:1;min-width:0;height:42px;background:#f7f3f2;border:1px solid transparent;border-radius:12px}
+#cart .rdr input:focus{background:#fff;border-color:var(--a)}
+#cart .rdr button{height:42px;padding:0 16px;border-radius:12px;white-space:nowrap;font-weight:600;color:var(--a)}
+#cart .rdm small{font-size:11.5px}
 @media(max-width:760px){#cart .cbd{padding:4px 14px 16px}#cart .cth{padding:14px 12px 12px 16px}}
 /* cart layout: the pay button never moves. The card has a fixed height; only the list of lines scrolls, the totals / customer / pay button stay at the bottom */
 #cart{display:flex;flex-direction:column;height:calc(100vh - 124px);height:calc(100dvh - 124px);min-height:480px}
@@ -1377,7 +1384,7 @@ return{g,disc,red,rp,mx,Y,tot:Math.round((g-disc)*100)/100,net:Math.round((g-dis
 let rdm=0;
 function setRdm(v){rdm=Math.max(0,Math.floor(+v||0));rc()}
 const sumH=()=>{const C=calc(),Y=C.Y;return`<div class="ctot">${C.disc?`<div class="row"><span class="m">ქვეჯამი</span><span>${fm(C.g)}</span></div>`:''}${C.disc?`<div class="row"><span class="m">ფასდაკლება · ${esc(Y.st.tier.n)} −${Y.d}%</span><b style="color:#1f8f66">−${fm(C.disc)}</b></div>`:''}<div class="row ctr"><b>ჯამი</b><b>${fm(C.tot)}</b></div>${C.red?`<div class="row"><span class="m">ქულებით გადახდა (${C.rp} ქულა)</span><b style="color:#6a4cc2">−${fm(C.red)}</b></div><div class="row ctr"><b>გადასახდელი</b><b>${fm(C.net)}</b></div>`:''}${Y&&Y.L.pts?`<div class="row" style="border:0"><small class="m">დაგროვდება</small><small class="m">+${Math.floor(C.net*Y.L.rate+1e-9)} ქულა</small></div>`:''}</div>`};
-const custH=()=>{const Y=loyalty();if(Y){const C=calc();return`<div class="cch"><span><b>${esc(cname(Y.c))}</b><small>${esc(Y.c.phone||'')}${Y.c.pid?' · '+esc(Y.c.pid):''}</small><span class="cly">${tbadge(Y.st)}${Y.d?`<small>ფასდაკლება −${Y.d}%</small>`:''}${Y.L.pts?`<small>ქულები: <b>${Y.st.pts}</b></small>`:''}</span></span><button class="lk" title="მომხმარებლის მოხსნა" onclick="cust=0;rdm=0;rc()">✕</button></div>${C.mx?`<div class="rdm"><label>გადახდა ქულებით <input type="number" min="0" max="${C.mx}" step="1" value="${rdm||''}" placeholder="0" onchange="setRdm(this.value)"><small>მაქს ${C.mx}</small></label><button onclick="setRdm(${C.mx})">მაქსიმუმი</button></div>`:(Y.L.pts&&Y.st.pts<Y.L.minR?`<small class="m" style="display:block;margin-top:6px">ქულების გამოსაყენებლად საჭიროა მინიმუმ ${Y.L.minR} ქულა</small>`:'')}`}
+const custH=()=>{const Y=loyalty();if(Y){const C=calc();return`<div class="cch"><span><b>${esc(cname(Y.c))}</b><small>${esc(Y.c.phone||'')}${Y.c.pid?' · '+esc(Y.c.pid):''}</small><span class="cly">${tbadge(Y.st)}${Y.d?`<small>ფასდაკლება −${Y.d}%</small>`:''}${Y.L.pts?`<small>ქულები: <b>${Y.st.pts}</b></small>`:''}</span></span><button class="lk" title="მომხმარებლის მოხსნა" onclick="cust=0;rdm=0;rc()">✕</button></div>${C.mx?`<div class="rdm"><label for="rdi">გადახდა ქულებით</label><div class="rdr"><input id="rdi" type="number" min="0" max="${C.mx}" step="1" value="${rdm||''}" placeholder="0" onchange="setRdm(this.value)"><button type="button" onclick="setRdm(${C.mx})">მაქსიმუმი</button></div><small class="m">მაქს ${C.mx}</small></div>`:(Y.L.pts&&Y.st.pts<Y.L.minR?`<small class="m" style="display:block;margin-top:6px">ქულების გამოსაყენებლად საჭიროა მინიმუმ ${Y.L.minR} ქულა</small>`:'')}`}
 return`<div class="cs"><input id="cqi" placeholder="ძებნა: სახელი / ტელეფონი / პირადი №" oninput="csr(this.value)" onkeydown="if(event.key=='Enter')csEnter()" autocomplete="off"><div id="cres"></div></div>`};
 /* admin: customers view */
 let cuT='l',cuq='',cuTi='',cuSo='s';
