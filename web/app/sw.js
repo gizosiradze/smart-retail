@@ -1,6 +1,6 @@
 // Smart Retail service worker: app shell (so the till opens without internet) and product photos.
 // Data requests (Supabase API) are never cached: the app keeps its own offline copy in IndexedDB (js/sr.js).
-const CACHE = 'sr-app-v11', IMG = 'sr-img-v1', IMG_MAX = 400, NET_WAIT_MS = 2000;
+const CACHE = 'sr-app-v12', IMG = 'sr-img-v1', IMG_MAX = 400, NET_WAIT_MS = 2000;
 const SHELL = ['./', '../config.js', '../js/sr.js', '../js/sr-notify.js', 'manifest.webmanifest', '../icons/icon-192-v2.png', '../icons/icon-512-v2.png'];
 
 self.addEventListener('install', e => {
