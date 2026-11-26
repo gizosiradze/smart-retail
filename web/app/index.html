@@ -1005,7 +1005,11 @@ main .tdsc{background:#fff;border:1px solid var(--b);border-radius:16px;padding:
 </div>
 </template>
 <script src="../config.js"></script>
-<script>if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>
+<script>if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>{const had=!!navigator.serviceWorker.controller;let rl=0;
+/* a new version took over: reload at once when nothing is in progress, otherwise offer a button (a reload would empty the cart) */
+navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!had||rl)return;const busy=()=>(typeof cart!=='undefined'&&cart.length)||document.querySelector('#md .box');if(!busy()){rl=1;location.reload();return}
+if(document.getElementById('srupd'))return;const b=document.createElement('div');b.id='srupd';b.style.cssText='position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:10002;display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:12px;background:#2a2326;color:#fff;box-shadow:0 8px 24px #0004;font:14px system-ui';b.innerHTML='<span>ახალი ვერსია მზადაა</span><button style="padding:6px 12px;border:0;border-radius:8px;background:#fff;color:#2a2326;font-weight:600;cursor:pointer">განახლება</button>';b.querySelector('button').onclick=()=>{rl=1;location.reload()};document.body.appendChild(b)});
+navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{const chk=()=>r.update().catch(()=>{});chk();setInterval(chk,120000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})}).catch(()=>{})})</script>
 <script>(function(){function f(){var c=document.querySelector('.g2>#cart');if(!c)return;var t=c.parentElement.getBoundingClientRect().top+scrollY;document.documentElement.style.setProperty('--gh',Math.max(320,innerHeight-t-56)+'px')}var q=0;function g(){cancelAnimationFrame(q);q=requestAnimationFrame(f)}addEventListener('DOMContentLoaded',function(){new MutationObserver(g).observe(document.getElementById('app'),{childList:true,subtree:true});g()});addEventListener('resize',g)})()</script>
 <script src="../js/sr.js"></script>
 <script src="../js/sr-notify.js"></script>

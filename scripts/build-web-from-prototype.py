@@ -170,7 +170,7 @@ def build_app() -> None:
               '<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">')
     s = patch(s, 'pwa sw', '<script src="../config.js"></script>\n',
               '<script src="../config.js"></script>\n'
-              "<script>if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>\n")
+              (ROOT / 'scripts/sw-register.html').read_text())
 
 
     # menu and footer items become real links (crawlers follow <a href>, not onclick); same look as the buttons they replace
