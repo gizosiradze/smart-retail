@@ -464,7 +464,7 @@
           const ext = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
           const path = `${me.store.id}/${x._k}-${Date.now().toString(36)}.${ext}`;
           const r = await fetch(`${CFG.url}/storage/v1/object/product-images/${path}`, {
-            method: 'POST', headers: { apikey: CFG.anonKey, Authorization: 'Bearer ' + token, 'Content-Type': blob.type, 'x-upsert': 'true' }, body: blob
+            method: 'POST', headers: { apikey: CFG.anonKey, Authorization: 'Bearer ' + token, 'Content-Type': blob.type }, body: blob
           });
           if (!r.ok) {
             let why = ''; try { why = (await r.text()).slice(0, 160) } catch (_) {}
