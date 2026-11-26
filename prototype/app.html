@@ -874,6 +874,20 @@ main .tdsc{background:#fff;border:1px solid var(--b);border-radius:16px;padding:
 .pyg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pyg button{display:flex;align-items:center;gap:10px;justify-content:flex-start;text-align:left;padding:10px 12px;min-height:52px;border-radius:14px;font-weight:600}.pyg button.on{border-color:var(--a);background:var(--as);color:var(--a);box-shadow:0 0 0 1px var(--a) inset}
 .pyi{flex:none;width:30px;height:30px;border-radius:50%;background:#f3ebe9;color:var(--m);display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}.pyg button.on .pyi{background:var(--a);color:#fff}
 .pys .spr{grid-template-columns:minmax(0,1fr) 92px auto auto}.pyc{width:100%;padding:13px 14px;font-size:15.5px}
+/* admin products table: tighter columns so it fits the window without horizontal scrolling */
+.pvo .pt.pp th,.pvo .pt.pp td{padding-left:5px;padding-right:5px}
+.pvo .pt.pp th:nth-child(1),.pvo .pt.pp td:nth-child(1){width:50px;padding-left:8px;padding-right:0}
+.pvo .pt.pp td.nm{min-width:0;max-width:280px;padding-right:46px}
+.pvo .pt.pp td.nm>.f{min-width:0}
+.pvo .pt.pp th{font-size:10px;letter-spacing:.02em}
+.pvo .pt.pp .pfr th{padding:8px 3px}
+.pvo .pt.pp .pfr th:first-child{padding:8px 0 8px 8px}
+.pvo .pt.pp .pfr .pfi{min-width:0;padding:0 5px}
+.pvo .pt.pp .pfr .pfn{min-width:62px}
+.pvo .pt.pp .pfr th:nth-child(3) .pfi,.pvo .pt.pp .pfr th:nth-child(4) .pfi{min-width:74px}
+.pvo .pt.pp td.ct{max-width:110px}.pvo .pt.pp td.ct .cg{max-width:92px}
+.pvo .pt.pp td.sp{max-width:130px;white-space:normal;overflow-wrap:anywhere}
+.pvo .pt.pp tr.ft td{padding-left:5px;padding-right:5px}
 </style></head><body><div id="app"></div><div id="md"></div><template id="lpt"><div class="lp">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <symbol id="i-ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
