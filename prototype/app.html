@@ -888,6 +888,42 @@ main .tdsc{background:#fff;border:1px solid var(--b);border-radius:16px;padding:
 .pvo .pt.pp td.ct{max-width:110px}.pvo .pt.pp td.ct .cg{max-width:92px}
 .pvo .pt.pp td.sp{max-width:130px;white-space:normal;overflow-wrap:anywhere}
 .pvo .pt.pp tr.ft td{padding-left:5px;padding-right:5px}
+/* cart redesign: light card, quiet header, clean lines, bold total, one strong pay button */
+#cart{background:#fff;border:1px solid #efe7e5;border-radius:22px;box-shadow:0 1px 2px #2a23260d,0 28px 56px -32px #2a232655}
+#cart .cth{background:#fff;color:var(--t);padding:16px 16px 12px 20px;border-bottom:1px solid #f4eeec}
+#cart .cth h3{color:var(--t);font-size:17px;font-weight:700;letter-spacing:-.01em}
+#cart .ccn{background:var(--as);color:var(--a);height:22px;min-width:22px;font-size:12.5px}
+#cart .cth button{background:#f6f1f0!important;color:#5b4e53!important;border:0!important;border-radius:999px!important;font-weight:600;font-size:12.5px;padding:7px 12px;box-shadow:none!important}
+#cart .cth button:hover:not(:disabled){background:#efe7e5!important}
+#cart .cbd{padding:4px 20px 20px}
+#cart .ci{grid-template-columns:44px minmax(0,1fr) auto auto;padding:12px 0;border-bottom:1px solid #f4eeec}
+#cart .ci:last-child{border-bottom:0}
+#cart .ci>.pim{width:44px;height:44px;border-radius:12px;border:0;background:#f7f2f1}
+#cart .ci .nm{font-size:14px;font-weight:600}
+#cart .ci .cin small{color:var(--m)}
+#cart .ci>.cq{background:#f6f1f0}
+#cart .ci>.cit{font-size:14.5px}
+#cart .ci>.cix{opacity:.4;transition:opacity .15s}#cart .ci:hover>.cix{opacity:1}
+#cart .cem{padding:34px 10px 28px;gap:5px}
+#cart .cem .cemi{width:68px;height:68px;border-radius:50%;background:var(--as);color:var(--a);display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+#cart .cem b{font-size:15.5px}
+#cart .ctot{background:transparent;border:0;border-radius:0;padding:0;margin:14px 0 0}
+#cart .ctot .row{border-bottom:0;padding:5px 0;font-size:13.5px}
+#cart .ctot .ctr{padding:12px 0 2px;border-top:1px solid #f0e8e6;margin-top:6px;align-items:baseline}
+#cart .ctot .ctr b:first-child{font-size:12px;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:.07em}
+#cart .ctot .ctr b:last-child{font-size:30px;color:var(--t);letter-spacing:-.025em;font-weight:750}
+#cart .cbx{margin-top:14px;padding:0;border:0;background:transparent}
+#cart .cbh span{font-size:11.5px}
+#cart .cbh button{background:transparent;border:0;color:var(--a);font-weight:600;padding:4px 6px;font-size:13px}
+#cart .cbh button:hover:not(:disabled){background:var(--as)}
+#cart .cs input{background:#f7f3f2;border:1px solid transparent;border-radius:12px;padding:12px 14px}
+#cart .cs input:focus{background:#fff;border-color:var(--a)}
+#cart .cch{background:var(--as);border:0;border-radius:14px;padding:10px 14px}
+#cart #paybtn{display:flex;align-items:center;justify-content:space-between;gap:12px;height:56px;padding:0 20px;margin-top:16px!important;border:0;border-radius:16px;font-size:16px;font-weight:700;background:linear-gradient(135deg,#9a2042,#6d1a2e);box-shadow:0 14px 28px -14px #6d1a2ecc}
+#cart #paybtn b{font-size:18px;letter-spacing:-.01em}
+#cart #paybtn:hover:not(:disabled){background:linear-gradient(135deg,#a8234a,#7a1d33);transform:translateY(-1px)}
+#cart #paybtn:disabled{background:#ece5e3;color:#a99ea2;box-shadow:none;opacity:1}
+@media(max-width:760px){#cart .cbd{padding:4px 14px 16px}#cart .cth{padding:14px 12px 12px 16px}}
 </style></head><body><div id="app"></div><div id="md"></div><template id="lpt"><div class="lp">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <symbol id="i-ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
@@ -1407,8 +1443,8 @@ return`${cuKs()}<section><div class="hd">${cuNav()}</div><div class="rl">
 function csf(v){v=v.trim();if(!v)return[];const d=v.replace(/\D/g,''),f=fz(v);return D.c.filter(c=>fz(cname(c)).includes(f)||(d.length>=3&&((c.phone||'').replace(/\D/g,'').includes(d)||(c.pid||'').replace(/\D/g,'').includes(d))))}
 function csr(v){const r=$('#cres');if(!r)return;if(!v.trim()){r.innerHTML='';return}const L=csf(v).slice(0,6);r.innerHTML=L.map(c=>`<button class="cr" onclick="cust=${c.id};rdm=0;rc()"><b>${esc(cname(c))}</b><small>${esc(c.phone||'')}${c.pid?' · '+esc(c.pid):''}</small></button>`).join('')||`<div class="cnf"><small>ვერ მოიძებნა</small>${can('reg')?`<button class="lk" style="color:var(--a)" onclick="newC($('#cqi').value)">+ დარეგისტრირება</button>`:''}</div>`}
 function csEnter(){const L=csf($('#cqi').value);if(L.length==1){cust=L[0].id;rdm=0;rc()}}
-const cartH=()=>`<div class="cth"><h3>კალათა${cart.length?` <span class="ccn">${cart.reduce((a,x)=>a+x.q,0)}</span>`:''}</h3>${can('hold')?`<button onclick="hold()" ${cart.length?'':'disabled'} title="ჩეკის გადადება">⏸ გადადება</button>`:''}</div><div class="cbd">${holdH()}<div class="cil">${cart.map((x,i)=>{const p=pn(x.pid);return`<div class="ci">${p.img?`<img class="pim" src="${p.img}" alt="">`:`<span class="pim">▢</span>`}<span class="cin"><span class="nmw"><b class="nm">${esc(p.name)}</b></span><small>${zl(x.z,p)?zl(x.z,p)+' · ':''}${fm(x.pr)}</small>${st(U.branch,x.pid,x.z)<x.q?`<em class="ngw">მარაგი: ${st(U.branch,x.pid,x.z)} · მინუსში გავა</em>`:''}</span><span class="cq"><button onclick="qty(${i},-1)">−</button><b>${x.q}</b><button onclick="qty(${i},1)">+</button></span><b class="cit">${fm(x.q*x.pr)}</b><button class="lk cix" title="კალათიდან წაშლა" onclick="rm(${i})">✕</button></div>`}).join('')||'<div class="cem"><span>▢</span><b>კალათა ცარიელია</b><small>აირჩიე პროდუქტი ან დაასკანერე შტრიხკოდი</small></div>'}</div>
-${sgBar()}${sumH()}<div class="cbx"><div class="cbh"><span>მომხმარებელი</span>${can('reg')?`<button onclick="newC()">+ რეგისტრაცია</button>`:''}</div>${custH()}</div><button id="paybtn" class="pri" style="width:100%;margin-top:12px" onclick="payOpen()" ${cart.length?'':'disabled'}>გადახდა${cart.length?' · '+fm(calc().net):''}</button></div>`;
+const cartH=()=>`<div class="cth"><h3>კალათა${cart.length?` <span class="ccn">${cart.reduce((a,x)=>a+x.q,0)}</span>`:''}</h3>${can('hold')?`<button onclick="hold()" ${cart.length?'':'disabled'} title="ჩეკის გადადება">⏸ გადადება</button>`:''}</div><div class="cbd">${holdH()}<div class="cil">${cart.map((x,i)=>{const p=pn(x.pid);return`<div class="ci">${p.img?`<img class="pim" src="${p.img}" alt="">`:`<span class="pim">▢</span>`}<span class="cin"><span class="nmw"><b class="nm">${esc(p.name)}</b></span><small>${zl(x.z,p)?zl(x.z,p)+' · ':''}${fm(x.pr)}</small>${st(U.branch,x.pid,x.z)<x.q?`<em class="ngw">მარაგი: ${st(U.branch,x.pid,x.z)} · მინუსში გავა</em>`:''}</span><span class="cq"><button onclick="qty(${i},-1)">−</button><b>${x.q}</b><button onclick="qty(${i},1)">+</button></span><b class="cit">${fm(x.q*x.pr)}</b><button class="lk cix" title="კალათიდან წაშლა" onclick="rm(${i})">✕</button></div>`}).join('')||'<div class="cem"><span class="cemi"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.2 11.2a1.5 1.5 0 0 0 1.5 1.2h8.2a1.5 1.5 0 0 0 1.5-1.1L20 8H6.2"/><circle cx="9.5" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg></span><b>კალათა ცარიელია</b><small>აირჩიე პროდუქტი ან დაასკანერე შტრიხკოდი</small></div>'}</div>
+${sgBar()}${sumH()}<div class="cbx"><div class="cbh"><span>მომხმარებელი</span>${can('reg')?`<button onclick="newC()">+ რეგისტრაცია</button>`:''}</div>${custH()}</div><button id="paybtn" class="pri" style="width:100%;margin-top:12px" onclick="payOpen()" ${cart.length?'':'disabled'}><span>გადახდა</span>${cart.length?`<b>${fm(calc().net)}</b>`:''}</button></div>`;
 function newC(pre){if(U.role=='pos'&&!need('reg'))return;pre=(pre||'').trim();const dg=pre.replace(/\D/g,''),bare=pre.replace(/[\s+-]/g,''),isN=/^\d+$/.test(bare),isP=isN&&dg.length==11,isT=isN&&dg.length>=9&&dg.length<11,nm=isN?'':pre;
 modal(`<div style="min-width:min(420px,84vw);display:flex;flex-direction:column;gap:10px"><h3 style="margin:0">მომხმარებლის რეგისტრაცია</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><label class="fl">სახელი<input id="cn" value="${esc(nm.split(' ')[0]||'')}"></label><label class="fl">გვარი<input id="cls" value="${esc(nm.split(' ').slice(1).join(' '))}"></label></div><label class="fl">პირადი ნომერი<input id="cpi" inputmode="numeric" maxlength="11" value="${isP?dg:''}" placeholder="11 ციფრი"></label><label class="fl">ტელეფონის ნომერი<input id="cp" inputmode="tel" value="${isT?dg:''}" placeholder="5XX XXX XXX"></label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><label class="fl">ცხოველი<select id="cpt" onchange="brIn('c')"><option value="">—</option><option value="ძაღლი">ძაღლი</option><option value="კატა">კატა</option></select></label><label class="fl">წონა (კგ)<input id="ckg" type="number" min="0" step="0.1" inputmode="decimal" placeholder="12.5"></label></div>${brField('c','')}<small id="ce" style="color:#e5534b"></small><button class="pri" onclick="saveC()">შენახვა</button></div>`);$('#cn').focus()}
 function saveC(){const g=i=>$(i).value.trim(),n=g('#cn'),l=g('#cls'),pi=g('#cpi').replace(/\D/g,''),ph=g('#cp').replace(/[^\d+]/g,''),e=$('#ce');
