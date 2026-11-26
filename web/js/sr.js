@@ -449,18 +449,38 @@
       for (const x of D[c]) { if (!x._k) x._k = uuid(); m.set(x._k, JSON.stringify(x)); } }
   }
 
-  async function uploadImages(up) {
-    for (const c of ['p', 'dp']) for (const x of up[c] || []) {
-      if (typeof x.img !== 'string' || !x.img.startsWith('data:image/')) continue;
-      const blob = await (await fetch(x.img)).blob();
-      const ext = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
-      const path = `${me.store.id}/${x._k}-${Date.now().toString(36)}.${ext}`;
-      const r = await fetch(`${CFG.url}/storage/v1/object/product-images/${path}`, {
-        method: 'POST', headers: { apikey: CFG.anonKey, Authorization: 'Bearer ' + token, 'Content-Type': blob.type, 'x-upsert': 'true' }, body: blob
-      });
-      if (!r.ok) throw new Error('სურათი ვერ აიტვირთა (' + r.status + ')');
-      x.img = `${CFG.url}/storage/v1/object/public/product-images/${path}`;
+  // Photos are uploaded to Storage before the batch goes out. A photo that cannot be uploaded must not block
+  // every other change: that product is sent without the photo, the photo stays on this device, and the
+  // reason is reported (the server's own message is included so the cause can be found).
+  async function uploadImages(up, upJ) {
+    const failed = [];
+    for (const c of ['p', 'dp']) {
+      const list = up[c] || [];
+      for (let i = 0; i < list.length; i++) {
+        const x = list[i];
+        if (typeof x.img !== 'string' || !x.img.startsWith('data:image/')) continue;
+        try {
+          const blob = await (await fetch(x.img)).blob();
+          const ext = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+          const path = `${me.store.id}/${x._k}-${Date.now().toString(36)}.${ext}`;
+          const r = await fetch(`${CFG.url}/storage/v1/object/product-images/${path}`, {
+            method: 'POST', headers: { apikey: CFG.anonKey, Authorization: 'Bearer ' + token, 'Content-Type': blob.type, 'x-upsert': 'true' }, body: blob
+          });
+          if (!r.ok) {
+            let why = ''; try { why = (await r.text()).slice(0, 160) } catch (_) {}
+            const e = new Error('სურათი ვერ აიტვირთა (' + r.status + ')' + (why ? ': ' + why : '')); e.http = r.status; throw e;
+          }
+          x.img = `${CFG.url}/storage/v1/object/public/product-images/${path}`;
+        } catch (e) {
+          if (isNet(e) && !e.http) throw e;             // no connection: keep everything pending, retry later
+          console.error('[sr] photo upload failed', x.code, e);
+          const clone = Object.assign({}, x, { img: '' });
+          list[i] = clone; if (upJ && upJ[c]) upJ[c][i] = JSON.stringify(clone);
+          failed.push({ c, k: x._k, live: x, msg: e.message });
+        }
+      }
     }
+    return failed;
   }
 
   function save() {
@@ -472,6 +492,7 @@
     push();
   }
 
+  let photoFail = [];
   async function push() {
     if (!U || !token) return;
     pushing = true;
@@ -483,7 +504,7 @@
           const d = diff();
           if (d.local.length) console.info('[sr] kept on this device only (no permission to save):', d.local.join(', '));
           if (empty(d)) { markLocalAsBaseline(d.local); break; }
-          await uploadImages(d.up);
+          photoFail = await uploadImages(d.up, d.upJ);
           // JSON as sent is captured now: edits made while the request is in flight stay pending.
           // The batch (with its id) is written to the offline copy first: if the page dies mid-request,
           // the same batch is sent again with the same id and the server applies it only once.
@@ -495,6 +516,11 @@
         try { res = await call('sr_push', { p: { bid: inflight.bid, up: sent.up, rm: sent.rm, st: sent.st, kv: sent.kv } }, 45000) }
         catch (e) { if (!isNet(e)) inflight = null; throw e }      // a real refusal changed nothing; no answer: the same batch is retried
         confirm(sent); inflight = null;
+        if (photoFail.length) {                         // the photo stays on this device only; do not keep the batch dirty forever
+          for (const f of photoFail) { const m = snap[f.c] = snap[f.c] || new Map(); m.set(f.k, JSON.stringify(f.live)); }
+          toast('ფოტო ვერ აიტვირთა და მხოლოდ ამ მოწყობილობაზეა (' + (photoFail[0].live.code || '') + '). ' + photoFail[0].msg, true);
+          photoFail = [];
+        }
         // server-side corrections (cost of goods on receipts) and sanitized user records
         for (const doc of (res.patched && res.patched.s) || []) {
           const x = (D.s || []).find(y => y._k === doc._k); if (x) { Object.assign(x, doc); (snap.s = snap.s || new Map()).set(x._k, JSON.stringify(x)); }
