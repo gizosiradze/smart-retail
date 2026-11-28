@@ -250,7 +250,7 @@
     const byB = m.byBranch || {};
     return {
       days, today: sum(1), d7: sum(7), d30, checks, avg: checks ? Math.round(d30 / checks) : 0, profit: +m.profit || 0,
-      customers: +m.customers || 0, products: +m.products || 0, stockValue: +m.stockValue || 0,
+      receipts: +m.receipts || 0, customers: +m.customers || 0, products: +m.products || 0, stockValue: +m.stockValue || 0,
       branches: (s.branches || []).map(b => ({ b, v: +byB[b] || 0 })), top: m.top || []
     };
   }

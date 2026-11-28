@@ -235,6 +235,7 @@ function loginLocal(){if(!$('#lu').value||!$('#lp').value||!/^\d{6}$/.test($('#l
 function logout(){log('სუპერ ადმინი გავიდა');if(window.SRP&&SRP.on){SRP.logout();return}go('login')}
 
 /* ================= overview ================= */
+const RECEIPT_WARN=5000;   // receipts per store after which statistics should move from the browser to SQL
 function overviewView(){
   const act=D.stores.filter(s=>s.status==='active'),trial=D.stores.filter(s=>s.status==='trial');
   const billable=D.stores.filter(s=>s.status==='active'||s.status==='restricted');
@@ -252,6 +253,7 @@ function overviewView(){
     if(s.status==='trial'){const d=daysBetween(TODAY,s.trialEnd);if(d<=7)al.push(['o','⏳','<b>'+esc(s.name)+'</b> · საცდელი პერიოდი მთავრდება '+(d<=0?'დღეს':d+' დღეში'),s.id,'გააქტიურება','activate'])}
     if(s.syncPending)al.push(['o','⟳','<b>'+esc(s.name)+'</b> · '+s.syncPending+' ჩეკი ელოდება სერვერზე გაგზავნას',s.id]);
     if(s.branches.length>planOf(s.plan).branches)al.push(['b','↑','<b>'+esc(s.name)+'</b> · ფილიალები ('+s.branches.length+') აღემატება პაკეტის ლიმიტს ('+planOf(s.plan).branches+')',s.id,'პაკეტის შეცვლა','plan']);
+    {const rc=metrics(s).receipts||0;if(rc>=RECEIPT_WARN)al.push(['o','📈','<b>'+esc(s.name)+'</b> · '+rc.toLocaleString('ka')+' ჩეკი. სტატისტიკა ბრაუზერში ითვლება და შეიძლება შენელდეს: დროა მისი SQL-ზე გადატანა',s.id])}
     if(s.status==='active'&&daysBetween(s.lastActive,TODAY)>=14)al.push(['o','💤','<b>'+esc(s.name)+'</b> · '+daysBetween(s.lastActive,TODAY)+' დღეა არ შესულა სისტემაში',s.id]);
   });
   // subscription income last 6 months
