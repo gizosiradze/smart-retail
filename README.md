@@ -52,8 +52,9 @@ free **test project** on Supabase, so production data is never touched.
 | Database | your test project in the Supabase dashboard |
 
 Demo logins: shop **demo**, users **admin**, **kasa1**, **kasa2**, **sawyobi**, password **1234**.
-Super Admin: **admin@smartretail.local** / **superadmin-test-1** (or `SUPERADMIN_EMAIL` /
-`SUPERADMIN_PASSWORD` from `.env.test`), then scan the QR code with an authenticator app.
+Super Admin: `npm run dev:setup` creates one only if `SUPERADMIN_EMAIL` and `SUPERADMIN_PASSWORD` (12+ characters)
+are set in `.env.test`; there is no built-in default account. Sign in at `/superadmin/` and scan the QR code with an
+authenticator app. Never use a shared or published password: whoever signs in first sets up the authenticator.
 
 From Super Admin, **„სრული დეშბორდი ↗"** (store page or the stores list) opens that store's own app in a new
 tab as its admin, **read-only**: a 2-hour session marked `read_only` in `app.sessions` (with the Super Admin's

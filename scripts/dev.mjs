@@ -3,7 +3,7 @@
 // separate, free Supabase TEST project configured in .env.test (never the production project).
 //
 //   npm run dev:setup     first time (and after new migrations): deploy the schema and the login function
-//                         to the test project, add the demo shop and a Super Admin
+//                         to the test project, add the demo shop, and a Super Admin only if SUPERADMIN_EMAIL/PASSWORD are set
 //   npm run dev           serve the app on http://localhost:5173
 //   npm run dev:lan       same, also reachable from phones/tablets/PCs on the same Wi-Fi
 //
@@ -44,9 +44,14 @@ if (flag('setup')) {
   else if (/SLUG_TAKEN/.test(r.stderr + r.stdout)) console.log('already there');
   else die('demo import failed:\n' + r.stderr);
   step('Super Admin');
-  const email = process.env.SUPERADMIN_EMAIL || 'admin@smartretail.local', pass = process.env.SUPERADMIN_PASSWORD || 'superadmin-test-1';
-  if (node('create-superadmin.mjs', ['--email', email, '--password', pass]) !== 0) die('could not create the Super Admin');
-  console.log(`  ${email} / ${pass}`);
+  // No built-in default account: a known password on a database that holds real data is a hole
+  // (the first sign-in sets up the authenticator, so whoever signs in first owns the platform).
+  const email = process.env.SUPERADMIN_EMAIL, pass = process.env.SUPERADMIN_PASSWORD;
+  if (!email || !pass) console.log(`skipped: set SUPERADMIN_EMAIL and SUPERADMIN_PASSWORD (12+ characters) in ${envFile} to create one`);
+  else {
+    if (node('create-superadmin.mjs', ['--email', email, '--password', pass]) !== 0) die('could not create the Super Admin');
+    console.log(`  ${email} (password from ${envFile})`);
+  }
 }
 
 if (!/localhost|\*/.test(process.env.ALLOWED_ORIGINS || '*'))
