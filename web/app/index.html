@@ -2736,7 +2736,7 @@ c.msg=(t,er)=>{c.rs.textContent=t;c.rs.classList.toggle('er',!!er)};c.msg('მ�
 q('.ivc-x').onclick=q('.ivc-d').onclick=ivCamClose;c.ub.onclick=ivCamUndo;c.tb.onclick=ivCamTorch;w.querySelectorAll('.ivc-md button').forEach(b=>b.onclick=()=>ivCamMode(b.dataset.m));c.hint.onclick=()=>ivCamMode('t');c.cap.onclick=ivCamOcr;q('.ivc-rt').onclick=ivSheetClose;c.shi.oninput=()=>ivSheetList(c,c.shi.value);c.shi.onkeydown=e=>{if(e.key=='Enter'){const b=c.shc.querySelectorAll('.ivc-c');if(b.length==1)b[0].click()}};ivHintArm(c);ivCamStart()}
 async function ivCamStart(){const c=ivCm;if(!c)return;c.paused=0;
 if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){c.msg(window.isSecureContext?'ამ ბრაუზერში კამერა მიუწვდომელია':'კამერისთვის საჭიროა დაცული (HTTPS) კავშირი',1);return}
-try{const st=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
+try{const st=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}});
 if(ivCm!==c||c.paused){st.getTracks().forEach(t=>t.stop());return}
 c.st=st;c.v.srcObject=st;await c.v.play().catch(()=>{});const tr=st.getVideoTracks()[0],cap=tr.getCapabilities?tr.getCapabilities():{};
 if(cap.focusMode&&cap.focusMode.includes('continuous'))tr.applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(()=>{});
@@ -2766,22 +2766,47 @@ function ivCamMode(m){const c=ivCm;if(!c||c.mode==m)return;ivSheetClose();c.mode
 if(m=='t'){c.msg('ჩასვი ბარკოდის ქვეშ დაბეჭდილი კოდი ჩარჩოში და დააჭირე „წაკითხვა“');ivOcrWorker().catch(()=>{})}else{c.last='';c.msg('მიმართე კამერა შტრიხკოდზე')}}
 function ivCrop(c){const v=c.v,vr=v.getBoundingClientRect(),fr=c.w.querySelector('.ivc-fr').getBoundingClientRect(),W=v.videoWidth,H=v.videoHeight,k=Math.max(vr.width/W,vr.height/H),ox=(W*k-vr.width)/2,oy=(H*k-vr.height)/2;
 let sx=(fr.left-vr.left+ox)/k,sy=(fr.top-vr.top+oy)/k,sw=fr.width/k,sh=fr.height/k;const px=sw*.04,py=sh*.08;sx=Math.max(0,sx-px);sy=Math.max(0,sy-py);sw=Math.min(W-sx,sw+2*px);sh=Math.min(H-sy,sh+2*py);
-const sc=Math.min(2.5,1100/sw),cv=document.createElement('canvas');cv.width=Math.round(sw*sc);cv.height=Math.round(sh*sc);const x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(v,sx,sy,sw,sh,0,0,cv.width,cv.height);
-const im=x.getImageData(0,0,cv.width,cv.height),d=im.data,n=d.length/4,g=new Uint8Array(n),h=new Uint32Array(256);for(let i=0;i<n;i++){const y=(d[i*4]*.299+d[i*4+1]*.587+d[i*4+2]*.114)|0;g[i]=y;h[y]++}
-let a=0,lo=0,hi=255;for(lo=0;lo<255&&(a+=h[lo])<n*.01;lo++);a=0;for(hi=255;hi>0&&(a+=h[hi])<n*.01;hi--);const r=Math.max(1,hi-lo);for(let i=0;i<n;i++){const y=Math.max(0,Math.min(255,(g[i]-lo)*255/r))|0;d[i*4]=d[i*4+1]=d[i*4+2]=y}x.putImageData(im,0,0);return cv}
-async function ivCamOcr(){const c=ivCm;if(!c||c.busy||!c.v.videoWidth)return;c.busy=1;c.cap.disabled=true;const cv=ivCrop(c);c.v.pause();c.msg('ვკითხულობ…');
-try{const w=await ivOcrWorker(),r=await w.recognize(cv);if(ivCm!==c)return;ivSheet(c,r.data.text||'')}
+const sc=Math.min(2,1400/sw),cv=document.createElement('canvas');cv.width=Math.round(sw*sc);cv.height=Math.round(sh*sc);const x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(v,sx,sy,sw,sh,0,0,cv.width,cv.height);return cv}
+/* adaptive threshold (Bradley-Roth, integral image), barcode-bar removal and text-line segmentation: each line becomes its own clean black-on-white image */
+function ivPrep(cv){const w=cv.width,h=cv.height,x=cv.getContext('2d',{willReadFrequently:true}),d=x.getImageData(0,0,w,h).data,n=w*h,g=new Uint8Array(n);
+for(let i=0;i<n;i++)g[i]=(d[i*4]*.299+d[i*4+1]*.587+d[i*4+2]*.114)|0;
+const I=new Float64Array((w+1)*(h+1));for(let y=0;y<h;y++){let r=0;for(let xx=0;xx<w;xx++){r+=g[y*w+xx];I[(y+1)*(w+1)+xx+1]=I[y*(w+1)+xx+1]+r}}
+const R=Math.max(8,Math.round(Math.min(w,h)/4)),b=new Uint8Array(n);let ink=0;
+for(let y=0;y<h;y++){const y0=Math.max(0,y-R),y1=Math.min(h,y+R+1);for(let xx=0;xx<w;xx++){const x0=Math.max(0,xx-R),x1=Math.min(w,xx+R+1),m=(I[y1*(w+1)+x1]-I[y0*(w+1)+x1]-I[y1*(w+1)+x0]+I[y0*(w+1)+x0])/((x1-x0)*(y1-y0));if(g[y*w+xx]<m*.82){b[y*w+xx]=1;ink++}}}
+if(ink>n*.5){for(let i=0;i<n;i++)b[i]^=1}
+const rowInk=new Int32Array(h);for(let y=0;y<h;y++){let c=0;for(let xx=0;xx<w;xx++)c+=b[y*w+xx];rowInk[y]=c}
+const bar=new Uint8Array(h);for(let y=0;y<h-1;y++){let same=0;for(let xx=0;xx<w;xx++)if(b[y*w+xx]==b[(y+1)*w+xx])same++;const f=rowInk[y]/w;bar[y]=same>w*.965&&f>.18&&f<.85?1:0}
+const need=Math.max(6,Math.round(h*.12));for(let y=0;y<h;){if(!bar[y]){y++;continue}let e=y;while(e<h&&bar[e])e++;if(e-y>=need)for(let r=Math.max(0,y-2);r<Math.min(h,e+3);r++){for(let xx=0;xx<w;xx++)b[r*w+xx]=0;rowInk[r]=0}y=e}
+const thr=Math.max(2,w*.004),gap=Math.max(2,Math.round(h*.03)),B=[];let y=0;
+while(y<h){if(rowInk[y]<=thr){y++;continue}let e=y,last=y;while(e<h&&(rowInk[e]>thr||e-last<=gap)){if(rowInk[e]>thr)last=e;e++}B.push([y,last+1]);y=e}
+const out=[];B.filter(q=>q[1]-q[0]>=Math.max(8,h*.06)).sort((a,c)=>(c[1]-c[0])-(a[1]-a[0])).slice(0,3).sort((a,c)=>a[0]-c[0]).forEach(([a,e])=>{let c0=w,c1=0,ar=0;for(let r=a;r<e;r++)for(let xx=0;xx<w;xx++)if(b[r*w+xx]){if(xx<c0)c0=xx;if(xx>c1)c1=xx;ar++}if(c1-c0<12)return;
+const bw=c1-c0+1,bh=e-a,pad=Math.round(bh*.4),sc=Math.max(.5,Math.min(3,64/bh)),src=document.createElement('canvas');src.width=bw+2*pad;src.height=bh+2*pad;const sx=src.getContext('2d'),im=sx.createImageData(src.width,src.height),o=im.data;
+for(let i=0;i<o.length;i+=4){o[i]=o[i+1]=o[i+2]=255;o[i+3]=255}for(let r=0;r<bh;r++)for(let xx=0;xx<bw;xx++)if(b[(a+r)*w+c0+xx]){const k=((r+pad)*src.width+xx+pad)*4;o[k]=o[k+1]=o[k+2]=0}sx.putImageData(im,0,0);
+const dst=document.createElement('canvas');dst.width=Math.round(src.width*sc);dst.height=Math.round(src.height*sc);const dx=dst.getContext('2d');dx.imageSmoothingQuality='high';dx.drawImage(src,0,0,dst.width,dst.height);out.push(dst)});
+return{bands:out,gray:(()=>{const q=document.createElement('canvas');q.width=w;q.height=h;const qx=q.getContext('2d'),im=qx.createImageData(w,h);for(let i=0;i<n;i++){im.data[i*4]=im.data[i*4+1]=im.data[i*4+2]=g[i];im.data[i*4+3]=255}qx.putImageData(im,0,0);return q})()}}
+async function ivCamOcr(){const c=ivCm;if(!c||c.busy||!c.v.videoWidth)return;c.busy=1;c.cap.disabled=true;
+try{const tr=c.st&&c.st.getVideoTracks()[0],cap=tr&&tr.getCapabilities?tr.getCapabilities():{};
+if(cap.focusMode&&cap.focusMode.includes('single-shot')){try{await tr.applyConstraints({advanced:[{focusMode:'single-shot'}]});await new Promise(r=>setTimeout(r,350))}catch(e){}}
+const F=[];for(let i=0;i<3;i++){F.push(ivPrep(ivCrop(c)));if(i<2)await new Promise(r=>setTimeout(r,140))}
+c.v.pause();c.msg('ვკითხულობ…');const w=await ivOcrWorker();if(ivCm!==c)return;const T=[];
+await w.setParameters({tessedit_pageseg_mode:'7'});
+for(let i=0;i<F.length;i++){c.msg('ვკითხულობ '+(i+1)+'/'+F.length+'…');const L=[];for(const bd of F[i].bands){const r=await w.recognize(bd);if(ivCm!==c)return;const t=(r.data.text||'').trim();if(t)L.push(t)}T.push(L.join('\n'));if(i>=1){const m=ivMatch(T);if(m.length&&m.d==0&&m.v>=2)break}}
+if(!ivMatch(T).length){await w.setParameters({tessedit_pageseg_mode:'6'});const r=await w.recognize(F[F.length-1].gray);if(ivCm!==c)return;T.push(r.data.text||'')}
+ivSheet(c,T)}
 catch(e){if(ivCm!==c)return;c.v.play().catch(()=>{});c.msg(e&&e.message=='lib'?'ტექსტის ამომცნობის ჩატვირთვა ვერ მოხერხდა. შეამოწმე ინტერნეტი.':'ტექსტის ამოცნობა ვერ მოხერხდა. სცადე ხელახლა.',1)}
-finally{c.busy=0;c.cap.disabled=false}}
+finally{c.busy=0;c.cap.disabled=false;try{const tr=c.st&&c.st.getVideoTracks()[0],cap=tr&&tr.getCapabilities?tr.getCapabilities():{};if(cap.focusMode&&cap.focusMode.includes('continuous'))tr.applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(()=>{})}catch(e){}}}
 const ivCn=s=>String(s).toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/[OQ]/g,'0').replace(/[IL]/g,'1').replace(/S/g,'5').replace(/B/g,'8').replace(/Z/g,'2').replace(/G/g,'6');
-function ivLev1(a,b){if(a==b)return true;const l=a.length,m=b.length;if(Math.abs(l-m)>1)return false;let i=0;while(i<l&&i<m&&a[i]==b[i])i++;if(l==m)return a.slice(i+1)==b.slice(i+1);return l>m?a.slice(i+1)==b.slice(i):a.slice(i)==b.slice(i+1)}
+function ivLev(a,b,m){if(a==b)return 0;if(Math.abs(a.length-b.length)>m)return m+1;let p=[],q;for(let j=0;j<=b.length;j++)p[j]=j;for(let i=1;i<=a.length;i++){q=[i];let lo=i;for(let j=1;j<=b.length;j++){q[j]=Math.min(p[j]+1,q[j-1]+1,p[j-1]+(a[i-1]==b[j-1]?0:1));if(q[j]<lo)lo=q[j]}if(lo>m)return m+1;p=q}return p[b.length]}
+/* txt: one OCR string or a list (one per frame); a code seen in more frames ranks higher, and only the closest distance class is shown */
 function ivMatch(txt){const I=[],add=r=>{r=String(r);I.push({raw:r,cn:ivCn(r)})};D.p.forEach(p=>{if(!p.sz)add(p.code);PZ(p).forEach(z=>{if(z!=NS)add(p.code+'-'+zbc(z))})});SKM.forEach((v,k)=>add(k));
-const T=new Set();String(txt).toUpperCase().split(/\n+/).forEach(l=>{l=l.trim();if(l.length<2)return;T.add(l);l.split(/\s+/).forEach(t=>t.length>=2&&T.add(t))});const O=new Map();
-T.forEach(t=>{const c=ivCn(t);if(c.length<2)return;I.forEach(e=>{const s=e.cn==c?0:c.length>=4&&ivLev1(e.cn,c)?1:9;if(s<9&&s<(O.has(e.raw)?O.get(e.raw):9))O.set(e.raw,s)})});
-const L=[...O].sort((a,b)=>a[1]-b[1]);return L.filter(x=>x[1]==(L[0]?L[0][1]:0)).slice(0,5).map(x=>x[0])}
+const A=Array.isArray(txt)?txt:[txt],O=new Map();
+A.forEach((tx,fi)=>{const T=new Set();String(tx).toUpperCase().split(/\n+/).forEach(l=>{l=l.trim();if(l.length<2)return;T.add(l);l.split(/\s+/).forEach(t=>t.length>=2&&T.add(t))});
+T.forEach(t=>{const c=ivCn(t);if(c.length<2)return;I.forEach(e=>{const m=e.cn.length>=7?2:e.cn.length>=4?1:0,dd=e.cn==c?0:m&&c.length>=4?ivLev(e.cn,c,m):9;if(dd>m)return;let o=O.get(e.raw);if(!o){o={d:dd,f:new Set()};O.set(e.raw,o)}if(dd<o.d)o.d=dd;o.f.add(fi)})})});
+const L=[...O].sort((a,b)=>a[1].d-b[1].d||b[1].f.size-a[1].f.size),d0=L.length?L[0][1].d:0;const R=L.filter(x=>x[1].d==d0).slice(0,5).map(x=>x[0]);R.d=d0;R.v=L.length?L[0][1].f.size:0;return R}
 function ivRes(v){v=skuX(v);const U1=String(v).toUpperCase();let p=D.p.find(p=>String(p.code).toUpperCase()==U1);if(p)return{p,z:NS};p=D.p.filter(p=>U1.startsWith(String(p.code).toUpperCase()+'-')).sort((a,b)=>String(b.code).length-String(a.code).length)[0];if(!p)return null;const r=U1.slice(String(p.code).length+1),z=PZ(p).find(z=>zbc(z).toUpperCase()==r||z.toUpperCase()==r);return z&&z!=NS?{p,z}:null}
-function ivSheet(c,txt){const best=String(txt).toUpperCase().split(/\n+/).map(l=>l.replace(/\s+/g,'').trim()).filter(l=>l.length>=2).sort((a,b)=>b.length-a.length)[0]||'';c.sh.hidden=false;c.w.classList.add('sheet');c.shi.value=ivMatch(txt).length?'':best;c.shi.dataset.raw=txt;ivSheetList(c,txt,1)}
-function ivSheetList(c,txt,first){const L=ivMatch(txt),k=ivC();c.shc.innerHTML=L.length?L.map(r=>{const x=ivRes(r);if(!x)return'';const kk=ib+'|'+x.p.id+'|'+x.z,n=k[kk];return`<button type="button" class="ivc-c" data-r="${esc(r)}"><span><b>${esc(x.p.name)}${zl(x.z,x.p)?' · '+esc(zl(x.z,x.p)):''}</b><small>${esc(r)}</small></span><em>დათვლილი ${n==null?0:n}<br>სისტემა ${st(ib,x.p.id,x.z)}</em></button>`}).join(''):`<p class="ivc-no">${String(txt).trim()?(first?'კოდი ვერ ამოვიცანი. გასწორე ზემოთ ხელით ან გადაიღე ხელახლა.':'ასეთი კოდი ვერ მოიძებნა'):'ჩაწერე კოდი'}</p>`;
+function ivSheet(c,txt){const A=Array.isArray(txt)?txt:[txt],V=new Map();A.forEach(t=>new Set(String(t).toUpperCase().split(/\n+/).map(l=>l.replace(/\s+/g,'').trim()).filter(l=>l.length>=2)).forEach(l=>V.set(l,(V.get(l)||0)+1)));
+const best=[...V].sort((a,b)=>b[1]-a[1]||b[0].length-a[0].length)[0];c.sh.hidden=false;c.w.classList.add('sheet');const L=ivMatch(txt);c.shi.value=L.length?'':(best?best[0]:'');ivSheetList(c,txt,1)}
+function ivSheetList(c,txt,first){const L=ivMatch(txt),k=ivC(),has=(Array.isArray(txt)?txt.join(''):String(txt)).trim();c.shc.innerHTML=L.length?L.map(r=>{const x=ivRes(r);if(!x)return'';const kk=ib+'|'+x.p.id+'|'+x.z,n=k[kk];return`<button type="button" class="ivc-c" data-r="${esc(r)}"><span><b>${esc(x.p.name)}${zl(x.z,x.p)?' · '+esc(zl(x.z,x.p)):''}</b><small>${esc(r)}</small></span><em>დათვლილი ${n==null?0:n}<br>სისტემა ${st(ib,x.p.id,x.z)}</em></button>`}).join(''):`<p class="ivc-no">${has?(first?'კოდი ვერ ამოვიცანი. გასწორე ზემოთ ხელით ან გადაიღე ხელახლა.':'ასეთი კოდი ვერ მოიძებნა'):'ჩაწერე კოდი'}</p>`;
 c.shc.querySelectorAll('.ivc-c').forEach(b=>b.onclick=()=>{const r=b.dataset.r;ivSheetClose();ivCamCount(c,r)})}
 function ivSheetClose(){const c=ivCm;if(!c)return;c.sh.hidden=true;c.w.classList.remove('sheet');c.shi.blur();if(c.v.paused)c.v.play().catch(()=>{})}
 function ivCamStop(c){c.paused=1;if(c.st){c.st.getTracks().forEach(t=>t.stop());c.st=null}c.v.srcObject=null}
