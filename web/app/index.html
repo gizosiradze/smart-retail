@@ -138,6 +138,27 @@ th{font-size:11px;font-weight:600;color:var(--m);text-transform:uppercase;letter
 .ivz.ok{border-color:#9fd8bf;background:#f1faf6}.ivz.sh{border-color:#efb3ae;background:#fdf3f2}.ivz.ov{border-color:#f0cf91;background:#fff8ea}.ivf{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:700;min-height:22px}.ivf button{padding:0 6px;border:0;background:none;color:var(--m);cursor:pointer;font-size:14px}.ivf button:hover{color:#1f8f66}
 .ivz.fl2{animation:ivfl 1s}@keyframes ivfl{from{box-shadow:0 0 0 4px var(--a)}to{box-shadow:0 0 0 0 transparent}}
 @media(max-width:760px){.ivg{grid-template-columns:1fr}}
+.ivcamb{display:none}
+@media(max-width:760px){.ivcamb{display:flex;align-items:center;justify-content:center;gap:10px;position:sticky;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;width:100%;box-sizing:border-box;min-height:52px;padding:0 18px;margin:4px 0 12px;border-radius:16px;font-size:16px;font-weight:650;box-shadow:0 10px 26px -6px #8c1c3a8c,0 2px 6px #2a232640}.ivcamb:active{transform:scale(.98)}}
+body.ivscan{overflow:hidden}body.ivscan #ivtw{display:none}
+#ivcam{position:fixed;inset:0;z-index:9000;background:#000;color:#fff;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+#ivcam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#ivcam button{font:inherit}
+.ivc-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 28px;background:linear-gradient(#000000b3,#0000)}
+.ivc-top b{flex:1;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ivcam .ivc-x,#ivcam .ivc-t{width:44px;height:44px;border-radius:50%;border:0;background:#ffffff26;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}#ivcam .ivc-t[hidden]{display:none}#ivcam .ivc-t.on{background:#fff;color:#000}
+.ivc-fr{position:absolute;left:50%;top:44%;width:min(82vw,380px);height:min(40vw,190px);min-height:120px;transform:translate(-50%,-50%);border-radius:18px;box-shadow:0 0 0 100vmax #00000073;pointer-events:none}
+.ivc-fr i{position:absolute;width:30px;height:30px;border:4px solid #fff;transition:border-color .2s}.ivc-fr i:nth-child(1){left:-2px;top:-2px;border-right:0;border-bottom:0;border-top-left-radius:18px}.ivc-fr i:nth-child(2){right:-2px;top:-2px;border-left:0;border-bottom:0;border-top-right-radius:18px}.ivc-fr i:nth-child(3){left:-2px;bottom:-2px;border-right:0;border-top:0;border-bottom-left-radius:18px}.ivc-fr i:nth-child(4){right:-2px;bottom:-2px;border-left:0;border-top:0;border-bottom-right-radius:18px}
+.ivc-fr span{position:absolute;left:10px;right:10px;top:50%;height:2px;background:#ff4d6d;box-shadow:0 0 12px #ff4d6d;border-radius:2px;animation:ivscn 1.8s ease-in-out infinite alternate}
+@keyframes ivscn{from{transform:translateY(-44px);opacity:.5}to{transform:translateY(44px);opacity:1}}
+#ivcam.ok .ivc-fr i{border-color:#34d399}#ivcam.er .ivc-fr i{border-color:#ff5d5d}
+.ivc-bot{position:absolute;left:0;right:0;bottom:0;padding:34px 14px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(#0000,#000000d9 38%);display:flex;flex-direction:column;gap:12px}
+.ivc-res{min-height:48px;padding:12px 14px;border-radius:14px;background:#ffffff1f;border-left:4px solid #34d399;font-size:15px;line-height:1.35;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center}.ivc-res.er{border-left-color:#ff5d5d;background:#ff5d5d30}
+.ivc-row{display:flex;align-items:center;gap:10px}.ivc-n{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:12px;line-height:1.1;color:#ffffffb3}.ivc-n b{color:#fff;font-size:22px}
+#ivcam .ivc-u,#ivcam .ivc-d{flex:none;min-height:48px;padding:0 14px;border-radius:14px;font-weight:600;font-size:15px;white-space:nowrap}#ivcam .ivc-u{border:1px solid #ffffff59;background:#ffffff1f;color:#fff}#ivcam .ivc-u:disabled{opacity:.4}
+@media(prefers-reduced-motion:reduce){.ivc-fr span{animation:none}}
+@media(max-height:480px){.ivc-fr{top:50%;height:90px;min-height:90px}.ivc-bot{padding-top:14px}.ivc-res{min-height:36px;padding:6px 12px}}
+
 .efm{min-width:min(680px,92vw);display:flex;flex-direction:column;gap:14px}.f2e{display:grid;grid-template-columns:1fr 1fr;gap:10px}.fl small{font-size:11.5px;color:var(--m)}
 .pgr{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pr{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--b);border-radius:12px;cursor:pointer;background:#fff}.pr:hover{border-color:#d9c4cb}.pr span:first-child{display:flex;flex-direction:column;gap:2px;min-width:0}.pr b{font-size:13px}.pr small{font-size:11.5px;color:var(--m);line-height:1.35}
 .sg2 button:disabled{opacity:.4;cursor:not-allowed}
@@ -2625,7 +2646,7 @@ const ivS=()=>(D.is=D.is||{})[ib];
 const ivSnH=()=>{const x=ivS();if(!x)return'';const off=navigator.onLine===false;return SVOK?`<span class="ok">✓ ავტომატურად ინახება${x.ts?' · '+new Date(x.ts).toTimeString().slice(0,8):''}</span>${off?' <span class="of">· ინტერნეტი არ არის, მონაცემები ამ მოწყობილობაში ინახება და არ დაიკარგება</span>':''}`:'<span class="bd">⚠ ვერ შეინახა — მეხსიერება გავსებულია. დააფიქსირე სესია ახლავე</span>'};
 function ivTouch(){const x=ivS();if(x)x.ts=Date.now();save();const e=$('#ivsn');if(e)e.innerHTML=ivSnH()}
 window.addEventListener('online',()=>{const e=$('#ivsn');if(e)e.innerHTML=ivSnH()});window.addEventListener('offline',()=>{const e=$('#ivsn');if(e)e.innerHTML=ivSnH()});
-function ivStart(){if(!need('inv'))return;if(ivS())return;D.is[ib]={t:Date.now(),u:U.u,ts:Date.now()};ivMsg=null;save();render();setTimeout(()=>{const q=$('#ivs');if(q)q.focus()},50)}
+function ivStart(){if(!need('inv'))return;if(ivS())return;D.is[ib]={t:Date.now(),u:U.u,ts:Date.now()};ivMsg=null;save();render();setTimeout(()=>{const q=$('#ivs');if(q&&!matchMedia('(max-width:760px)').matches)q.focus()},50)}
 function ivCancel(){modal(`<div style="min-width:min(380px,84vw);display:flex;flex-direction:column;gap:10px"><h3 style="margin:0">სესიის გაუქმება</h3><p style="margin:0">${ib}: სესია და მისი ${Object.keys(ivC()).length} დათვლილი მაჩვენებელი წაიშლება. მარაგი არ შეიცვლება და ისტორიაში არაფერი ჩაიწერება.</p><button class="pri" onclick="ivCancelGo()">სესიის გაუქმება</button></div>`)}
 function ivCancelGo(){D.ic[ib]={};delete D.is[ib];ivMsg=null;save();modal();render()}
 const ivDur=ms=>{const m=Math.max(1,Math.round(ms/60000));return m<60?m+' წთ':Math.floor(m/60)+' სთ '+(m%60?m%60+' წთ':'')};
@@ -2645,13 +2666,50 @@ function ivToast(d,er){ivBeep(er);let w=$('#ivtw');if(!w){w=document.createEleme
 if(er){h=`<div class="ivtb"><b>${esc(d.h||'შეცდომა')}</b><span>${esc(d.t)}</span></div>`;e.className='ivtn er'}
 else{const x=d.d,st=x==0?['ემთხვევა','ok']:x<0?['ნაკლებობა '+rnd(x),'sh']:['ჭარბი +'+rnd(x),'ov'];e.className='ivtn '+st[1];h=`${thumb(d.p)}<div class="ivtb"><b>${esc(d.p.name)}${d.z?` <i>${esc(d.z)}</i>`:''}</b><span>კოდი ${esc(d.p.code)}</span><div class="ivtr"><em>დათვლილი <strong>${d.c}</strong></em><em>სისტემა <strong>${d.s}</strong></em><u>${st[0]}</u></div></div>`}
 e.innerHTML=h;w.appendChild(e);while(w.children.length>10)w.firstChild.remove();const rm=()=>{e.classList.add('out');setTimeout(()=>e.remove(),220)};setTimeout(rm,10000)}
-let ivOkF=0;function ivScan(v,auto){ivOkF=0;v=skuX(v.trim());if(!v)return;const U1=v.toUpperCase();let p=D.p.find(p=>String(p.code).toUpperCase()==U1),z=NS,err='';
+let ivOkF=0,ivLK='',ivLP;function ivScan(v,auto){ivOkF=0;v=skuX(v.trim());if(!v)return;const U1=v.toUpperCase();let p=D.p.find(p=>String(p.code).toUpperCase()==U1),z=NS,err='';
 if(p){if(p.sz)err='ამ პროდუქტს ზომები აქვს, დაასკანერე ზომის შტრიხკოდი (მაგ. '+p.code+'-M)'}
 else{p=D.p.filter(p=>U1.startsWith(String(p.code).toUpperCase()+'-')).sort((a,b)=>String(b.code).length-String(a.code).length)[0];
 if(!p)err='ბარკოდი ვერ მოიძებნა: '+v;else{const r=U1.slice(String(p.code).length+1);z=PZ(p).find(z=>zbc(z).toUpperCase()==r||z.toUpperCase()==r);if(!z||z==NS)err='ასეთი ზომა ამ პროდუქტს არ აქვს: '+v}}
 const m=$('#ivm');if(err&&auto)return;if(err){ivMsg={e:1,t:err};ivToast({h:err.startsWith('ბარკოდი')?'ბარკოდი ვერ მოიძებნა':'ვერ აღირიცხა',t:err.startsWith('ბარკოდი')?v:err},1);if(m){m.className='ivm er';m.textContent=err}return}
-ivOkF=1;const C=ivC(),k=ib+'|'+p.id+'|'+z;C[k]=rnd((C[k]||0)+1);ivTouch();ivMsg={e:0,t:`✓ ${p.name}${zl(z,p)?' · '+zl(z,p):''} — დათვლილი: ${C[k]} (სისტემა: ${st(ib,p.id,z)})`};
+ivOkF=1;const C=ivC(),k=ib+'|'+p.id+'|'+z;ivLK=k;ivLP=C[k];C[k]=rnd((C[k]||0)+1);ivTouch();ivMsg={e:0,t:`✓ ${p.name}${zl(z,p)?' · '+zl(z,p):''} — დათვლილი: ${C[k]} (სისტემა: ${st(ib,p.id,z)})`};
 ivToast({p,z:zl(z,p),c:C[k],s:st(ib,p.id,z),d:rnd(C[k]-st(ib,p.id,z))});const i=IVL.findIndex(r=>r.k==k);if(i>=0){const inp=$('#ivz'+i+' input');inp.value=C[k];ivUp(i);const e=$('#ivz'+i);e.classList.remove('fl2');void e.offsetWidth;e.classList.add('fl2');if(m){m.className='ivm';m.textContent=ivMsg.t}}else{render();const s=$('#ivs');if(s)s.focus()}}
+/* mobile camera scanner for inventory: native BarcodeDetector where it exists, vendored ZXing otherwise (iOS Safari) */
+let ivCm=null;
+const ivZX=()=>window.ZXing?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='../js/zxing.min.js';s.onload=ok;s.onerror=()=>no(new Error('lib'));document.head.appendChild(s)});
+async function ivDetInit(c){
+if('BarcodeDetector' in window){try{const sup=await BarcodeDetector.getSupportedFormats(),f=['code_128','code_39','code_93','ean_13','ean_8','upc_a','upc_e','itf','qr_code'].filter(x=>sup.includes(x));if(f.length){const d=new BarcodeDetector({formats:f});c.det=async v=>{const r=await d.detect(v);return r.length?r[0].rawValue:''};return}}catch(e){}}
+await ivZX();const Z=window.ZXing,h=new Map(),rd=new Z.MultiFormatReader(),cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
+h.set(Z.DecodeHintType.POSSIBLE_FORMATS,[Z.BarcodeFormat.CODE_128,Z.BarcodeFormat.CODE_39,Z.BarcodeFormat.CODE_93,Z.BarcodeFormat.EAN_13,Z.BarcodeFormat.EAN_8,Z.BarcodeFormat.UPC_A,Z.BarcodeFormat.UPC_E,Z.BarcodeFormat.ITF,Z.BarcodeFormat.QR_CODE]);h.set(Z.DecodeHintType.TRY_HARDER,true);rd.setHints(h);
+c.det=async v=>{const W=v.videoWidth,H=v.videoHeight;if(!W)return'';const k=Math.min(1,960/W);cv.width=Math.round(W*k);cv.height=Math.round(H*k);cx.drawImage(v,0,0,cv.width,cv.height);try{return rd.decode(new Z.BinaryBitmap(new Z.HybridBinarizer(new Z.HTMLCanvasElementLuminanceSource(cv)))).getText()}catch(e){return''}}}
+function ivCamOpen(){if(ivCm||!ivS()||!need('inv'))return;try{ivAC=ivAC||new(window.AudioContext||window.webkitAudioContext)();ivAC.resume()}catch(e){}
+const w=document.createElement('div');w.id='ivcam';w.setAttribute('role','dialog');w.setAttribute('aria-label','შტრიხკოდის სკანერი');
+w.innerHTML=`<video playsinline muted autoplay></video><div class="ivc-top"><button type="button" class="ivc-x" aria-label="დახურვა">✕</button><b>სკანირება · ${esc(ib)}</b><button type="button" class="ivc-t" aria-label="ფანარი" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h10l-2 6H9L7 2zm2 8h6v2l-1 1v9H10v-9l-1-1v-2z"/></svg></button></div><div class="ivc-fr"><i></i><i></i><i></i><i></i><span></span></div><div class="ivc-bot"><div class="ivc-res"></div><div class="ivc-row"><span class="ivc-n">დათვლილი: <b>0</b></span><button type="button" class="ivc-u" disabled>↩ გაუქმება</button><button type="button" class="pri ivc-d">დასრულება</button></div></div>`;
+document.body.appendChild(w);document.body.classList.add('ivscan');
+const q=s=>w.querySelector(s),c=ivCm={w,v:q('video'),n:0,last:'',seen:0,ul:0,tb:q('.ivc-t'),ub:q('.ivc-u'),cn:q('.ivc-n b'),rs:q('.ivc-res')};
+c.msg=(t,er)=>{c.rs.textContent=t;c.rs.classList.toggle('er',!!er)};c.msg('მიმართე კამერა შტრიხკოდზე');
+q('.ivc-x').onclick=q('.ivc-d').onclick=ivCamClose;c.ub.onclick=ivCamUndo;c.tb.onclick=ivCamTorch;ivCamStart()}
+async function ivCamStart(){const c=ivCm;if(!c)return;c.paused=0;
+if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){c.msg(window.isSecureContext?'ამ ბრაუზერში კამერა მიუწვდომელია':'კამერისთვის საჭიროა დაცული (HTTPS) კავშირი',1);return}
+try{const st=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
+if(ivCm!==c||c.paused){st.getTracks().forEach(t=>t.stop());return}
+c.st=st;c.v.srcObject=st;await c.v.play().catch(()=>{});const tr=st.getVideoTracks()[0],cap=tr.getCapabilities?tr.getCapabilities():{};
+if(cap.focusMode&&cap.focusMode.includes('continuous'))tr.applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(()=>{});
+c.tb.hidden=!cap.torch;c.torch=0;c.tb.classList.remove('on');
+if(!c.det)await ivDetInit(c);if(ivCm!==c||c.paused)return;ivCamLoop(c)}
+catch(e){if(ivCm!==c)return;const n=e&&e.name;c.msg(n=='NotAllowedError'||n=='SecurityError'?'კამერაზე წვდომა დაბლოკილია. ბრაუზერის პარამეტრებში მიეცი უფლება და სცადე თავიდან.':n=='NotFoundError'||n=='OverconstrainedError'?'კამერა ვერ მოიძებნა':e&&e.message=='lib'?'სკანერის ჩატვირთვა ვერ მოხერხდა. შეამოწმე ინტერნეტი.':'კამერის გაშვება ვერ მოხერხდა',1)}}
+async function ivCamLoop(c){while(ivCm===c&&!c.paused){const t=performance.now();let code='';try{if(c.v.readyState>=2)code=await c.det(c.v)}catch(e){}
+if(ivCm!==c||c.paused)return;if(code)ivCamHit(c,code);await new Promise(r=>setTimeout(r,Math.max(0,110-(performance.now()-t))))}}
+function ivCamHit(c,code){const n=Date.now(),same=code==c.last&&n-c.seen<1200;c.seen=n;c.last=code;if(same)return;
+ivScan(code);const ok=ivOkF,a=document.activeElement;if(a&&a.blur)a.blur();
+try{navigator.vibrate&&navigator.vibrate(ok?35:[70,50,70])}catch(e){}
+if(ok){c.n++;c.cn.textContent=c.n}c.ul=ok;c.ub.disabled=!ok;c.msg(ivMsg?ivMsg.t:'',!ok);c.w.classList.remove('ok','er');void c.w.offsetWidth;c.w.classList.add(ok?'ok':'er')}
+function ivCamUndo(){const c=ivCm;if(!c||!c.ul||!ivLK)return;const C=ivC(),k=ivLK;if(ivLP==null)delete C[k];else C[k]=ivLP;ivTouch();c.n=Math.max(0,c.n-1);c.cn.textContent=c.n;c.ul=0;c.ub.disabled=true;c.seen=Date.now();
+const i=IVL.findIndex(r=>r.k==k);if(i>=0){const e=$('#ivz'+i+' input');if(e)e.value=C[k]==null?'':C[k];ivUp(i)}else render();c.msg('↩ ბოლო სკანირება გაუქმდა');c.w.classList.remove('ok','er')}
+async function ivCamTorch(){const c=ivCm;if(!c||!c.st)return;const tr=c.st.getVideoTracks()[0];try{await tr.applyConstraints({advanced:[{torch:!c.torch}]});c.torch=!c.torch;c.tb.classList.toggle('on',c.torch)}catch(e){}}
+function ivCamStop(c){c.paused=1;if(c.st){c.st.getTracks().forEach(t=>t.stop());c.st=null}c.v.srcObject=null}
+function ivCamClose(){const c=ivCm;if(!c)return;ivCm=null;ivCamStop(c);c.w.remove();document.body.classList.remove('ivscan');if(c.n){const y=scrollY;render();scrollTo(0,y)}}
+document.addEventListener('visibilitychange',()=>{const c=ivCm;if(!c)return;if(document.hidden)ivCamStop(c);else ivCamStart()});
+document.addEventListener('keydown',e=>{if(e.key=='Escape'&&ivCm)ivCamClose()});
 function ivFill(){const s=ivSt(),u=s.n-s.c;if(!u)return;modal(`<div style="min-width:min(380px,84vw);display:flex;flex-direction:column;gap:10px"><h3 style="margin:0">დაუთვლელის შევსება</h3><p style="margin:0">${u} დაუთვლელი პოზიცია ჩაითვლება სისტემის მაჩვენებლის ტოლად. გამოიყენე, როცა დანარჩენი პროდუქტი ფიზიკურად შეამოწმე და სხვაობა არ არის.</p><button class="pri" onclick="ivFillGo()">დადასტურება</button></div>`)}
 function ivFillGo(){const C=ivC();ivRows().forEach(({k,p,z})=>{if(C[k]==null)C[k]=st(ib,p.id,z)});save();modal();render()}
 function ivClr(){const n=Object.keys(ivC()).length;if(!n)return;modal(`<div style="min-width:min(360px,84vw);display:flex;flex-direction:column;gap:10px"><h3 style="margin:0">დათვლის გასუფთავება</h3><p style="margin:0">${ib}: ${n} დათვლილი მაჩვენებელი წაიშლება. მარაგი არ შეიცვლება.</p><button class="pri" onclick="D.ic[ib]={};save();modal();render()">გასუფთავება</button></div>`)}
@@ -2683,7 +2741,7 @@ return tabs+`<div class="ivbn"><span class="ivdot"></span><b>სესია მ
 <section><div class="ivt"><input id="ivs" class="ivsc" placeholder="სკანერი: შტრიხკოდი (მაგ. 100123-XS)" oninput="ivAuto(this,event)" onkeydown="if(event.key=='Enter'){clearTimeout(ivAt);ivScan(this.value);this.value=''}" autocomplete="off"><input id="ivsr" type="search" placeholder="ძიება პროდუქტის მიხედვით" value="${esc(ivq)}" oninput="ivq=this.value;render();const i=$('#ivsr');i.focus();i.setSelectionRange(99,99)"><select onchange="ivc=this.value;render()"><option value="">ყველა კატეგორია</option>${cats.map(c=>`<option ${c==ivc?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
 <div id="ivm" class="ivm ${ivMsg&&ivMsg.e?'er':''}">${ivMsg?esc(ivMsg.t):'დათვალე ფიზიკურად არსებული ნაშთი: ჩაწერე რაოდენობა ან დაასკანერე თითო ცალი. Enter გადადის შემდეგ ველზე.'}</div>
 <span class="sg2" style="margin:10px 0 12px">${[['all','ყველა'],['open','დაუთვლელი'],['diff','სხვაობით'],['ok','ემთხვევა']].map(a=>`<button class="${a[0]==ivf?'on':''}" onclick="ivf='${a[0]}';render()">${a[1]} <small>${cnt[a[0]]}</small></button>`).join('')}</span>
-${body||'<p class="m" style="text-align:center;padding:30px 0">პროდუქტი ვერ მოიძებნა</p>'}</section>`};
+${body||'<p class="m" style="text-align:center;padding:30px 0">პროდუქტი ვერ მოიძებნა</p>'}</section><button class="pri ivcamb" onclick="ivCamOpen()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V6a2 2 0 0 1 2-2h2M17 4h2a2 2 0 0 1 2 2v2M21 16v2a2 2 0 0 1-2 2h-2M7 20H5a2 2 0 0 1-2-2v-2M7 12h10"/></svg>კამერით სკანირება</button>`};
 
 /* employees & permissions */
 const ROLES={admin:{n:'ადმინისტრატორი',c:'#8a1c3d',d:'სრული წვდომა ყველა განყოფილებაზე, თანამშრომლებისა და წესების მართვა.'},cashier:{n:'მოლარე',c:'#2e7d6b',d:'მუშაობს სალაროში თავის ფილიალში: გაყიდვა, ჩეკები და მომხმარებლის მომსახურება.'},wh:{n:'საწყობის მენეჯერი',c:'#b7791f',d:'პროდუქტის შეტანა, მარაგის აღრიცხვა და ინვენტარიზაცია. გაყიდვებზე წვდომა არ აქვს.'}};
