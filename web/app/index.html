@@ -187,6 +187,21 @@ body.ivscan{overflow:hidden}body.ivscan #ivtw{display:none}
 .ivc-res{min-height:48px;padding:12px 14px;border-radius:14px;background:#ffffff1f;border-left:4px solid #34d399;font-size:15px;line-height:1.35;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center}.ivc-res.er{border-left-color:#ff5d5d;background:#ff5d5d30}
 .ivc-row{display:flex;align-items:center;gap:10px}.ivc-n{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:12px;line-height:1.1;color:#ffffffb3}.ivc-n b{color:#fff;font-size:22px}
 #ivcam .ivc-u,#ivcam .ivc-d{flex:none;min-height:48px;padding:0 14px;border-radius:14px;font-weight:600;font-size:15px;white-space:nowrap}#ivcam .ivc-u{border:1px solid #ffffff59;background:#ffffff1f;color:#fff}#ivcam .ivc-u:disabled{opacity:.4}
+
+#ivcam .ivc-md{flex:1;display:flex;justify-content:center}.ivc-md{gap:2px;padding:3px;border-radius:14px;background:#ffffff26;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#ivcam .ivc-md button{min-height:38px;padding:0 16px;border:0;border-radius:11px;background:transparent;color:#ffffffd9;font-size:14px;font-weight:600}#ivcam .ivc-md button.on{background:#fff;color:#2a2326}
+#ivcam.txt .ivc-fr{width:min(90vw,420px);height:min(30vw,120px);min-height:70px}#ivcam.txt .ivc-fr span{display:none}
+#ivcam .ivc-hint{align-self:center;min-height:40px;padding:0 16px;border-radius:20px;border:1px solid #ffffff59;background:#000000a6;color:#fff;font-size:14px;font-weight:600}#ivcam .ivc-hint[hidden],#ivcam .ivc-cap[hidden]{display:none}
+#ivcam .ivc-cap{min-height:52px;border-radius:16px;font-size:16px;font-weight:650}
+#ivcam.sheet .ivc-bot,#ivcam .ivc-sh[hidden]{display:none}
+.ivc-sh{position:absolute;left:0;right:0;bottom:0;max-height:78%;overflow-y:auto;box-sizing:border-box;padding:16px 14px calc(14px + env(safe-area-inset-bottom,0px));background:#1c1719f2;border-radius:20px 20px 0 0;display:flex;flex-direction:column;gap:10px;touch-action:pan-y}
+.ivc-sht{font-size:13px;color:#ffffffb3}
+#ivcam .ivc-in{width:100%;box-sizing:border-box;height:46px;padding:0 14px;border-radius:12px;border:1.5px solid #ffffff59;background:#ffffff14;color:#fff;font-size:18px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.ivc-cd{display:flex;flex-direction:column;gap:8px}
+#ivcam .ivc-c{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:58px;padding:8px 14px;border-radius:14px;border:1.5px solid #34d39980;background:#34d3991f;color:#fff;text-align:left}
+#ivcam .ivc-c span{display:flex;flex-direction:column;min-width:0}#ivcam .ivc-c b{color:#fff;font-size:15px;font-weight:650;overflow-wrap:anywhere}#ivcam .ivc-c small{color:#ffffffa6;font-size:12px}#ivcam .ivc-c em{font-style:normal;font-size:12px;line-height:1.3;color:#ffffffcc;text-align:right;white-space:nowrap}
+.ivc-no{margin:0;padding:6px 2px;font-size:14px;color:#ffb4b4}
+#ivcam .ivc-rt{min-height:46px;border-radius:12px;border:1px solid #ffffff59;background:#ffffff1f;color:#fff;font-size:15px;font-weight:600}
 @media(prefers-reduced-motion:reduce){.ivc-fr span{animation:none}}
 @media(max-height:480px){.ivc-fr{top:50%;height:90px;min-height:90px}.ivc-bot{padding-top:14px}.ivc-res{min-height:36px;padding:6px 12px}}
 
@@ -2714,11 +2729,11 @@ h.set(Z.DecodeHintType.POSSIBLE_FORMATS,[Z.BarcodeFormat.CODE_128,Z.BarcodeForma
 c.det=async v=>{const W=v.videoWidth,H=v.videoHeight;if(!W)return'';const k=Math.min(1,960/W);cv.width=Math.round(W*k);cv.height=Math.round(H*k);cx.drawImage(v,0,0,cv.width,cv.height);try{return rd.decode(new Z.BinaryBitmap(new Z.HybridBinarizer(new Z.HTMLCanvasElementLuminanceSource(cv)))).getText()}catch(e){return''}}}
 function ivCamOpen(){if(ivCm||!ivS()||!need('inv'))return;try{ivAC=ivAC||new(window.AudioContext||window.webkitAudioContext)();ivAC.resume()}catch(e){}
 const w=document.createElement('div');w.id='ivcam';w.setAttribute('role','dialog');w.setAttribute('aria-label','შტრიხკოდის სკანერი');
-w.innerHTML=`<video playsinline muted autoplay></video><div class="ivc-top"><button type="button" class="ivc-x" aria-label="დახურვა">✕</button><b>სკანირება · ${esc(ib)}</b><button type="button" class="ivc-t" aria-label="ფანარი" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h10l-2 6H9L7 2zm2 8h6v2l-1 1v9H10v-9l-1-1v-2z"/></svg></button></div><div class="ivc-fr"><i></i><i></i><i></i><i></i><span></span></div><div class="ivc-bot"><div class="ivc-res"></div><div class="ivc-row"><span class="ivc-n">დათვლილი: <b>0</b></span><button type="button" class="ivc-u" disabled>↩ გაუქმება</button><button type="button" class="pri ivc-d">დასრულება</button></div></div>`;
+w.innerHTML=`<video playsinline muted autoplay></video><div class="ivc-top"><button type="button" class="ivc-x" aria-label="დახურვა">✕</button><div class="ivc-md" role="tablist"><button type="button" class="on" data-m="b">ბარკოდი</button><button type="button" data-m="t">ტექსტი</button></div><button type="button" class="ivc-t" aria-label="ფანარი" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h10l-2 6H9L7 2zm2 8h6v2l-1 1v9H10v-9l-1-1v-2z"/></svg></button></div><div class="ivc-fr"><i></i><i></i><i></i><i></i><span></span></div><div class="ivc-sh" hidden><div class="ivc-sht">ამოცნობილი კოდი — შეამოწმე და აირჩიე</div><input class="ivc-in" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="კოდი"><div class="ivc-cd"></div><button type="button" class="ivc-rt">↻ ხელახლა გადაღება</button></div><div class="ivc-bot"><button type="button" class="ivc-hint" hidden>ბარკოდი არ იკითხება? სცადე ტექსტით →</button><div class="ivc-res"></div><button type="button" class="pri ivc-cap" hidden>წაკითხვა</button><div class="ivc-row"><span class="ivc-n">დათვლილი: <b>0</b></span><button type="button" class="ivc-u" disabled>↩ გაუქმება</button><button type="button" class="pri ivc-d">დასრულება</button></div></div>`;
 document.body.appendChild(w);document.body.classList.add('ivscan');
-const q=s=>w.querySelector(s),c=ivCm={w,v:q('video'),n:0,last:'',seen:0,ul:0,tb:q('.ivc-t'),ub:q('.ivc-u'),cn:q('.ivc-n b'),rs:q('.ivc-res')};
+const q=s=>w.querySelector(s),c=ivCm={w,v:q('video'),n:0,last:'',seen:0,ul:0,tb:q('.ivc-t'),ub:q('.ivc-u'),cn:q('.ivc-n b'),rs:q('.ivc-res'),mode:'b',hint:q('.ivc-hint'),cap:q('.ivc-cap'),sh:q('.ivc-sh'),shi:q('.ivc-in'),shc:q('.ivc-cd')};
 c.msg=(t,er)=>{c.rs.textContent=t;c.rs.classList.toggle('er',!!er)};c.msg('მიმართე კამერა შტრიხკოდზე');
-q('.ivc-x').onclick=q('.ivc-d').onclick=ivCamClose;c.ub.onclick=ivCamUndo;c.tb.onclick=ivCamTorch;ivCamStart()}
+q('.ivc-x').onclick=q('.ivc-d').onclick=ivCamClose;c.ub.onclick=ivCamUndo;c.tb.onclick=ivCamTorch;w.querySelectorAll('.ivc-md button').forEach(b=>b.onclick=()=>ivCamMode(b.dataset.m));c.hint.onclick=()=>ivCamMode('t');c.cap.onclick=ivCamOcr;q('.ivc-rt').onclick=ivSheetClose;c.shi.oninput=()=>ivSheetList(c,c.shi.value);c.shi.onkeydown=e=>{if(e.key=='Enter'){const b=c.shc.querySelectorAll('.ivc-c');if(b.length==1)b[0].click()}};ivHintArm(c);ivCamStart()}
 async function ivCamStart(){const c=ivCm;if(!c)return;c.paused=0;
 if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){c.msg(window.isSecureContext?'ამ ბრაუზერში კამერა მიუწვდომელია':'კამერისთვის საჭიროა დაცული (HTTPS) კავშირი',1);return}
 try{const st=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});
@@ -2728,17 +2743,49 @@ if(cap.focusMode&&cap.focusMode.includes('continuous'))tr.applyConstraints({adva
 c.tb.hidden=!cap.torch;c.torch=0;c.tb.classList.remove('on');
 if(!c.det)await ivDetInit(c);if(ivCm!==c||c.paused)return;ivCamLoop(c)}
 catch(e){if(ivCm!==c)return;const n=e&&e.name;c.msg(n=='NotAllowedError'||n=='SecurityError'?'კამერაზე წვდომა დაბლოკილია. ბრაუზერის პარამეტრებში მიეცი უფლება და სცადე თავიდან.':n=='NotFoundError'||n=='OverconstrainedError'?'კამერა ვერ მოიძებნა':e&&e.message=='lib'?'სკანერის ჩატვირთვა ვერ მოხერხდა. შეამოწმე ინტერნეტი.':'კამერის გაშვება ვერ მოხერხდა',1)}}
-async function ivCamLoop(c){while(ivCm===c&&!c.paused){const t=performance.now();let code='';try{if(c.v.readyState>=2)code=await c.det(c.v)}catch(e){}
+async function ivCamLoop(c){while(ivCm===c&&!c.paused){const t=performance.now();let code='';try{if(c.mode=='b'&&c.v.readyState>=2)code=await c.det(c.v)}catch(e){}
 if(ivCm!==c||c.paused)return;if(code)ivCamHit(c,code);await new Promise(r=>setTimeout(r,Math.max(0,110-(performance.now()-t))))}}
 function ivCamHit(c,code){const n=Date.now(),same=code==c.last&&n-c.seen<1200;c.seen=n;c.last=code;if(same)return;
-ivScan(code);const ok=ivOkF,a=document.activeElement;if(a&&a.blur)a.blur();
+ivCamCount(c,code)}
+function ivCamCount(c,code){ivScan(code);const ok=ivOkF,a=document.activeElement;if(a&&a.blur)a.blur();
 try{navigator.vibrate&&navigator.vibrate(ok?35:[70,50,70])}catch(e){}
-if(ok){c.n++;c.cn.textContent=c.n}c.ul=ok;c.ub.disabled=!ok;c.msg(ivMsg?ivMsg.t:'',!ok);c.w.classList.remove('ok','er');void c.w.offsetWidth;c.w.classList.add(ok?'ok':'er')}
+if(ok){c.n++;c.cn.textContent=c.n}c.ul=ok;c.ub.disabled=!ok;c.msg(ivMsg?ivMsg.t:'',!ok);c.w.classList.remove('ok','er');void c.w.offsetWidth;c.w.classList.add(ok?'ok':'er');ivHintArm(c)}
 function ivCamUndo(){const c=ivCm;if(!c||!c.ul||!ivLK)return;const C=ivC(),k=ivLK;if(ivLP==null)delete C[k];else C[k]=ivLP;ivTouch();c.n=Math.max(0,c.n-1);c.cn.textContent=c.n;c.ul=0;c.ub.disabled=true;c.seen=Date.now();
 const i=IVL.findIndex(r=>r.k==k);if(i>=0){const e=$('#ivz'+i+' input');if(e)e.value=C[k]==null?'':C[k];ivUp(i)}else render();c.msg('↩ ბოლო სკანირება გაუქმდა');c.w.classList.remove('ok','er')}
 async function ivCamTorch(){const c=ivCm;if(!c||!c.st)return;const tr=c.st.getVideoTracks()[0];try{await tr.applyConstraints({advanced:[{torch:!c.torch}]});c.torch=!c.torch;c.tb.classList.toggle('on',c.torch)}catch(e){}}
+/* text fallback: when a barcode will not scan, read the printed code with OCR (tesseract.js, self-hosted, loaded on demand) */
+let ivOP=null;
+function ivOcrWorker(){if(ivOP)return ivOP;const B=location.origin+'/js/ocr/';
+ivOP=(async()=>{if(!window.Tesseract)await new Promise((ok,no)=>{const s=document.createElement('script');s.src='../js/ocr/tesseract.min.js';s.onload=ok;s.onerror=()=>no(new Error('lib'));document.head.appendChild(s)});
+const w=await Tesseract.createWorker('eng',1,{workerPath:B+'worker.min.js',corePath:B,langPath:B});
+await w.setParameters({tessedit_char_whitelist:'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-./+',tessedit_pageseg_mode:'6',user_defined_dpi:'300'});return w})();
+ivOP.catch(()=>{ivOP=null});return ivOP}
+function ivOcrEnd(){const p=ivOP;ivOP=null;if(p)p.then(w=>w.terminate()).catch(()=>{})}
+function ivHintArm(c){clearTimeout(c.ht);c.hint.hidden=true;if(c.mode=='b')c.ht=setTimeout(()=>{if(ivCm===c&&c.mode=='b')c.hint.hidden=false},7000)}
+function ivCamMode(m){const c=ivCm;if(!c||c.mode==m)return;ivSheetClose();c.mode=m;c.w.classList.toggle('txt',m=='t');c.w.classList.remove('ok','er');c.cap.hidden=m!='t';c.w.querySelectorAll('.ivc-md button').forEach(b=>b.classList.toggle('on',b.dataset.m==m));ivHintArm(c);
+if(m=='t'){c.msg('ჩასვი ბარკოდის ქვეშ დაბეჭდილი კოდი ჩარჩოში და დააჭირე „წაკითხვა“');ivOcrWorker().catch(()=>{})}else{c.last='';c.msg('მიმართე კამერა შტრიხკოდზე')}}
+function ivCrop(c){const v=c.v,vr=v.getBoundingClientRect(),fr=c.w.querySelector('.ivc-fr').getBoundingClientRect(),W=v.videoWidth,H=v.videoHeight,k=Math.max(vr.width/W,vr.height/H),ox=(W*k-vr.width)/2,oy=(H*k-vr.height)/2;
+let sx=(fr.left-vr.left+ox)/k,sy=(fr.top-vr.top+oy)/k,sw=fr.width/k,sh=fr.height/k;const px=sw*.04,py=sh*.08;sx=Math.max(0,sx-px);sy=Math.max(0,sy-py);sw=Math.min(W-sx,sw+2*px);sh=Math.min(H-sy,sh+2*py);
+const sc=Math.min(2.5,1100/sw),cv=document.createElement('canvas');cv.width=Math.round(sw*sc);cv.height=Math.round(sh*sc);const x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(v,sx,sy,sw,sh,0,0,cv.width,cv.height);
+const im=x.getImageData(0,0,cv.width,cv.height),d=im.data,n=d.length/4,g=new Uint8Array(n),h=new Uint32Array(256);for(let i=0;i<n;i++){const y=(d[i*4]*.299+d[i*4+1]*.587+d[i*4+2]*.114)|0;g[i]=y;h[y]++}
+let a=0,lo=0,hi=255;for(lo=0;lo<255&&(a+=h[lo])<n*.01;lo++);a=0;for(hi=255;hi>0&&(a+=h[hi])<n*.01;hi--);const r=Math.max(1,hi-lo);for(let i=0;i<n;i++){const y=Math.max(0,Math.min(255,(g[i]-lo)*255/r))|0;d[i*4]=d[i*4+1]=d[i*4+2]=y}x.putImageData(im,0,0);return cv}
+async function ivCamOcr(){const c=ivCm;if(!c||c.busy||!c.v.videoWidth)return;c.busy=1;c.cap.disabled=true;const cv=ivCrop(c);c.v.pause();c.msg('ვკითხულობ…');
+try{const w=await ivOcrWorker(),r=await w.recognize(cv);if(ivCm!==c)return;ivSheet(c,r.data.text||'')}
+catch(e){if(ivCm!==c)return;c.v.play().catch(()=>{});c.msg(e&&e.message=='lib'?'ტექსტის ამომცნობის ჩატვირთვა ვერ მოხერხდა. შეამოწმე ინტერნეტი.':'ტექსტის ამოცნობა ვერ მოხერხდა. სცადე ხელახლა.',1)}
+finally{c.busy=0;c.cap.disabled=false}}
+const ivCn=s=>String(s).toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/[OQ]/g,'0').replace(/[IL]/g,'1').replace(/S/g,'5').replace(/B/g,'8').replace(/Z/g,'2').replace(/G/g,'6');
+function ivLev1(a,b){if(a==b)return true;const l=a.length,m=b.length;if(Math.abs(l-m)>1)return false;let i=0;while(i<l&&i<m&&a[i]==b[i])i++;if(l==m)return a.slice(i+1)==b.slice(i+1);return l>m?a.slice(i+1)==b.slice(i):a.slice(i)==b.slice(i+1)}
+function ivMatch(txt){const I=[],add=r=>{r=String(r);I.push({raw:r,cn:ivCn(r)})};D.p.forEach(p=>{if(!p.sz)add(p.code);PZ(p).forEach(z=>{if(z!=NS)add(p.code+'-'+zbc(z))})});SKM.forEach((v,k)=>add(k));
+const T=new Set();String(txt).toUpperCase().split(/\n+/).forEach(l=>{l=l.trim();if(l.length<2)return;T.add(l);l.split(/\s+/).forEach(t=>t.length>=2&&T.add(t))});const O=new Map();
+T.forEach(t=>{const c=ivCn(t);if(c.length<2)return;I.forEach(e=>{const s=e.cn==c?0:c.length>=4&&ivLev1(e.cn,c)?1:9;if(s<9&&s<(O.has(e.raw)?O.get(e.raw):9))O.set(e.raw,s)})});
+const L=[...O].sort((a,b)=>a[1]-b[1]);return L.filter(x=>x[1]==(L[0]?L[0][1]:0)).slice(0,5).map(x=>x[0])}
+function ivRes(v){v=skuX(v);const U1=String(v).toUpperCase();let p=D.p.find(p=>String(p.code).toUpperCase()==U1);if(p)return{p,z:NS};p=D.p.filter(p=>U1.startsWith(String(p.code).toUpperCase()+'-')).sort((a,b)=>String(b.code).length-String(a.code).length)[0];if(!p)return null;const r=U1.slice(String(p.code).length+1),z=PZ(p).find(z=>zbc(z).toUpperCase()==r||z.toUpperCase()==r);return z&&z!=NS?{p,z}:null}
+function ivSheet(c,txt){const best=String(txt).toUpperCase().split(/\n+/).map(l=>l.replace(/\s+/g,'').trim()).filter(l=>l.length>=2).sort((a,b)=>b.length-a.length)[0]||'';c.sh.hidden=false;c.w.classList.add('sheet');c.shi.value=ivMatch(txt).length?'':best;c.shi.dataset.raw=txt;ivSheetList(c,txt,1)}
+function ivSheetList(c,txt,first){const L=ivMatch(txt),k=ivC();c.shc.innerHTML=L.length?L.map(r=>{const x=ivRes(r);if(!x)return'';const kk=ib+'|'+x.p.id+'|'+x.z,n=k[kk];return`<button type="button" class="ivc-c" data-r="${esc(r)}"><span><b>${esc(x.p.name)}${zl(x.z,x.p)?' · '+esc(zl(x.z,x.p)):''}</b><small>${esc(r)}</small></span><em>დათვლილი ${n==null?0:n}<br>სისტემა ${st(ib,x.p.id,x.z)}</em></button>`}).join(''):`<p class="ivc-no">${String(txt).trim()?(first?'კოდი ვერ ამოვიცანი. გასწორე ზემოთ ხელით ან გადაიღე ხელახლა.':'ასეთი კოდი ვერ მოიძებნა'):'ჩაწერე კოდი'}</p>`;
+c.shc.querySelectorAll('.ivc-c').forEach(b=>b.onclick=()=>{const r=b.dataset.r;ivSheetClose();ivCamCount(c,r)})}
+function ivSheetClose(){const c=ivCm;if(!c)return;c.sh.hidden=true;c.w.classList.remove('sheet');c.shi.blur();if(c.v.paused)c.v.play().catch(()=>{})}
 function ivCamStop(c){c.paused=1;if(c.st){c.st.getTracks().forEach(t=>t.stop());c.st=null}c.v.srcObject=null}
-function ivCamClose(){const c=ivCm;if(!c)return;ivCm=null;ivCamStop(c);c.w.remove();document.body.classList.remove('ivscan');if(c.n){const y=scrollY;render();scrollTo(0,y)}}
+function ivCamClose(){const c=ivCm;if(!c)return;ivCm=null;clearTimeout(c.ht);ivOcrEnd();ivCamStop(c);c.w.remove();document.body.classList.remove('ivscan');if(c.n){const y=scrollY;render();scrollTo(0,y)}}
 document.addEventListener('visibilitychange',()=>{const c=ivCm;if(!c)return;if(document.hidden)ivCamStop(c);else ivCamStart()});
 document.addEventListener('keydown',e=>{if(e.key=='Escape'&&ivCm)ivCamClose()});
 function ivFill(){const s=ivSt(),u=s.n-s.c;if(!u)return;modal(`<div style="min-width:min(380px,84vw);display:flex;flex-direction:column;gap:10px"><h3 style="margin:0">დაუთვლელის შევსება</h3><p style="margin:0">${u} დაუთვლელი პოზიცია ჩაითვლება სისტემის მაჩვენებლის ტოლად. გამოიყენე, როცა დანარჩენი პროდუქტი ფიზიკურად შეამოწმე და სხვაობა არ არის.</p><button class="pri" onclick="ivFillGo()">დადასტურება</button></div>`)}
