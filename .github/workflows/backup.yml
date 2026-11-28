@@ -1,0 +1,64 @@
+# Nightly encrypted backup of the production database (free plan has no automatic backups).
+#
+# What is saved: schemas app (all shop data), public (API functions) and auth (Super Admin accounts and 2FA).
+# NOT saved: product photos in Storage (files, not database rows).
+# The file is encrypted with AES-256 before it leaves the runner: this repository is public, and artifacts of
+# a public repository can be downloaded by any signed-in GitHub user, so an unencrypted dump would leak customers.
+# Restore: see "Backups" in README.md.
+#
+# Secrets (repo Settings → Secrets and variables → Actions):
+#   BACKUP_DB_URL      Supabase "Session pooler" connection string with the real password
+#   BACKUP_PASSPHRASE  long random text; keep a copy in a password manager (without it the backups are unreadable)
+name: nightly-backup
+on:
+  schedule:
+    - cron: "0 1 * * *"      # 01:00 UTC = 05:00 Tbilisi
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check secrets
+        env:
+          BACKUP_DB_URL: ${{ secrets.BACKUP_DB_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          [ -n "$BACKUP_DB_URL" ] || { echo "::error::secret BACKUP_DB_URL is not set"; exit 1; }
+          [ ${#BACKUP_PASSPHRASE} -ge 16 ] || { echo "::error::secret BACKUP_PASSPHRASE is missing or shorter than 16 characters"; exit 1; }
+
+      - name: Dump database
+        env:
+          BACKUP_DB_URL: ${{ secrets.BACKUP_DB_URL }}
+        run: |
+          docker run --rm -i -e BACKUP_DB_URL postgres:17 sh -c \
+            'pg_dump "$BACKUP_DB_URL" -Fc --no-owner --no-privileges -n app -n public -n auth' > backup.dump
+
+      - name: Check the dump is complete
+        run: |
+          size=$(stat -c %s backup.dump)
+          echo "dump size: $size bytes"
+          [ "$size" -gt 50000 ] || { echo "::error::dump is suspiciously small"; exit 1; }
+          docker run --rm -i postgres:17 pg_restore --list < backup.dump > list.txt
+          grep -q "TABLE DATA app sales" list.txt || { echo "::error::sales table missing from the dump"; exit 1; }
+          grep -q "TABLE DATA app stores" list.txt || { echo "::error::stores table missing from the dump"; exit 1; }
+
+      - name: Encrypt
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          openssl enc -aes-256-cbc -pbkdf2 -iter 600000 -salt -pass env:BACKUP_PASSPHRASE -in backup.dump -out "smart-retail-$(date -u +%Y-%m-%d).dump.enc"
+          rm -f backup.dump list.txt
+          ls -la
+
+      - name: Keep 30 days
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_number }}
+          path: smart-retail-*.dump.enc
+          retention-days: 30
+          if-no-files-found: error

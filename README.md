@@ -195,3 +195,24 @@ Give every staff member a hidden internal email built from shop and username
 (`kasa1@batumipets.staff.smartretail.ge`), sign in with `signInWithPassword`, and add the same claims
 (`store_id`, `app_role`, `app_uid`, `jti`) with a Custom Access Token Hook. The database rules already
 read those claims, so they do not change. Details: the migration plan artifact.
+
+## Backups
+
+The free Supabase plan has no automatic backups, so `.github/workflows/backup.yml` saves the database every night
+(05:00 Tbilisi) as an **encrypted** file and keeps it **30 days**: repo → *Actions* → *nightly-backup* → open a run →
+*Artifacts*. It saves the shop data (`app`), the API functions (`public`) and the Super Admin accounts (`auth`), not the
+product photos in Storage. If a run fails, GitHub emails the repo owner. GitHub pauses scheduled runs after 60 days
+without any repository activity, so look at the Actions tab now and then.
+
+Two repository secrets are needed (*Settings → Secrets and variables → Actions*): `BACKUP_DB_URL` (Supabase → Connect →
+*Session pooler* string, with the real database password) and `BACKUP_PASSPHRASE` (long random text; keep a copy in a
+password manager, **without it a backup cannot be opened**).
+
+**Restore** (to a fresh, empty database, never over live data unless you mean to):
+
+```bash
+openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 -in smart-retail-YYYY-MM-DD.dump.enc -out backup.dump   # asks for the passphrase
+pg_restore --no-owner --no-privileges -d "<connection string of the empty database>" backup.dump
+```
+
+Restored shops, receipts and customers were checked against the live database (4 shops, 204 receipts, 9 customers).
