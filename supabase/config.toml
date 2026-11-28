@@ -57,3 +57,6 @@ verify_jwt = false
 
 [functions.push-notify]
 verify_jwt = false
+
+[functions.health]
+verify_jwt = false

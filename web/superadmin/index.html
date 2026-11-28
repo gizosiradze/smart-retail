@@ -68,7 +68,7 @@ td.r,th.r{text-align:right}td b{font-weight:600}td small{display:block}
 <div id="app"></div>
 <div id="md" onclick="if(event.target===this)closeM()"></div>
 <div id="toast"></div>
-<script src="../config.js"></script>
+<script src="../config.js"></script><script src="../js/sr-errors.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../js/sr-platform.js"></script>
 <script>
@@ -217,10 +217,10 @@ function render(){
   if(V.view==='login'){$('#app').innerHTML=loginView();return}
   const od=D.stores.filter(s=>s.status!=='suspended'&&overdueOf(s).length).length;
   const nd=(D.demos||[]).filter(x=>x.status==='new').length;
-  const nav=[['overview','მიმოხილვა'],['demos','მოთხოვნები',nd],['stores','მაღაზიები'],['billing','გადახდები',od],['plans','პაკეტები'],['ann','განცხადებები'],['audit','ჟურნალი'],['settings','პარამეტრები']];
+  const nav=[['overview','მიმოხილვა'],['demos','მოთხოვნები',nd],['errs','შეცდომები',(D.errs||[]).filter(x=>x.status==='new').length],['stores','მაღაზიები'],['billing','გადახდები',od],['plans','პაკეტები'],['ann','განცხადებები'],['audit','ჟურნალი'],['settings','პარამეტრები']];
   const cur=V.view==='store'?'stores':V.view==='register'?'stores':V.view;
   let body='';
-  try{body=({overview:overviewView,stores:storesView,store:storeView,register:registerView,billing:billingView,plans:plansView,ann:annView,demos:demosView,audit:auditView,settings:settingsView}[V.view]||overviewView)()}catch(e){body='<section>შეცდომა: '+esc(e.message)+'</section>';console.error(e)}
+  try{body=({overview:overviewView,stores:storesView,store:storeView,register:registerView,billing:billingView,plans:plansView,ann:annView,demos:demosView,errs:errsView,audit:auditView,settings:settingsView}[V.view]||overviewView)()}catch(e){body='<section>შეცდომა: '+esc(e.message)+'</section>';console.error(e)}
   $('#app').innerHTML='<header><span class="brand">RMS <small>სუპერ ადმინი</small></span><nav>'+nav.map(n=>'<button class="'+(cur===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')">'+n[1]+(n[2]?'<i>'+n[2]+'</i>':'')+'</button>').join('')+
     '</nav><div class="hr"><button class="pri" onclick="go(\'register\')">+ ახალი მაღაზია</button><button class="sm" style="border:0;color:var(--m)" onclick="logout()">გასვლა</button></div></header><main>'+body+'</main>';
 }
@@ -507,6 +507,26 @@ function annView(){
 }
 function sendAnn(){const x=$('#an_x').value.trim();if(!x){toast('დაწერეთ ტექსტი');return}const a={id:uid(),t:nowStr(),type:$('#an_y').value,target:$('#an_t').value,text:x};D.ann.push(a);log('განცხადება გაიგზავნა: '+a.type,a.target==='all'?'':a.target);toast('გაიგზავნა');render()}
 function delAnn(id){D.ann=D.ann.filter(a=>a.id!==id);save();render()}
+
+/* ================= browser errors (reported by js/sr-errors.js) ================= */
+function errsView(){
+  const l=D.errs||[],nw=l.filter(x=>x.status==='new').length,dn=l.length-nw;
+  if(!(window.SRP&&SRP.on))return '<div class="hd"><h2>შეცდომები</h2></div><section><div class="note">შეცდომების ჟურნალი მხოლოდ რეალურ სისტემაში ჩანს.</div></section>';
+  const srcL={app:'აპი',superadmin:'სუპერადმინი',home:'მთავარი გვერდი'};
+  return '<div class="hd"><h2>შეცდომები</h2><div><span class="m">ახალი: '+nw+' · სულ: '+l.length+'</span> <button class="sm" onclick="errsReload()">განახლება</button>'+
+    (dn?' <button class="sm dng" onclick="errDel(null)">დამუშავებულების წაშლა ('+dn+')</button>':'')+'</div></div>'+
+  '<section>'+(l.length?'<table><tr><th>ბოლოს</th><th>სად</th><th>შეცდომა</th><th>ჯერ</th><th></th></tr>'+l.map(x=>
+    '<tr'+(x.status==='new'?' style="background:#fff8e6"':'')+'><td style="white-space:nowrap">'+esc(x.last)+(x.status==='new'?' <span class="tg o">ახალი</span>':'')+'<br><small>პირველად: '+esc(x.first)+'</small></td>'+
+    '<td>'+esc(srcL[x.source]||x.source)+'<br><small>'+esc(x.path)+'</small></td>'+
+    '<td><b>'+esc(x.message)+'</b><details><summary><small>დეტალები</small></summary><pre style="white-space:pre-wrap;font-size:11px;margin:6px 0">'+esc(x.stack||'')+'\n'+esc(x.ua||'')+'</pre></details></td>'+
+    '<td>'+x.cnt+'</td>'+
+    '<td style="white-space:nowrap;text-align:right">'+(x.status==='new'?'<button class="sm pri" onclick="errSet(\''+x.id+'\',\'done\')">დამუშავდა</button>':'<button class="sm" onclick="errSet(\''+x.id+'\',\'new\')">გახსნა</button>')+
+    ' <button class="sm dng" onclick="errDel(\''+x.id+'\')">წაშლა</button></td></tr>').join('')+'</table>'
+    :'<div class="note">შეცდომა არ დაფიქსირებულა. როცა აპში ან გვერდზე რამე გაფუჭდება, აქ გამოჩნდება.</div>')+'</section>'
+}
+async function errsReload(){try{await SRP.errsLoad();render()}catch(e){toast('ვერ განახლდა: '+e.message)}}
+async function errSet(id,st){const x=(D.errs||[]).find(d=>d.id===id);if(!x)return;try{await SRP.errSet(id,st);x.status=st;render()}catch(e){toast('ვერ შეინახა: '+e.message)}}
+async function errDel(id){if(!confirm(id?'წაიშალოს ეს შეცდომა?':'წაიშალოს ყველა დამუშავებული შეცდომა?'))return;try{await SRP.errDel(id);D.errs=id?D.errs.filter(d=>d.id!==id):D.errs.filter(d=>d.status!=='done');render()}catch(e){toast('ვერ წაიშალა: '+e.message)}}
 
 /* ================= demo requests (from the public home page) ================= */
 function demosView(){

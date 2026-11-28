@@ -42,6 +42,10 @@ console.log('APP_JWT_SECRET, ALLOWED_ORIGINS set');
 step('Edge Function store-login');
 supabase(['functions', 'deploy', 'store-login', '--project-ref', ref, '--no-verify-jwt', '--use-api']);
 
+step('Edge Function health (for the uptime check)');
+supabase(['functions', 'deploy', 'health', '--project-ref', ref, '--no-verify-jwt', '--use-api']);
+console.log(`✓ uptime address: ${process.env.SUPABASE_URL}/functions/v1/health`);
+
 step('Checking that the project accepts our login tokens');
 const t = await checkTokens();
 if (!t.ok) die(`Supabase did not accept a token signed with APP_JWT_SECRET: ${t.body}

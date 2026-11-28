@@ -106,8 +106,8 @@
 
   // ---------------------------------------------------------------- data
   async function loadAll() {
-    const [data, met, demos] = await Promise.all([rpc('sr_platform_pull'), rpc('sr_platform_metrics'), rpc('sr_platform_demo_list').catch(() => [])]);
-    D = data; MET = met || {}; D.demos = demos || [];
+    const [data, met, demos, errs] = await Promise.all([rpc('sr_platform_pull'), rpc('sr_platform_metrics'), rpc('sr_platform_demo_list').catch(() => []), rpc('sr_platform_errors_list').catch(() => [])]);
+    D = data; MET = met || {}; D.demos = demos || []; D.errs = errs || [];
     rebase();
   }
   function rebase() {
@@ -146,6 +146,11 @@
   async function demosLoad() { D.demos = (await rpc('sr_platform_demo_list')) || [] }
   const demoSet = (id, st, note) => rpc('sr_platform_demo_set', { p_id: id, p_status: st, p_note: note || '' });
   const demoDel = id => rpc('sr_platform_demo_delete', { p_id: id });
+
+  // ---------------------------------------------------------------- browser errors (sr-errors.js reports them)
+  async function errsLoad() { D.errs = (await rpc('sr_platform_errors_list')) || [] }
+  const errSet = (id, st) => rpc('sr_platform_error_set', { p_id: id, p_status: st });
+  const errDel = id => rpc('sr_platform_error_delete', { p_id: id || null });
 
   // ---------------------------------------------------------------- server-side actions
   async function register() {
@@ -250,5 +255,5 @@
     };
   }
 
-  window.SRP = { on, demosLoad, demoSet, demoDel, login, logout, boot, loginView, save, register, resetPass, addBranch, metrics, openAsStore };
+  window.SRP = { on, demosLoad, demoSet, demoDel, errsLoad, errSet, errDel, login, logout, boot, loginView, save, register, resetPass, addBranch, metrics, openAsStore };
 })();

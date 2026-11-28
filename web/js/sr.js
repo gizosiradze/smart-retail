@@ -72,7 +72,8 @@
     PASSWORD_TOO_SHORT: 'პაროლი ძალიან მოკლეა', WRONG_PASSWORD: 'მიმდინარე პაროლი არასწორია',
     READ_ONLY: 'სუპერ ადმინის ნახვის რეჟიმი: ცვლილება არ ინახება', STORE_SUSPENDED: 'მაღაზია შეჩერებულია',
     NO_STORE_ADMIN: 'მაღაზიას აქტიური ადმინისტრატორი არ ჰყავს', PLATFORM_ADMIN_REQUIRED: 'საჭიროა სუპერ ადმინის შესვლა',
-    MFA_REQUIRED: 'საჭიროა 2FA დადასტურება'
+    MFA_REQUIRED: 'საჭიროა 2FA დადასტურება',
+    CUSTOMER_NOT_FOUND: 'მომხმარებელი ვერ მოიძებნა', FORBIDDEN: 'ამ მოქმედებისთვის საჭიროა ადმინისტრატორის უფლება'
   };
   // no answer from the server (offline, timeout, bad gateway): the request may or may not have been applied
   const isNet = e => !!e && (e.name === 'TypeError' || e.name === 'AbortError' || (e.status >= 502 && e.status <= 504));
@@ -857,5 +858,9 @@
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') annCheck() });
   window.addEventListener('online', () => annCheck());
 
-  window.SR = { on, login, boot, logout, save, ready, ensure, touch, loadingHtml, mainLoadingHtml, retryLoad, loadError: () => loadErr, msg, changePassword, pushState, pushEnable, pushDisable, pushPrefs, pushSetPrefs, pushTest, announcements: annCheck, showAnnouncements: annShow, dirty, safe: () => idbOk, queued: () => pendN > 0 || !!inflight, pendingChanges: () => diff(), get me() { return me }, get readOnly() { return ro } };
+  // ---------------------------------------------------------------- customer data requests (store admin only; the server checks)
+  const customerExport = lid => call('sr_customer_export', { p_lid: lid }, 40000);
+  async function customerErase(lid) { await call('sr_customer_erase', { p_lid: lid }, 40000); await pull(['c']) }
+
+  window.SR = { on, customerExport, customerErase, login, boot, logout, save, ready, ensure, touch, loadingHtml, mainLoadingHtml, retryLoad, loadError: () => loadErr, msg, changePassword, pushState, pushEnable, pushDisable, pushPrefs, pushSetPrefs, pushTest, announcements: annCheck, showAnnouncements: annShow, dirty, safe: () => idbOk, queued: () => pendN > 0 || !!inflight, pendingChanges: () => diff(), get me() { return me }, get readOnly() { return ro } };
 })();
